@@ -7,9 +7,8 @@
 
 .row {
   display: flex;
-  flex-direction: row; /* Default, so this line is optional */
-  gap: 80px; /* Adds spacing between elements */
-  justify-content: center; /* Aligns elements in the center */
-  align-items: center; /* Aligns vertically in the center */
+  gap: 80px; 
+  justify-content: center; 
+  align-items: center;
 }
 
