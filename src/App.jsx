@@ -29,6 +29,7 @@ const App = () => {
   };
 
   const handleLogin = async () => {
+    /* handleLogin implementation with flask connected is commented out for deliverable one as per "no authentication" on the project plan. A dummy function to simulate a login with any credentials is included
     setLoginError(""); // Reset error before new attempt
     try {
       const response = await fetch("http://127.0.0.1:5000/login", {
@@ -56,6 +57,26 @@ const App = () => {
       setLoginError("Network error. Please try again.");
       console.error("Error:", error);
     }
+      */
+
+
+
+    //mock login function below -- any credentials accepted for login just for demo purposes (temporary)
+    setLoginError(""); // Reset error before new attempt
+
+    // Mocking a successful login without backend
+    const mockUser = {
+      token: "mocked-jwt-token",
+      email: email,
+    };
+  
+    localStorage.setItem("token", mockUser.token);
+    localStorage.setItem("userEmail", email);
+    setToken(mockUser.token);
+    setUserEmail(email);
+    setEmail(""); // Clear input after login
+    setPassword("");
+    console.log("Mock login successful!");
   };
 
   const handleLogout = () => {
