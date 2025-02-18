@@ -162,7 +162,7 @@ const App = () => {
       if (!response.ok) throw new Error("Failed to create task");
   
       const data = await response.json();
-      console.log("✅ Task Created:", data.task);
+      console.log("Task Created:", data.task);
   
       setTasks((prevTasks) => [...prevTasks, data.task]);
       setShowTaskModal(false);
@@ -200,7 +200,7 @@ const App = () => {
         });
         if (!response.ok) throw new Error("Failed to update task");
         const data = await response.json();
-        console.log("✅ Server Response:", data);
+        console.log("Server Response:", data);
         
         // Keep the fetchTasks() call if you want the global list updated:
         fetchTasks(); 
@@ -230,6 +230,32 @@ const App = () => {
       console.error("Error:", error);
     }
   };
+
+  //Create Subtask Handler (basically the same as createtask but comes w/ a parent + dependency)
+  const createSubtask = async (parentTaskId, subtaskData) => {
+  const newSubtask = {
+    ...subtaskData,
+    parentTaskId: parentTaskId,
+    ownerEmail: userEmail,
+  };
+
+  try {
+    const response = await fetch(`${API_BASE}/new_task`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(newSubtask),
+    });
+    if (!response.ok) throw new Error("Failed to create subtask");
+    const data = await response.json();
+    console.log("Subtask Created:", data.subtask || data.task);
+    fetchTasks();
+  } catch (error) {
+    console.error("Error creating subtask:", error);
+  }
+};
 
   //Workspace endpoints
 
@@ -298,7 +324,12 @@ const App = () => {
           <button onClick={() => setShowTaskModal(true)}>Create Task</button>
           {showTaskModal && <TaskModal onClose={() => setShowTaskModal(false)} onCreate={createTask} />}
   
-          <TaskList tasks={tasks} updateTask={updateTask} deleteTask={deleteTask}/>
+          <TaskList 
+            tasks={tasks} 
+            updateTask={updateTask} 
+            deleteTask={deleteTask}
+            createSubtask={createSubtask}
+          />
   
           <h2>Workspaces</h2>
           <input type="text" placeholder="Workspace name" value={workspaceName} onChange={(e) => setWorkspaceName(e.target.value)} />

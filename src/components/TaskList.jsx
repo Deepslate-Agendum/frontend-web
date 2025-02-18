@@ -3,9 +3,8 @@ import TaskItem from "./TaskItem";
 import TaskDetails from "./TaskDetails";
 import PropTypes from "prop-types";
 
-const TaskList = ({ tasks, updateTask, deleteTask }) => {
+const TaskList = ({ tasks, updateTask, deleteTask, createSubtask }) => {
   const [selectedTask, setSelectedTask] = useState(null);
-
 
   return (
     <div>
@@ -21,8 +20,13 @@ const TaskList = ({ tasks, updateTask, deleteTask }) => {
         <TaskDetails
           task={selectedTask}
           onClose={() => setSelectedTask(null)}
-          onUpdate={(taskId, updatedData) => updateTask(taskId, updatedData)}
-          onDelete={() => deleteTask(selectedTask.id)}
+          onUpdate={async (taskId, updatedData) => {
+            const freshTask = await updateTask(taskId, updatedData);
+            if (freshTask) {
+              setSelectedTask(freshTask); // This refreshes the popup immediately
+            }
+          }}          onDelete={() => deleteTask(selectedTask.id)}
+          onCreateSubtask={(parentId, newSubtask) => createSubtask(parentId, newSubtask)}
         />
       )}
     </div>
@@ -39,6 +43,7 @@ TaskList.propTypes = {
   ).isRequired,
   updateTask: PropTypes.func.isRequired,
   deleteTask: PropTypes.func.isRequired,
+  createSubtask: PropTypes.func.isRequired,
 };
 
 export default TaskList;
