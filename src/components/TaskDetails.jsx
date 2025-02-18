@@ -16,20 +16,31 @@ const TaskDetails = ({ task, onClose, onUpdate, onDelete }) => {
         <p><strong>Due Date:</strong> {task.due_date ?? "No Due Date"}</p>
 
         <button onClick={() => setShowEditModal(true)}>Edit Task</button>
-        <button onClick={() => onDelete(task.id)}>Delete Task</button>
+        <button onClick={() => {
+          onDelete(task.id);
+          onClose();
+        }}>Delete Task</button>
       </div>
 
       {showEditModal && (
-        <TaskModal 
-        task={task}
-        onClose={() => setShowEditModal(false)} 
-        onUpdate={(taskId, updatedData) => {
-          console.log("Updating Task:", taskId, updatedData);
-          onUpdate(taskId, updatedData);
-        }}
-      />
-      
+        <TaskModal
+          task={task}
+          onClose={() => setShowEditModal(false)}
+          onUpdate={async (taskId, updatedData) => {
+            console.log("[TaskDetails] onUpdate called with:", taskId, updatedData);
+
+            const freshTask = await onUpdate(taskId, updatedData); //get the updated task
+            if (freshTask) { //if we get an update, refresh the view 
+              task.title = freshTask.title;
+              task.description = freshTask.description;
+              task.tags = freshTask.tags;
+              task.due_date = freshTask.due_date;
+            }
+            setShowEditModal(false);
+          }}
+        />
         )}
+
     </div>
   );
 };

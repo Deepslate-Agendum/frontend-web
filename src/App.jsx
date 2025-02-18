@@ -111,10 +111,20 @@ const App = () => {
       }
   
       //string to array conversion for tags
-      const formattedTasks = data.tasks.map(task => ({
-        ...task,
-        tags: task.tags ? task.tags.split(",").map(tag => tag.trim()) : [],  //ensure tags is an array
-      }));
+      const formattedTasks = data.tasks.map((task) => {
+        // If tags is already an array, just use it. If it's a string, split it.
+        const tagsArray = Array.isArray(task.tags)
+          ? task.tags
+          : task.tags
+          ? task.tags.split(",").map(tag => tag.trim())
+          : [];
+      
+        return {
+          ...task,
+          tags: tagsArray
+        };
+      });
+      
   
       setTasks(formattedTasks); //store the array
     } catch (error) {
@@ -168,7 +178,7 @@ const App = () => {
     console.log("Data Sent:", updatedData);
 
     if (!taskId || typeof updatedData !== "object") {
-        console.error("❌ Invalid update request:", taskId, updatedData);
+        console.error("Invalid update request:", taskId, updatedData);
         return;
     }
 
@@ -188,11 +198,17 @@ const App = () => {
                 due_date: updatedData.due_date || ""
             })
         });
-
         if (!response.ok) throw new Error("Failed to update task");
         const data = await response.json();
-        console.log("Server Response:", data);
-        fetchTasks();  // Refresh tasks to show updates
+        console.log("✅ Server Response:", data);
+        
+        // Keep the fetchTasks() call if you want the global list updated:
+        fetchTasks(); 
+        
+        // Return the updated task object so the caller can use it
+        return data.task;  
+        
+
     } catch (error) {
         console.error("Update Failed:", error);
     }
