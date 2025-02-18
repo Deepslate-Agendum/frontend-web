@@ -257,6 +257,73 @@ const App = () => {
   }
 };
 
+  // Get Dependent Tasks for a given parentTaskId
+  const getDependentTasks = async (parentTaskId) => {
+    try {
+      const response = await fetch(`${API_BASE}/dependent_tasks?parentTaskId=${parentTaskId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("Dependent tasks:", data.dependent_tasks);
+      return data.dependent_tasks;
+    } catch (error) {
+      console.error("Error fetching dependent tasks:", error);
+      return [];
+    }
+  };
+
+  // Get all subtasks for a given parentTaskId
+  const getSubtasks = async (parentTaskId) => {
+    try {
+      const response = await fetch(`${API_BASE}/subtasks?parentTaskId=${parentTaskId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("Subtasks:", data.subtasks);
+      return data.subtasks;
+    } catch (error) {
+      console.error("Error fetching subtasks:", error);
+      return [];
+    }
+  };
+
+  // Get the parent task for a given subtask (by subtask ID)
+  const getParentTask = async (subtaskId) => {
+    try {
+      const response = await fetch(`${API_BASE}/parent_task/${subtaskId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("Parent task:", data.parent_task);
+      return data.parent_task;
+    } catch (error) {
+      console.error("Error fetching parent task:", error);
+      return null;
+    }
+  };
+
+
   //Workspace endpoints
 
   // Fetch Workspaces
