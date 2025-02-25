@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import "../../css/App.css";
 
-const TaskModal = ({ onClose, onCreate, onUpdate, task }) => {
+const TaskModal = ({ onClose, onCreate, onUpdate, task, currentWorkspaceId }) => {
   const [title, setTitle] = useState(task ? task.title : "");
   const [description, setDescription] = useState(task ? task.description : "");
   const [tags, setTags] = useState(task ? String(task.tags) : "");
@@ -36,7 +36,7 @@ const TaskModal = ({ onClose, onCreate, onUpdate, task }) => {
     if (task) {
         onUpdate(task.id, updatedTask);  // Pass task ID and the update object
     } else {
-        onCreate(title, description, formattedTags, dueDate);
+        onCreate(title, description, formattedTags, dueDate, currentWorkspaceId);
     }
   
     onClose();
@@ -72,6 +72,7 @@ TaskModal.propTypes = {
     description: PropTypes.string,
     tags: PropTypes.arrayOf(PropTypes.string),
     due_date: PropTypes.string,
+    currentWorkspaceId: PropTypes.number,
   }),
 };
 

@@ -15,13 +15,15 @@ const App = () => {
   const [userEmail, setUserEmail] = useState(localStorage.getItem("userEmail") || "");
   const [workspaceName, setWorkspaceName] = useState("");
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [currentWorkspace, setCurrentWorkspace] = useState(null);
+
 
   useEffect(() => {
     if (token) {
       fetchTasks();
       fetchWorkspaces();
     }
-  }, [token]); //only fetch tasks and workspace belonging to user
+  }, [token,currentWorkspace]); //only fetch tasks and workspace belonging to user
 
   //Authentication Endpoints
 
@@ -88,45 +90,43 @@ const App = () => {
 
   //Task Endpoints
   
-  //Fetch Tasks
   const fetchTasks = async () => {
     try {
-      const response = await fetch(`${API_BASE}/tasks`, {  //api call
+      let url = `${API_BASE}/tasks`;
+      if (currentWorkspace) {
+        url += `?workspaceId=${currentWorkspace.id}`;
+      }
+    
+      const response = await fetch(url, {  
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
       });
-  
+    
       if (!response.ok) throw new Error(`Server responded with ${response.status}`);
-  
+    
       const data = await response.json();
       console.log("Fetched tasks:", data.tasks);
-  
+    
       if (!Array.isArray(data.tasks)) {
         console.error("Error: tasks is not an array", data);
         setTasks([]); 
         return;
       }
-  
-      //string to array conversion for tags
+    
+      //Ensure array
       const formattedTasks = data.tasks.map((task) => {
-        // If tags is already an array, just use it. If it's a string, split it.
         const tagsArray = Array.isArray(task.tags)
           ? task.tags
           : task.tags
           ? task.tags.split(",").map(tag => tag.trim())
           : [];
-      
-        return {
-          ...task,
-          tags: tagsArray
-        };
+        return { ...task, tags: tagsArray };
       });
-      
-  
-      setTasks(formattedTasks); //store the array
+    
+      setTasks(formattedTasks);
     } catch (error) {
       console.error("Error fetching tasks:", error);
       setTasks([]);
@@ -135,9 +135,13 @@ const App = () => {
   
   
   //Create Task
-  const createTask = async (title, description, tags, dueDate) => {
+  const createTask = async (title, description, tags, dueDate, workspaceId) => {
     if (typeof title !== "string" || title.trim() === "") {
       console.error("Error: Title is not a valid string", title);
+      return;
+    }
+    if (!currentWorkspace) { //require a workspace to be selected to create task
+      console.error("Error: No workspace selected.");
       return;
     }
   
@@ -147,6 +151,7 @@ const App = () => {
       tags: Array.isArray(tags) ? tags : tags.split(",").map(tag => tag.trim()),  // Ensure array
       due_date: dueDate ? String(dueDate) : "",
       ownerEmail: userEmail,
+      workspaceId: workspaceId,
     };
   
     try {
@@ -378,6 +383,11 @@ const App = () => {
     }
   };
 
+  const handleSelectWorkspace = (ws) => {
+    setCurrentWorkspace(ws);
+    fetchTasks();
+  };
+
   return (
     <div>
       <h1>Deepslate Agendum</h1>
@@ -389,7 +399,11 @@ const App = () => {
   
           <h2>Task List</h2>
           <button onClick={() => setShowTaskModal(true)}>Create Task</button>
-          {showTaskModal && <TaskModal onClose={() => setShowTaskModal(false)} onCreate={createTask} />}
+          {showTaskModal && <TaskModal 
+                              onClose={() => setShowTaskModal(false)} 
+                              onCreate={createTask}
+                              currentWorkspaceId={currentWorkspace?.id}
+                            />}
   
           <TaskList 
             tasks={tasks} 
@@ -404,7 +418,9 @@ const App = () => {
   
           {workspaces.map((ws) => (
             <div key={ws.id}>
-              {ws.name}
+              <div key={ws.id} onClick={() => handleSelectWorkspace(ws)}>
+                {ws.name}
+              </div>
               <button onClick={() => deleteWorkspace(ws.id)}>Delete</button>
             </div>
           ))}
