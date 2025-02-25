@@ -22,7 +22,8 @@ const SubtaskModal = ({ onClose, onCreate, parentTask, dependentDefault = false 
       due_date: dueDate || "",
       parentTaskId: parentTask.id,
       dependent: dependent,
-      ownerEmail: parentTask.ownerEmail
+      ownerEmail: parentTask.ownerEmail,
+      workspaceId: parentTask.workspaceId,
     };
 
     console.log("Creating subtask for parent", parentTask.id, newSubtask);
