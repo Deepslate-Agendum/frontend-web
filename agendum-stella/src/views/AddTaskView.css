@@ -1,0 +1,60 @@
+/* Styles for the Add Task View */
+
+.add-task-container {
+    max-width: 400px; /* Maximum width of the container */
+    margin: 20px auto; /* Center the container with margin */
+    padding: 20px; /* Padding inside the container */
+    background: #f9f9f9; /* Background color */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Box shadow for subtle depth */
+}
+
+.add-task-container h2 {
+    text-align: center; /* Center align the heading */
+    color: #333; /* Text color */
+}
+
+.add-task-container label {
+    display: block; /* Display labels as block elements */
+    margin-top: 10px; /* Top margin */
+    font-weight: bold; /* Bold text */
+    color: #555; /* Text color */
+}
+
+.add-task-container input,
+.add-task-container textarea {
+    width: 100%; /* Full width */
+    padding: 8px; /* Padding inside the input/textarea */
+    margin-top: 5px; /* Top margin */
+    border: 1px solid #ccc; /* Border color */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 14px; /* Font size */
+}
+
+.add-task-container textarea {
+    height: 80px; /* Fixed height for textarea */
+    resize: none; /* Disable resizing */
+}
+
+.add-task-container button {
+    display: block; /* Display button as block element */
+    width: 100%; /* Full width */
+    padding: 10px; /* Padding inside the button */
+    margin-top: 15px; /* Top margin */
+    background: #007bff; /* Background color */
+    color: white; /* Text color */
+    border: none; /* No border */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 16px; /* Font size */
+    cursor: pointer; /* Pointer cursor on hover */
+}
+
+.add-task-container button:hover {
+    background: #0056b3; /* Darker background on hover */
+}
+
+.error-message {
+    color: red; /* Text color */
+    text-align: center; /* Center align the text */
+    margin-top: 10px; /* Top margin */
+}

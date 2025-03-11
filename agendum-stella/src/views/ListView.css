@@ -1,0 +1,122 @@
+/* Styles for the List View */
+
+/* Container for the list view */
+.list-view-container {
+    max-width: 700px;
+    margin: 30px auto;
+    padding: 25px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+/* Header for the list view */
+.list-view-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Container for the header */
+.header-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Button for filtering tasks */
+.filter-button {
+    position: absolute;
+    top: -95px; /* Move 50px higher */
+    left: -10px; /* Move 10px to the right */
+    width: 40px;
+    height: 40px;
+    background: #007bff;
+    border: 1px solid #000000;
+    border-radius: 4px;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+/* Hover effect for the filter button */
+.filter-button:hover {
+    background: #0060c7;
+    color: white;
+}
+
+/* List of tasks */
+.task-list {
+    list-style: none;
+    padding: 0;
+}
+
+/* Individual task item */
+.task-item {
+    background: #fff;
+    margin: 15px 0;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Hover effect for task item */
+.task-item:hover {
+    transform: scale(1.02);
+}
+
+/* Header for each task item */
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}
+
+/* Title of the task */
+.task-title {
+    margin: 0;
+    font-size: 1.2em;
+    color: #007bff;
+}
+
+/* Date of the task */
+.task-date {
+    font-size: 0.9em;
+    color: #666;
+}
+
+/* Description of the task */
+.task-description {
+    margin: 10px 0;
+    color: #444;
+    font-size: 1em;
+    line-height: 1.4;
+}
+
+/* Tags for the task */
+.task-tags {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+/* Individual tag */
+.task-tags .tag {
+    background: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    font-weight: bold;
+}

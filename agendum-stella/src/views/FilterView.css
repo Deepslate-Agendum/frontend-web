@@ -1,0 +1,74 @@
+/* Styles for the Filter View */
+
+.main-container {
+    position: relative; /* Ensure the main container is the reference for absolute positioning */
+}
+
+.add-button {
+    position: absolute; /* Position the button absolutely within the main container */
+    top: 20px; /* Position from the top */
+    right: 20px; /* Position from the right */
+    background: #28a745; /* Background color */
+    color: white; /* Text color */
+    border: none; /* No border */
+    width: 40px; /* Set width */
+    height: 40px; /* Set height */
+    border-radius: 50%; /* Make it a circle */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 1.2em; /* Font size */
+    display: flex; /* Flexbox for centering */
+    align-items: center; /* Center items vertically */
+    justify-content: center; /* Center items horizontally */
+}
+
+.add-button:hover {
+    background: #218838; /* Darker background on hover */
+}
+
+.filter-view-container {
+    max-width: 400px; /* Maximum width of the container */
+    margin: 20px auto; /* Center the container with margin */
+    padding: 20px; /* Padding inside the container */
+    background: #f9f9f9; /* Background color */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Box shadow for subtle depth */
+    text-align: center; /* Center align the text */
+}
+
+.filter-view-container h2 {
+    margin-bottom: 20px; /* Bottom margin */
+    color: #333; /* Text color */
+    font-size: 1.5em; /* Font size */
+}
+
+.filter-list {
+    display: flex; /* Flexbox for layout */
+    flex-direction: column; /* Column layout */
+    gap: 10px; /* Gap between items */
+}
+
+.filter-view-button {
+    display: flex; /* Flexbox for layout */
+    align-items: center; /* Center items vertically */
+    justify-content: space-between; /* Space between items */
+    background: #007bff; /* Background color */
+    color: white; /* Text color */
+    border: none; /* No border */
+    padding: 12px 16px; /* Padding inside the button */
+    border-radius: 8px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 1.1em; /* Font size */
+    transition: background 0.3s ease; /* Smooth background transition */
+}
+
+.filter-view-button:hover {
+    background: #0056b3; /* Darker background on hover */
+}
+
+.filter-icon {
+    margin-right: 10px; /* Right margin */
+}
+
+.filter-arrow {
+    margin-left: auto; /* Auto left margin to push it to the right */
+}

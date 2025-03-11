@@ -1,0 +1,78 @@
+/* Styles for the Calendar View */
+.calendar-view-container {
+    max-width: 100%;
+    margin: 30px auto;
+    padding: 25px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.calendar-view-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.react-calendar {
+    width: 100%;
+    border: none;
+}
+
+.react-calendar__tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.react-calendar__tile--active {
+    background-color: #007bff;
+    color: white;
+}
+
+.react-calendar__tile--now {
+    background-color: #f0f8ff;
+}
+
+.react-calendar__tile:hover {
+    background-color: #e6f7ff;
+}
+
+.task-item {
+    background: #fff;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.task-title {
+    margin: 0;
+    font-size: 1em;
+    color: #007bff;
+}
+
+.task-description {
+    margin: 5px 0;
+    color: #444;
+    font-size: 0.9em;
+}
+
+.task-tags {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.task-tags .tag {
+    background: #007bff;
+    color: white;
+    padding: 3px 7px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
