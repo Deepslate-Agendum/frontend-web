@@ -6,6 +6,9 @@ import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces,
 
 const API_BASE = "http://127.0.0.1:5000"; // Backend URL
 
+// HACK: until back end serialization is working
+const getId = (document) => document._id["$oid"];
+
 const App = () => {
   const [tasks, setTasks] = useState([]);
   const [workspaces, setWorkspaces] = useState([]);
@@ -25,7 +28,7 @@ const App = () => {
   
   useEffect(() => {
     if (currentWorkspace) {
-      fetchTasks(currentWorkspace.id);
+      fetchTasks(getId(currentWorkspace));
     } else {
       setTasks([]);
     }
@@ -43,10 +46,10 @@ const App = () => {
       const data = await loginUser(usernameInput, password); //api call from utils
       localStorage.setItem("token", data.token);
       localStorage.setItem("username", usernameInput);
-      localStorage.setItem("userId", data.user._id["$oid"]); // TODO: this will change after we fix serialization on the backend
+      localStorage.setItem("userId", getId(data.user));
       setToken(data.token);
       setUsername(usernameInput);
-      setUserId(data.user._id["$oid"]);
+      setUserId(getId(data.user));
       setUsernameInput("");
       setPassword("");
       console.log("Login successful!");
@@ -114,7 +117,7 @@ const App = () => {
         description,
         tags,
         dueDate,
-        workspaceId: currentWorkspace.id,
+        workspaceId: getId(currentWorkspace),
         parentTaskId, //optional for subtasks creation
         dependent, //optional for subtasks creation
       });
@@ -180,24 +183,16 @@ const App = () => {
   //Workspace endpoints
 
   // Fetch Workspaces
-  /*
   const fetchWorkspaces = async () => {
     try {
-      const workspaces = await getWorkspaces(); //api call for utils
-      setWorkspaces(workspaces);
+      const data = await getWorkspaces(); //api call for utils
+      setWorkspaces(data.workspaces);
+      if (data.workspaces.length > 0) {
+        setCurrentWorkspace(data.workspaces[0]);
+      }
     } catch (error) {
       console.error("Error fetching workspaces:", error);
       setWorkspaces([]);
-    }
-  };
-  */
-  const fetchWorkspaces = async () => {
-    try {
-        const workspaces = await getWorkspaces();
-        setWorkspaces(workspaces);
-    } catch (error) {
-        console.error("Error fetching workspaces:", error);
-        setWorkspaces([{ id: "dummy", name: "Default Workspace" }]); // Fallback workspace
     }
   };
 
@@ -207,7 +202,7 @@ const App = () => {
     if (!workspaceName) return alert("Workspace name required!");
   
     try {
-      await createWorkspace(workspaceName); //api call to utils
+      await createWorkspace(workspaceName, userId); //api call to utils
       setWorkspaceName("");
       fetchWorkspaces();
     } catch (error) {
@@ -264,11 +259,11 @@ const App = () => {
           <button onClick={createWorkspaceHandler}>Create Workspace</button>
   
           {workspaces.map((ws) => (
-            <div key={ws.id}>
+            <div key={getId(ws)}>
               <div onClick={() => handleSelectWorkspace(ws)}>
-                {ws.name}
+                <p style={{ color: (getId(ws) == (currentWorkspace && getId(currentWorkspace)))? "white" : "gray" }}>{ws.name}</p>
               </div>
-              <button onClick={() => deleteWorkspaceHandler(ws.id)}>Delete</button>
+              <button onClick={() => deleteWorkspaceHandler(getId(ws))}>Delete</button>
             </div>
           ))}
         </>

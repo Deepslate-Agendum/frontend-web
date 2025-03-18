@@ -80,11 +80,11 @@ export const deleteTask = async (taskId) => {
     }
 };
 
-export const createWorkspace = async (workspaceName) => {
+export const createWorkspace = async (workspaceName, ownerId) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/workspace/create`, {
         name: workspaceName,
-        owner: "dummy_owner"
+        owner: ownerId,
       });
       return response.data;
     } catch (error) {
