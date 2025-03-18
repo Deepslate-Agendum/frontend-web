@@ -9,11 +9,12 @@ const API_BASE = "http://127.0.0.1:5000"; // Backend URL
 const App = () => {
   const [tasks, setTasks] = useState([]);
   const [workspaces, setWorkspaces] = useState([]);
-  const [email, setEmail] = useState("");
+  const [usernameInput, setUsernameInput] = useState("");
   const [password, setPassword] = useState("");
   const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [loginError, setLoginError] = useState("");
-  const [userEmail, setUserEmail] = useState(localStorage.getItem("userEmail") || "");
+  const [username, setUsername] = useState(localStorage.getItem("username") || "");
+  const [userId, setUserId] = useState(localStorage.getItem("userId") || "");
   const [workspaceName, setWorkspaceName] = useState("");
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [currentWorkspace, setCurrentWorkspace] = useState(null);
@@ -35,16 +36,18 @@ const App = () => {
 
   //Login
 
-  /* Official login
+  // Official login
   const handleLogin = async () => {
     setLoginError(""); // Reset error
     try {
-      const data = await loginUser(email, password); //api call from utils
+      const data = await loginUser(usernameInput, password); //api call from utils
       localStorage.setItem("token", data.token);
-      localStorage.setItem("userEmail", email);
+      localStorage.setItem("username", usernameInput);
+      localStorage.setItem("userId", data.user._id["$oid"]); // TODO: this will change after we fix serialization on the backend
       setToken(data.token);
-      setUserEmail(email);
-      setEmail("");
+      setUsername(usernameInput);
+      setUserId(data.user._id["$oid"]);
+      setUsernameInput("");
       setPassword("");
       console.log("Login successful!");
     } catch (err) {
@@ -52,43 +55,26 @@ const App = () => {
       console.error("Login failed:", err);
     }
   };
-  */
-
-  //Login without flask implementation, always works
-  const handleLogin = async () => {
-    setLoginError("");
-
-    const dummyToken = "dummytoken";
-    const dummyEmail = email || "dummy@email.com";
-
-    localStorage.setItem("token", dummyToken);
-    localStorage.setItem("userEmail", dummyEmail);
-
-    setToken(dummyToken);
-    setUserEmail(dummyEmail);
-    setEmail("");
-    setPassword("");
-
-    console.log("Dummy login successful!");
-  };
 
 
   //Logout
 
   const handleLogout = () => { //take away the login token
     localStorage.removeItem("token");
-    localStorage.removeItem("userEmail");
+    localStorage.removeItem("username");
+    localStorage.removeItem("userId");
     setToken("");
-    setUserEmail("");
+    setUsername("");
+    setUserId("");
     console.log("Logged out");
   };
 
   //SignUp (createUser)
   const createUserHandler = async () => {
     try {
-      await createUser(email, password); //api call to utils
+      await createUser(usernameInput, password); //api call to utils
       console.log("User created successfully");
-      setEmail("");
+      setUsernameInput("");
       setPassword("");
     } catch (error) {
       console.error("Error creating user:", error);
@@ -256,7 +242,7 @@ const App = () => {
   
       {token ? (
         <>
-          <p>Welcome, <strong>{userEmail}</strong>!</p>
+          <p>Welcome, <strong>{username}</strong>!</p>
           <button onClick={handleLogout}>Logout</button>
   
           <h2>Task List</h2>
@@ -290,7 +276,7 @@ const App = () => {
         <div>
           <h2>Login</h2>
           {loginError && <p style={{ color: "red" }}>{loginError}</p>}
-          <input type="email" placeholder="Enter email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input placeholder="Enter username" value={usernameInput} onChange={(e) => setUsernameInput(e.target.value)} />
           <input type="password" placeholder="Enter password" value={password} onChange={(e) => setPassword(e.target.value)} />
           <button onClick={handleLogin}>Login</button>
           <button onClick={createUserHandler}>Create User</button>

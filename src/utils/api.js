@@ -3,16 +3,16 @@ import axios from "axios";
 const API_BASE_URL = "/api";
 
 //Api calls
-/*
-export const loginUser = async (email, password) => {
+
+export const loginUser = async (username, password) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/user/login`, { email, password });
+    const response = await axios.post(`${API_BASE_URL}/user/login`, { username, password });
     return response.data;
   } catch (error) {
     console.error("Login failed:", error.response?.data || error.message);
     throw error;
   }
-};*/ //no login endpoint yet so this one is commented out
+};
 
 export const createUser = async (username, password) => {
     try {
@@ -25,12 +25,6 @@ export const createUser = async (username, password) => {
       console.error("User creation failed:", error.response?.data || error.message);
       throw error;
     }
-  };
-
-//no login auth
-// Login (dummy function since backend auth isn't implemented)
-export const loginUser = async (email, password) => {
-    return { token: "dummy_token", email };
   };
 
 export const getTasks = async () => {
