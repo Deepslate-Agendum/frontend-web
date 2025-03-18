@@ -2,7 +2,7 @@ import '../css/App.css';
 import { useEffect, useState } from "react";
 import TaskModal from "./components/TaskModal";
 import TaskList from './components/TaskList';
-import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, getParentTask, getSubtasks, getDependentTasks } from "./utils/api";
+import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, getParentTask, getSubtasks, getDependentTasks, deleteTask } from "./utils/api";
 
 const API_BASE = "http://127.0.0.1:5000"; // Backend URL
 
@@ -89,11 +89,10 @@ const App = () => {
   
 
   //Fetch Tasks 
-  const fetchTasks = async (workspaceId) => {
-    if (!workspaceId) return;
+  const fetchTasks = async () => {
     try {
-      const allTasks = await getTasks(workspaceId); //api call to utils
-      const filteredTasks = allTasks.filter(task => task.workspaceId === workspaceId);
+      const allTasks = await getTasks(); //api call to utils
+      const filteredTasks = allTasks
       setTasks(filteredTasks);
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -104,7 +103,7 @@ const App = () => {
   
   
   //Create Task
-  const createTaskHandler = async (title, description, tags, dueDate, workspaceId, parentTaskId = null, dependent = false) => {
+  const createTaskHandler = async (title, description, tags, due_date, workspace_id, parentTaskId = null, dependent = false) => {
     if (!currentWorkspace) {
       alert("Error: No workspace selected.");
       return;
@@ -116,8 +115,8 @@ const App = () => {
         title,
         description,
         tags,
-        dueDate,
-        workspaceId: getId(currentWorkspace),
+        due_date,
+        workspace_id: getId(currentWorkspace),
         parentTaskId, //optional for subtasks creation
         dependent, //optional for subtasks creation
       });
@@ -148,7 +147,7 @@ const App = () => {
     if (!window.confirm("Are you sure you want to delete this task?")) return;
     try {
       await deleteTask(taskId);  //api call from utils
-      fetchTasks(currentWorkspace?.id); //refresh task list after deletion
+      fetchTasks(); //refresh task list after deletion
     } catch (error) {
       console.error("Error deleting task:", error);
     }

@@ -2,8 +2,9 @@ import { useState } from "react";
 import TaskItem from "./TaskItem";
 import TaskDetails from "./TaskDetails";
 import PropTypes from "prop-types";
+import { deleteTask } from "../utils/api";
 
-const TaskList = ({ tasks, updateTask, deleteTas }) => {
+const TaskList = ({ tasks, updateTask, deleteTask }) => {
   const [selectedTask, setSelectedTask] = useState(null);
 
   return (
@@ -25,7 +26,8 @@ const TaskList = ({ tasks, updateTask, deleteTas }) => {
             if (freshTask) {
               setSelectedTask(freshTask); // This refreshes the popup immediately
             }
-          }}          onDelete={() => deleteTask(selectedTask.id)}
+          }}
+          onDelete={() => deleteTask(selectedTask.id)}
           onCreateSubtask={(parentId, newSubtask) => createTask(parentId, newSubtask)}
         />
       )}
@@ -36,7 +38,7 @@ const TaskList = ({ tasks, updateTask, deleteTas }) => {
 TaskList.propTypes = {
   tasks: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.number.isRequired,
+      id: PropTypes.string.isRequired,
       title: PropTypes.string.isRequired,
       description: PropTypes.string,
     })

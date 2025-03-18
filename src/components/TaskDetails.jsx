@@ -59,7 +59,7 @@ const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask }) => 
 
 TaskDetails.propTypes = {
   task: PropTypes.shape({
-    id: PropTypes.number.isRequired,
+    id: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     description: PropTypes.string,
     tags: PropTypes.oneOfType([

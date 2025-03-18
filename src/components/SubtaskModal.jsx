@@ -77,7 +77,7 @@ SubtaskModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onCreate: PropTypes.func.isRequired,
   parentTask: PropTypes.shape({
-    id: PropTypes.number.isRequired,
+    id: PropTypes.string.isRequired,
     ownerUsername: PropTypes.string.isRequired,
   }).isRequired,
   dependentDefault: PropTypes.bool,

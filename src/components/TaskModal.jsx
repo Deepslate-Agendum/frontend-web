@@ -67,7 +67,7 @@ TaskModal.propTypes = {
   onCreate: PropTypes.func,
   onUpdate: PropTypes.func,
   task: PropTypes.shape({
-    id: PropTypes.number,
+    id: PropTypes.string,
     title: PropTypes.string,
     description: PropTypes.string,
     tags: PropTypes.arrayOf(PropTypes.string),
