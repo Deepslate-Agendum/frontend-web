@@ -72,8 +72,11 @@ export const getWorkspaces = async () => {
 
 export const deleteTask = async (taskId) => {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/task/delete/${taskId}`);
-      return response.data;
+      const response = await axios.delete(`${API_BASE_URL}/task/delete`, {
+        data: {
+          id: taskId
+        }
+      });
     } catch (error) {
       console.error("Failed to delete task:", error.response?.data || error.message);
       throw error;
@@ -100,7 +103,6 @@ export const createWorkspace = async (workspaceName, ownerId) => {
           id: workspaceId
         }
       });
-      return response.data;
     } catch (error) {
       console.error("Failed to delete workspace:", error.response?.data || error.message);
       throw error;
