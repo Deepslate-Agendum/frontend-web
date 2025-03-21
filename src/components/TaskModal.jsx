@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import "../../css/App.css";
 
-const TaskModal = ({ onClose, onCreate, onUpdate, task, currentWorkspaceId }) => {
+const getId = (document) => document._id["$oid"];
+const TaskModal = ({ onClose, onCreate, onUpdate, task, workspace }) => {
   const [title, setTitle] = useState(task ? task.title : "");
   const [description, setDescription] = useState(task ? task.description : "");
   const [tags, setTags] = useState(task ? String(task.tags) : "");
@@ -25,18 +26,21 @@ const TaskModal = ({ onClose, onCreate, onUpdate, task, currentWorkspaceId }) =>
       : [];
     
     const updatedTask = {
+        id: task.id,
+        name: title.trim(),
         title: title.trim(),
         description: description.trim(),
         tags: formattedTags,
-        due_date: dueDate || ""
+        due_date: dueDate || "",
+        workspace_id: getId(workspace)
     };
 
     console.log("TaskModal is submitting an update:", task?.id, updatedTask);
 
     if (task) {
-        onUpdate(task.id, updatedTask);  // Pass task ID and the update object
+        onUpdate(updatedTask);  // Pass task ID and the update object
     } else {
-        onCreate(title, description, formattedTags, dueDate, currentWorkspaceId);
+        onCreate(title, description, formattedTags, dueDate, workspace);
     }
   
     onClose();

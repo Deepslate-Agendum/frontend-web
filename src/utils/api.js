@@ -47,9 +47,9 @@ export const createTask = async (taskData) => {
   }
 };
 
-export const updateTask = async (taskId, updatedData) => {
+export const updateTask = async (updatedData) => {
     try {
-      const response = await axios.put(`${API_BASE_URL}/task/update/${taskId}`, updatedData);
+      const response = await axios.put(`${API_BASE_URL}/task/update`, updatedData);
       return response.data;
     } catch (error) {
       console.error("Failed to update task:", error.response?.data || error.message);

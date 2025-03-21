@@ -131,10 +131,10 @@ const App = () => {
   
   
   // Update Task
-  const updateTaskHandler = async (taskId, updatedData) => {
+  const updateTaskHandler = async (updatedData) => {
     try {
-      await updateTask(taskId, updatedData); //api call to utils
-      fetchTasks(currentWorkspace?.id);
+      await updateTask(updatedData); //api call to utils
+      fetchTasks();
     } catch (error) {
       console.error("Error updating task:", error);
     }
@@ -244,13 +244,14 @@ const App = () => {
           {showTaskModal && <TaskModal 
                               onClose={() => setShowTaskModal(false)} 
                               onCreate={createTaskHandler}
-                              currentWorkspaceId={currentWorkspace?.id}
+                              workspaceId={currentWorkspace?.id}
                             />}
   
           <TaskList 
             tasks={tasks} 
             updateTask={updateTaskHandler} 
             deleteTask={deleteTaskHandler}
+            workspace = {currentWorkspace}
           />
   
           <h2>Workspaces</h2>

@@ -4,7 +4,7 @@ import TaskModal from "./TaskModal";
 import SubtaskModal from "./SubtaskModal";
 import '../../css/TaskDetails.css'
 
-const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask }) => {
+const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask, workspace }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSubtaskModal, setShowSubtaskModal] = useState(false);
 
@@ -34,11 +34,12 @@ const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask }) => 
         <TaskModal
           task={task}
           onClose={() => setShowEditModal(false)}
-          onUpdate={(taskId, updatedData) => {
-            console.log("[TaskDetails] onUpdate called with:", taskId, updatedData);
-            onUpdate(taskId, updatedData);
+          onUpdate={(updatedData) => {
+            console.log("[TaskDetails] onUpdate called with:", updatedData);
+            onUpdate(updatedData);
             setShowEditModal(false);
           }}
+          workspace = {workspace}
         />
       )}
 

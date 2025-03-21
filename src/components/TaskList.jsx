@@ -4,7 +4,7 @@ import TaskDetails from "./TaskDetails";
 import PropTypes from "prop-types";
 import { deleteTask } from "../utils/api";
 
-const TaskList = ({ tasks, updateTask, deleteTask }) => {
+const TaskList = ({ tasks, updateTask, deleteTask, workspace }) => {
   const [selectedTask, setSelectedTask] = useState(null);
 
   return (
@@ -21,14 +21,15 @@ const TaskList = ({ tasks, updateTask, deleteTask }) => {
         <TaskDetails
           task={selectedTask}
           onClose={() => setSelectedTask(null)}
-          onUpdate={async (taskId, updatedData) => {
-            const freshTask = await updateTask(taskId, updatedData);
-            if (freshTask) {
-              setSelectedTask(freshTask); // This refreshes the popup immediately
+          onUpdate={async (updatedData) => {
+            const response = await updateTask(updatedData);
+            if (response) {
+              setSelectedTask(updatedData); // This refreshes the popup immediately
             }
           }}
           onDelete={() => deleteTask(selectedTask.id)}
           onCreateSubtask={(parentId, newSubtask) => createTask(parentId, newSubtask)}
+          workspace = {workspace}
         />
       )}
     </div>
