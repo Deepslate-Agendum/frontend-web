@@ -133,8 +133,9 @@ const App = () => {
   // Update Task
   const updateTaskHandler = async (updatedData) => {
     try {
-      await updateTask(updatedData); //api call to utils
+      const response = await updateTask(updatedData); //api call to utils
       fetchTasks();
+      return response
     } catch (error) {
       console.error("Error updating task:", error);
     }

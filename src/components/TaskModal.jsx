@@ -24,21 +24,21 @@ const TaskModal = ({ onClose, onCreate, onUpdate, task, workspace }) => {
     const formattedTags = tags
       ? tags.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0)
       : [];
-    
-    const updatedTask = {
+
+    console.log("TaskModal is submitting an update:", task?.id);
+
+    if (task) {
+      const updatedTask = {
         id: task.id,
         name: title.trim(),
         title: title.trim(),
         description: description.trim(),
         tags: formattedTags,
         due_date: dueDate || "",
-        workspace_id: getId(workspace)
-    };
+        workspace_id: getId(workspace) || ""
+      };
 
-    console.log("TaskModal is submitting an update:", task?.id, updatedTask);
-
-    if (task) {
-        onUpdate(updatedTask);  // Pass task ID and the update object
+      onUpdate(updatedTask);  // Pass task ID and the update object
     } else {
         onCreate(title, description, formattedTags, dueDate, workspace);
     }
