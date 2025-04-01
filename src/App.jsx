@@ -91,9 +91,11 @@ const App = () => {
   //Fetch Tasks 
   const fetchTasks = async () => {
     try {
-      const allTasks = await getTasks(); //api call to utils
-      const filteredTasks = allTasks
-      setTasks(filteredTasks);
+      if (getId(currentWorkspace)) {
+        const allTasks = await getTasks(getId(currentWorkspace)); //api call to utils
+        const filteredTasks = allTasks
+        setTasks(filteredTasks);
+      }
     } catch (error) {
       console.error("Error fetching tasks:", error);
       setTasks([]);

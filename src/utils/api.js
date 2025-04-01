@@ -27,9 +27,13 @@ export const createUser = async (username, password) => {
     }
   };
 
-export const getTasks = async () => {
+export const getTasks = async (workspaceId) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/task/`);
+    const response = await axios.get(`${API_BASE_URL}/task/`, {
+      params: {
+        workspace_id: workspaceId
+      }
+    });
     return response.data.tasks;
   } catch (error) {
     console.error("Failed to fetch tasks:", error.response?.data || error.message);
