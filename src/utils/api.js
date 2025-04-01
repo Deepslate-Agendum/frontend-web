@@ -3,16 +3,16 @@ import axios from "axios";
 const API_BASE_URL = "/api";
 
 //Api calls
-/*
-export const loginUser = async (email, password) => {
+
+export const loginUser = async (username, password) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/user/login`, { email, password });
+    const response = await axios.post(`${API_BASE_URL}/user/login`, { username, password });
     return response.data;
   } catch (error) {
     console.error("Login failed:", error.response?.data || error.message);
     throw error;
   }
-};*/ //no login endpoint yet so this one is commented out
+};
 
 export const createUser = async (username, password) => {
     try {
@@ -25,12 +25,6 @@ export const createUser = async (username, password) => {
       console.error("User creation failed:", error.response?.data || error.message);
       throw error;
     }
-  };
-
-//no login auth
-// Login (dummy function since backend auth isn't implemented)
-export const loginUser = async (email, password) => {
-    return { token: "dummy_token", email };
   };
 
 export const getTasks = async () => {
@@ -53,9 +47,9 @@ export const createTask = async (taskData) => {
   }
 };
 
-export const updateTask = async (taskId, updatedData) => {
+export const updateTask = async (updatedData) => {
     try {
-      const response = await axios.put(`${API_BASE_URL}/task/update/${taskId}`, updatedData);
+      const response = await axios.put(`${API_BASE_URL}/task/update`, updatedData);
       return response.data;
     } catch (error) {
       console.error("Failed to update task:", error.response?.data || error.message);
@@ -78,19 +72,22 @@ export const getWorkspaces = async () => {
 
 export const deleteTask = async (taskId) => {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/task/delete/${taskId}`);
-      return response.data;
+      const response = await axios.delete(`${API_BASE_URL}/task/delete`, {
+        data: {
+          id: taskId
+        }
+      });
     } catch (error) {
       console.error("Failed to delete task:", error.response?.data || error.message);
       throw error;
     }
 };
 
-export const createWorkspace = async (workspaceName) => {
+export const createWorkspace = async (workspaceName, ownerId) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/workspace/create`, {
         name: workspaceName,
-        owner: "dummy_owner"
+        owner: ownerId,
       });
       return response.data;
     } catch (error) {
@@ -101,8 +98,11 @@ export const createWorkspace = async (workspaceName) => {
 
   export const deleteWorkspace = async (workspaceId) => {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/workspace/delete/${workspaceId}`);
-      return response.data;
+      const response = await axios.delete(`${API_BASE_URL}/workspace/delete`, {
+        data: {
+          id: workspaceId
+        }
+      });
     } catch (error) {
       console.error("Failed to delete workspace:", error.response?.data || error.message);
       throw error;

@@ -22,7 +22,7 @@ const SubtaskModal = ({ onClose, onCreate, parentTask, dependentDefault = false 
       due_date: dueDate || "",
       parentTaskId: parentTask.id,
       dependent: dependent,
-      ownerEmail: parentTask.ownerEmail,
+      ownerUsername: parentTask.ownerUsername,
       workspaceId: parentTask.workspaceId,
     };
 
@@ -77,8 +77,8 @@ SubtaskModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onCreate: PropTypes.func.isRequired,
   parentTask: PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    ownerEmail: PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired,
+    ownerUsername: PropTypes.string.isRequired,
   }).isRequired,
   dependentDefault: PropTypes.bool,
 };

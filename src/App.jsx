@@ -2,18 +2,22 @@ import '../css/App.css';
 import { useEffect, useState } from "react";
 import TaskModal from "./components/TaskModal";
 import TaskList from './components/TaskList';
-import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, getParentTask, getSubtasks, getDependentTasks } from "./utils/api";
+import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, getParentTask, getSubtasks, getDependentTasks, deleteTask } from "./utils/api";
 
 const API_BASE = "http://127.0.0.1:5000"; // Backend URL
+
+// HACK: until back end serialization is working
+const getId = (document) => document._id["$oid"];
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
   const [workspaces, setWorkspaces] = useState([]);
-  const [email, setEmail] = useState("");
+  const [usernameInput, setUsernameInput] = useState("");
   const [password, setPassword] = useState("");
   const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [loginError, setLoginError] = useState("");
-  const [userEmail, setUserEmail] = useState(localStorage.getItem("userEmail") || "");
+  const [username, setUsername] = useState(localStorage.getItem("username") || "");
+  const [userId, setUserId] = useState(localStorage.getItem("userId") || "");
   const [workspaceName, setWorkspaceName] = useState("");
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [currentWorkspace, setCurrentWorkspace] = useState(null);
@@ -24,7 +28,7 @@ const App = () => {
   
   useEffect(() => {
     if (currentWorkspace) {
-      fetchTasks(currentWorkspace.id);
+      fetchTasks(getId(currentWorkspace));
     } else {
       setTasks([]);
     }
@@ -35,16 +39,18 @@ const App = () => {
 
   //Login
 
-  /* Official login
+  // Official login
   const handleLogin = async () => {
     setLoginError(""); // Reset error
     try {
-      const data = await loginUser(email, password); //api call from utils
+      const data = await loginUser(usernameInput, password); //api call from utils
       localStorage.setItem("token", data.token);
-      localStorage.setItem("userEmail", email);
+      localStorage.setItem("username", usernameInput);
+      localStorage.setItem("userId", getId(data.user));
       setToken(data.token);
-      setUserEmail(email);
-      setEmail("");
+      setUsername(usernameInput);
+      setUserId(getId(data.user));
+      setUsernameInput("");
       setPassword("");
       console.log("Login successful!");
     } catch (err) {
@@ -52,43 +58,26 @@ const App = () => {
       console.error("Login failed:", err);
     }
   };
-  */
-
-  //Login without flask implementation, always works
-  const handleLogin = async () => {
-    setLoginError("");
-
-    const dummyToken = "dummytoken";
-    const dummyEmail = email || "dummy@email.com";
-
-    localStorage.setItem("token", dummyToken);
-    localStorage.setItem("userEmail", dummyEmail);
-
-    setToken(dummyToken);
-    setUserEmail(dummyEmail);
-    setEmail("");
-    setPassword("");
-
-    console.log("Dummy login successful!");
-  };
 
 
   //Logout
 
   const handleLogout = () => { //take away the login token
     localStorage.removeItem("token");
-    localStorage.removeItem("userEmail");
+    localStorage.removeItem("username");
+    localStorage.removeItem("userId");
     setToken("");
-    setUserEmail("");
+    setUsername("");
+    setUserId("");
     console.log("Logged out");
   };
 
   //SignUp (createUser)
   const createUserHandler = async () => {
     try {
-      await createUser(email, password); //api call to utils
+      await createUser(usernameInput, password); //api call to utils
       console.log("User created successfully");
-      setEmail("");
+      setUsernameInput("");
       setPassword("");
     } catch (error) {
       console.error("Error creating user:", error);
@@ -100,11 +89,10 @@ const App = () => {
   
 
   //Fetch Tasks 
-  const fetchTasks = async (workspaceId) => {
-    if (!workspaceId) return;
+  const fetchTasks = async () => {
     try {
-      const allTasks = await getTasks(workspaceId); //api call to utils
-      const filteredTasks = allTasks.filter(task => task.workspaceId === workspaceId);
+      const allTasks = await getTasks(); //api call to utils
+      const filteredTasks = allTasks
       setTasks(filteredTasks);
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -115,7 +103,7 @@ const App = () => {
   
   
   //Create Task
-  const createTaskHandler = async (title, description, tags, dueDate, workspaceId, parentTaskId = null, dependent = false) => {
+  const createTaskHandler = async (title, description, tags, due_date, workspace_id, parentTaskId = null, dependent = false) => {
     if (!currentWorkspace) {
       alert("Error: No workspace selected.");
       return;
@@ -127,8 +115,8 @@ const App = () => {
         title,
         description,
         tags,
-        dueDate,
-        workspaceId: currentWorkspace.id,
+        due_date,
+        workspace_id: getId(currentWorkspace),
         parentTaskId, //optional for subtasks creation
         dependent, //optional for subtasks creation
       });
@@ -143,10 +131,11 @@ const App = () => {
   
   
   // Update Task
-  const updateTaskHandler = async (taskId, updatedData) => {
+  const updateTaskHandler = async (updatedData) => {
     try {
-      await updateTask(taskId, updatedData); //api call to utils
-      fetchTasks(currentWorkspace?.id);
+      const response = await updateTask(updatedData); //api call to utils
+      fetchTasks();
+      return response
     } catch (error) {
       console.error("Error updating task:", error);
     }
@@ -159,7 +148,7 @@ const App = () => {
     if (!window.confirm("Are you sure you want to delete this task?")) return;
     try {
       await deleteTask(taskId);  //api call from utils
-      fetchTasks(currentWorkspace?.id); //refresh task list after deletion
+      fetchTasks(); //refresh task list after deletion
     } catch (error) {
       console.error("Error deleting task:", error);
     }
@@ -194,24 +183,16 @@ const App = () => {
   //Workspace endpoints
 
   // Fetch Workspaces
-  /*
   const fetchWorkspaces = async () => {
     try {
-      const workspaces = await getWorkspaces(); //api call for utils
-      setWorkspaces(workspaces);
+      const data = await getWorkspaces(); //api call for utils
+      setWorkspaces(data.workspaces);
+      if (data.workspaces.length > 0) {
+        setCurrentWorkspace(data.workspaces[0]);
+      }
     } catch (error) {
       console.error("Error fetching workspaces:", error);
       setWorkspaces([]);
-    }
-  };
-  */
-  const fetchWorkspaces = async () => {
-    try {
-        const workspaces = await getWorkspaces();
-        setWorkspaces(workspaces);
-    } catch (error) {
-        console.error("Error fetching workspaces:", error);
-        setWorkspaces([{ id: "dummy", name: "Default Workspace" }]); // Fallback workspace
     }
   };
 
@@ -221,7 +202,7 @@ const App = () => {
     if (!workspaceName) return alert("Workspace name required!");
   
     try {
-      await createWorkspace(workspaceName); //api call to utils
+      await createWorkspace(workspaceName, userId); //api call to utils
       setWorkspaceName("");
       fetchWorkspaces();
     } catch (error) {
@@ -256,7 +237,7 @@ const App = () => {
   
       {token ? (
         <>
-          <p>Welcome, <strong>{userEmail}</strong>!</p>
+          <p>Welcome, <strong>{username}</strong>!</p>
           <button onClick={handleLogout}>Logout</button>
   
           <h2>Task List</h2>
@@ -264,13 +245,14 @@ const App = () => {
           {showTaskModal && <TaskModal 
                               onClose={() => setShowTaskModal(false)} 
                               onCreate={createTaskHandler}
-                              currentWorkspaceId={currentWorkspace?.id}
+                              workspaceId={currentWorkspace?.id}
                             />}
   
           <TaskList 
             tasks={tasks} 
             updateTask={updateTaskHandler} 
             deleteTask={deleteTaskHandler}
+            workspace = {currentWorkspace}
           />
   
           <h2>Workspaces</h2>
@@ -278,11 +260,11 @@ const App = () => {
           <button onClick={createWorkspaceHandler}>Create Workspace</button>
   
           {workspaces.map((ws) => (
-            <div key={ws.id}>
+            <div key={getId(ws)}>
               <div onClick={() => handleSelectWorkspace(ws)}>
-                {ws.name}
+                <p style={{ color: (getId(ws) == (currentWorkspace && getId(currentWorkspace)))? "white" : "gray" }}>{ws.name}</p>
               </div>
-              <button onClick={() => deleteWorkspaceHandler(ws.id)}>Delete</button>
+              <button onClick={() => deleteWorkspaceHandler(getId(ws))}>Delete</button>
             </div>
           ))}
         </>
@@ -290,7 +272,7 @@ const App = () => {
         <div>
           <h2>Login</h2>
           {loginError && <p style={{ color: "red" }}>{loginError}</p>}
-          <input type="email" placeholder="Enter email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input placeholder="Enter username" value={usernameInput} onChange={(e) => setUsernameInput(e.target.value)} />
           <input type="password" placeholder="Enter password" value={password} onChange={(e) => setPassword(e.target.value)} />
           <button onClick={handleLogin}>Login</button>
           <button onClick={createUserHandler}>Create User</button>
