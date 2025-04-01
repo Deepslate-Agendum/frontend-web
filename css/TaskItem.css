@@ -1,24 +1,30 @@
+/* 
+  This CSS file styles the task items in a task list. 
+  It defines the layout, colors, spacing, and hover effects for task items, 
+  as well as specific styles for task names and tags.
+*/
+
 .task-item {
-  display: flex;
-  justify-content: space-between;
-  background-color: #06619b;
-  padding: 15px;
-  margin: 10px 0;
-  border-radius: 8px;
-  cursor: pointer;
-  border: 2px solid black; /* Outline */
-  transition: box-shadow 0.2s ease-in-out;
+  display: flex; /* Aligns child elements horizontally */
+  justify-content: space-between; /* Spaces child elements evenly */
+  background-color: #06619b; /* Sets the background color of the task item */
+  padding: 15px; /* Adds space inside the task item */
+  margin: 10px 0; /* Adds vertical spacing between task items */
+  border-radius: 8px; /* Rounds the corners of the task item */
+  cursor: pointer; /* Changes the cursor to a pointer on hover */
+  border: 2px solid black; /* Adds a black border around the task item */
+  transition: box-shadow 0.2s ease-in-out; /* Smooth transition for hover effect */
 }
 
 .task-item:hover {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Adds a shadow effect on hover */
 }
 
 .task-name {
-  font-weight: bold;
+  font-weight: bold; /* Makes the task name text bold */
 }
 
 .task-tags {
-  color: black;
-  font-style: italic;
+  color: black; /* Sets the text color for task tags */
+  font-style: italic; /* Makes the task tags text italic */
 }

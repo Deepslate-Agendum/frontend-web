@@ -1,40 +1,46 @@
+/* 
+  This CSS file defines the layout and styling for a web application. 
+  It includes styles for the root container, a row layout, and modal components 
+  such as the overlay, content, and close button.
+*/
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  max-width: 1280px; /* Sets a maximum width for the root container */
+  margin: 0 auto; /* Centers the container horizontally */
+  padding: 2rem; /* Adds padding around the container */
+  text-align: center; /* Centers text inside the container */
 }
 
 .row {
-  display: flex;
-  gap: 80px; 
-  justify-content: center; 
-  align-items: center;
+  display: flex; /* Enables flexbox layout for child elements */
+  gap: 80px; /* Adds spacing between child elements */
+  justify-content: center; /* Centers child elements horizontally */
+  align-items: center; /* Centers child elements vertically */
 }
 
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: fixed; /* Keeps the overlay fixed in place */
+  top: 0; /* Positions the overlay at the top of the viewport */
+  left: 0; /* Positions the overlay at the left of the viewport */
+  width: 100%; /* Makes the overlay span the full width of the viewport */
+  height: 100%; /* Makes the overlay span the full height of the viewport */
+  background: rgba(0, 0, 0, 0.5); /* Adds a semi-transparent black background */
+  display: flex; /* Enables flexbox layout for centering modal content */
+  align-items: center; /* Centers modal content vertically */
+  justify-content: center; /* Centers modal content horizontally */
 }
 
 .modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
+  background: white; /* Sets the modal background to white */
+  padding: 20px; /* Adds padding inside the modal */
+  border-radius: 10px; /* Rounds the corners of the modal */
+  text-align: center; /* Centers text inside the modal */
 }
 
 .close-button {
-  background: red;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
+  background: red; /* Sets the button background color to red */
+  color: white; /* Sets the button text color to white */
+  border: none; /* Removes the border around the button */
+  padding: 5px 10px; /* Adds padding inside the button */
+  cursor: pointer; /* Changes the cursor to a pointer on hover */
 }

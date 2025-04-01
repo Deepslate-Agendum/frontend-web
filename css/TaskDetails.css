@@ -1,30 +1,39 @@
+/* 
+  This CSS file styles a modal component for a web application. 
+  It includes styles for the modal overlay, modal content, and a close button. 
+  The modal overlay ensures the modal is centered and dims the background, 
+  while the modal content provides a styled container for the modal's content.
+*/
+
 .modal-overlay {
+    /* Full-screen overlay to dim the background and center the modal */
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .modal-content {
-    background: #4e7993;
-    padding: 20px;
-    border-radius: 10px;
-    width: 300px;
-    text-align: center;
-  }
-  
-  .close-button {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    border: none;
-    background: none;
-    font-size: 20px;
-    cursor: pointer;
-  }
-  
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+    display: flex; /* Flexbox for centering */
+    align-items: center; /* Vertically center the modal */
+    justify-content: center; /* Horizontally center the modal */
+}
+
+.modal-content {
+    /* Styled container for the modal's content */
+    background: #4e7993; /* Background color for the modal */
+    padding: 20px; /* Inner spacing */
+    border-radius: 10px; /* Rounded corners */
+    width: 300px; /* Fixed width for the modal */
+    text-align: center; /* Center-align text inside the modal */
+}
+
+.close-button {
+    /* Close button positioned at the top-right corner of the modal */
+    position: absolute; /* Positioned relative to the modal content */
+    top: 10px; /* Distance from the top edge */
+    right: 15px; /* Distance from the right edge */
+    border: none; /* No border for the button */
+    background: none; /* Transparent background */
+    font-size: 20px; /* Larger font size for visibility */
+    cursor: pointer; /* Pointer cursor to indicate clickability */
+}

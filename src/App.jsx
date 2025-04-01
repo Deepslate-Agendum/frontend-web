@@ -1,3 +1,13 @@
+/*
+ * This file defines the main App component for the frontend application.
+ * - Handles user authentication (login, logout, and signup).
+ * - Manages state for tasks, workspaces, and user session.
+ * - Fetches tasks and workspaces from the backend API.
+ * - Provides functionality to create, update, and delete tasks and workspaces.
+ * - Renders the UI for login, task management, and workspace management.
+ * - Uses utility functions from the `api` module for backend communication.
+ */
+
 import '../css/App.css';
 import { useEffect, useState } from "react";
 import TaskModal from "./components/TaskModal";
@@ -10,6 +20,7 @@ const API_BASE = "http://127.0.0.1:5000"; // Backend URL
 const getId = (document) => document._id["$oid"];
 
 const App = () => {
+  // State variables for managing tasks, workspaces, and user session
   const [tasks, setTasks] = useState([]);
   const [workspaces, setWorkspaces] = useState([]);
   const [usernameInput, setUsernameInput] = useState("");
@@ -22,10 +33,12 @@ const App = () => {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [currentWorkspace, setCurrentWorkspace] = useState(null);
 
+  // Fetch workspaces on initial render
   useEffect(() => {
     fetchWorkspaces();
   }, []);
   
+  // Fetch tasks whenever the current workspace changes
   useEffect(() => {
     if (currentWorkspace) {
       fetchTasks(getId(currentWorkspace));
@@ -88,7 +101,7 @@ const App = () => {
   //Task Endpoints
   
 
-  //Fetch Tasks 
+  //Fetches tasks for the current workspace
   const fetchTasks = async () => {
     try {
       if (getId(currentWorkspace)) {
@@ -233,6 +246,7 @@ const App = () => {
     setCurrentWorkspace(ws);
   };
 
+  // Renders the main UI for the application
   return (
     <div>
       <h1>Deepslate Agendum</h1>
@@ -254,7 +268,7 @@ const App = () => {
             tasks={tasks} 
             updateTask={updateTaskHandler} 
             deleteTask={deleteTaskHandler}
-            workspace = {currentWorkspace}
+            workspace={currentWorkspace}
           />
   
           <h2>Workspaces</h2>
@@ -264,7 +278,7 @@ const App = () => {
           {workspaces.map((ws) => (
             <div key={getId(ws)}>
               <div onClick={() => handleSelectWorkspace(ws)}>
-                <p style={{ color: (getId(ws) == (currentWorkspace && getId(currentWorkspace)))? "white" : "gray" }}>{ws.name}</p>
+                <p style={{ color: (getId(ws) == (currentWorkspace && getId(currentWorkspace))) ? "white" : "gray" }}>{ws.name}</p>
               </div>
               <button onClick={() => deleteWorkspaceHandler(getId(ws))}>Delete</button>
             </div>
@@ -282,7 +296,8 @@ const App = () => {
       )}
     </div>
   );
-  
+
 };
+
 
 export default App;
