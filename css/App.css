@@ -16,6 +16,8 @@
     - Title and subtitle for the app.
     - Image scaling and alignment.
   - Responsive styles for smaller screens.
+  - Top-right container for welcome message and logout button.
+  - New page styling with a purple background.
 */
 
 #root {
@@ -58,6 +60,9 @@
   padding: 5px 10px; /* Adds padding inside the button */
   cursor: pointer; /* Changes the cursor to a pointer on hover */
 }
+
+
+/* ==LOGIN CSS================================================================== */
 
 .login-container {
   display: flex; /* Enables flexbox layout */
@@ -177,6 +182,89 @@
 .login-image {
   max-width: 50%; /* Scales the image to fit within the container */
   height: auto; /* Maintains the aspect ratio of the image */
+}
+
+/* ==END OF LOGIN CSS================================================================== */
+
+.top-right-container {
+  position: fixed; /* Fix the container to the screen */
+  top: 1rem; /* Position it 1rem from the top */
+  right: 1rem; /* Position it 1rem from the right */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack elements vertically */
+  align-items: flex-end; /* Align elements to the right */
+  gap: 0.5rem; /* Add spacing between elements */
+}
+
+.top-right-container p {
+  margin: 0; /* Remove default margin */
+  font-size: 1.5rem; /* Set font size */
+  /* color: rgb(0, 0, 0); Set text color */
+}
+
+.top-right-container button {
+  padding: 0.5rem 1rem; /* Add padding to the button */
+  font-size: 1rem; /* Set font size */
+  background-color: #154734; /* Match the login button color */
+  color: white; /* Set text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Add rounded corners */
+  cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+.top-right-container button:hover {
+  background-color: #268863; /* Darken the button color on hover */
+}
+
+
+/* ==WORKSPACE NOT FOUND CSS================================================================== */
+
+.no-workspace-page {
+  position: fixed; /* Fix the page to the screen */
+  top: 0; /* Align to the top of the viewport */
+  left: 0; /* Align to the left of the viewport */
+  width: 100%; /* Full width of the viewport */
+  height: 100%; /* Full height of the viewport */
+  background-color: purple; /* Set the background color to purple */
+  color: white; /* Set text color to white */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack elements vertically */
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  text-align: center; /* Center text */
+  margin: 0; /* Remove any default margins */
+  padding: 0; /* Remove any default padding */
+}
+
+.create-workspace-form {
+  margin-top: 1rem; /* Add spacing above the form */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack elements vertically */
+  align-items: center; /* Center elements horizontally */
+  gap: 1rem; /* Add spacing between input and button */
+}
+
+.workspace-input {
+  padding: 0.5rem; /* Add padding inside the input */
+  font-size: 1rem; /* Set font size */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Add rounded corners */
+  width: 80%; /* Set input width */
+  max-width: 400px; /* Limit the maximum width */
+}
+
+.workspace-button {
+  padding: 0.5rem 1rem; /* Add padding inside the button */
+  font-size: 1rem; /* Set font size */
+  background-color: #d17aff; /* Set button background color */
+  color: white; /* Set text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Add rounded corners */
+  cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+.workspace-button:hover {
+  background-color: #b950ff; /* Darken the button color on hover */
 }
 
 /* Responsive styles */

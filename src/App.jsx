@@ -32,6 +32,7 @@ const App = () => {
   const [workspaceName, setWorkspaceName] = useState("");
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [currentWorkspace, setCurrentWorkspace] = useState(null);
+  const [isMemberOfWorkspace, setIsMemberOfWorkspace] = useState(true);
 
   // Fetch workspaces on initial render
   useEffect(() => {
@@ -46,6 +47,15 @@ const App = () => {
       setTasks([]);
     }
   }, [currentWorkspace]);
+
+  // Update `isMemberOfWorkspace` based on fetched workspaces
+  useEffect(() => {
+    if (workspaces.length === 0) {
+      setIsMemberOfWorkspace(false);
+    } else {
+      setIsMemberOfWorkspace(true);
+    }
+  }, [workspaces]);
   
 
   //Authentication Endpoints
@@ -270,39 +280,66 @@ const App = () => {
       {/* <h1>Deepslate Agendum</h1> */}
   
       {token ? (
-        <>
-          <p>Welcome, <strong>{username}</strong>!</p>
-          <button onClick={handleLogout}>Log Out</button>
-  
-          <h2>Task List</h2>
-          <button onClick={() => setShowTaskModal(true)}>Create Task</button>
-          {showTaskModal && <TaskModal 
-                              onClose={() => setShowTaskModal(false)} 
-                              onCreate={createTaskHandler}
-                              workspaceId={currentWorkspace?.id}
-                            />}
-  
-          <TaskList 
-            tasks={tasks} 
-            updateTask={updateTaskHandler} 
-            deleteTask={deleteTaskHandler}
-            workspace={currentWorkspace}
-          />
-  
-          <h2>Workspaces</h2>
-          <input type="text" placeholder="Workspace name" value={workspaceName} onChange={(e) => setWorkspaceName(e.target.value)} />
-          <button onClick={createWorkspaceHandler}>Create Workspace</button>
-  
-          {workspaces.map((ws) => (
-            <div key={getId(ws)}>
-              <div onClick={() => handleSelectWorkspace(ws)}>
-                <p style={{ color: (getId(ws) == (currentWorkspace && getId(currentWorkspace))) ? "white" : "gray" }}>{ws.name}</p>
-              </div>
-              <button onClick={() => deleteWorkspaceHandler(getId(ws))}>Delete</button>
+        isMemberOfWorkspace ? (
+          <>
+            <div className="top-right-container">
+              <p>Welcome, <strong>{username}</strong>!</p>
+              <button onClick={handleLogout}>Log Out</button>
             </div>
-          ))}
-        </>
+
+            {/* TODO: Task list is completely broken now! Big problem!! */}
+            <h2>Task List</h2>
+            <button onClick={() => setShowTaskModal(true)}>Create Task</button>
+            {showTaskModal && <TaskModal 
+                                onClose={() => setShowTaskModal(false)} 
+                                onCreate={createTaskHandler}
+                                workspaceId={currentWorkspace?.id}
+                              />}
+    
+            <TaskList 
+              tasks={tasks} 
+              updateTask={updateTaskHandler} 
+              deleteTask={deleteTaskHandler}
+              workspace={currentWorkspace}
+            />
+    
+              {/* TODO: FIX BUG: All workspaces are available to everyone! Big problem!! */}
+            <h2>Workspaces</h2>
+            <input type="text" placeholder="Workspace name" value={workspaceName} onChange={(e) => setWorkspaceName(e.target.value)} />
+            <button onClick={createWorkspaceHandler}>Create Workspace</button>
+    
+            {workspaces.map((ws) => (
+              <div key={getId(ws)}>
+                <div onClick={() => handleSelectWorkspace(ws)}>
+                  <p style={{ color: (getId(ws) == (currentWorkspace && getId(currentWorkspace))) ? "white" : "gray" }}>{ws.name}</p>
+                </div>
+                <button onClick={() => deleteWorkspaceHandler(getId(ws))}>Delete</button>
+              </div>
+            ))}
+          </>
+        ) : (
+// =============NO WORKSPACE AVAILABLE PAGE=======================================================================
+          <div className="no-workspace-page">
+            <h1>No Workspaces Found</h1>
+            <p>Let's create a workspace!</p>
+            {/* TODO: FIX BUG: The workspace created here does exist, but the name will not show up on the main screen. */}
+            <div className="create-workspace-form">
+              <input 
+                type="text" 
+                placeholder="Workspace name" 
+                value={workspaceName} 
+                onChange={(e) => setWorkspaceName(e.target.value)} 
+                className="workspace-input"
+              />
+              <button onClick={createWorkspaceHandler} className="workspace-button">Create Workspace</button>
+            </div>
+          </div>
+        )
       ) : (
+
+// =============LOGIN PAGE=======================================================================
+
+        // TODO: Add logic to handle if login and/or password is empty
         <div className="login-container">
           <div className="login-card">
             <h1 className="welcome-text">Welcome</h1>
@@ -328,6 +365,7 @@ const App = () => {
           </div>
         </div>
       )}
+{/* =============END OF LOGIN PAGE======================================================================= */}
     </div>
   );
 
