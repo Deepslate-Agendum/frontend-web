@@ -246,15 +246,33 @@ const App = () => {
     setCurrentWorkspace(ws);
   };
 
+
+
+
+
+
+
+
+//-----------------------------------------------------------------------------------------
+
+
   // Renders the main UI for the application
   return (
-    <div>
-      <h1>Deepslate Agendum</h1>
+    <div className={token ? "app-container" : "login-screen"}>
+      {!token && (
+        <div className="login-image-container">
+          <h1 className="agendum-title">Agendum</h1>
+          <p className="agendum-subtitle">The better productivity app</p>
+          <img src="media/agendum.png" alt="Agendum Logo" className="login-image" />
+          
+        </div>
+      )}
+      {/* <h1>Deepslate Agendum</h1> */}
   
       {token ? (
         <>
           <p>Welcome, <strong>{username}</strong>!</p>
-          <button onClick={handleLogout}>Logout</button>
+          <button onClick={handleLogout}>Log Out</button>
   
           <h2>Task List</h2>
           <button onClick={() => setShowTaskModal(true)}>Create Task</button>
@@ -285,13 +303,29 @@ const App = () => {
           ))}
         </>
       ) : (
-        <div>
-          <h2>Login</h2>
-          {loginError && <p style={{ color: "red" }}>{loginError}</p>}
-          <input placeholder="Enter username" value={usernameInput} onChange={(e) => setUsernameInput(e.target.value)} />
-          <input type="password" placeholder="Enter password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          <button onClick={handleLogin}>Login</button>
-          <button onClick={createUserHandler}>Create User</button>
+        <div className="login-container">
+          <div className="login-card">
+            <h1 className="welcome-text">Welcome</h1>
+            <p className="login-subtitle">Log into your account to continue</p>
+            {loginError && <p className="error-message">{loginError}</p>}
+            <input 
+              className="login-input" 
+              placeholder="Enter username" 
+              value={usernameInput} 
+              onChange={(e) => setUsernameInput(e.target.value)} 
+            />
+            <input 
+              className="login-input" 
+              type="password" 
+              placeholder="Enter password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+            />
+            <div className="login-buttons">
+              <button className="login-button" onClick={handleLogin}>Log In</button>
+              <button className="signup-button" onClick={createUserHandler}>Create User</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

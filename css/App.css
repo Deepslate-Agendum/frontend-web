@@ -1,7 +1,21 @@
 /* 
   This CSS file defines the layout and styling for a web application. 
-  It includes styles for the root container, a row layout, and modal components 
-  such as the overlay, content, and close button.
+  It includes:
+  - Root container styles for centering and layout.
+  - Row layout for flexbox-based alignment.
+  - Modal overlay and content styling.
+  - Close button styling.
+  - Login screen layout and styling, including:
+    - Login container for the right half of the screen.
+    - Login card for user input and buttons.
+    - Input fields for username and password.
+    - Buttons for login and signup.
+    - Error message styling.
+  - Login screen background and fixed positioning.
+  - Styling for the left-side image container:
+    - Title and subtitle for the app.
+    - Image scaling and alignment.
+  - Responsive styles for smaller screens.
 */
 
 #root {
@@ -43,4 +57,150 @@
   border: none; /* Removes the border around the button */
   padding: 5px 10px; /* Adds padding inside the button */
   cursor: pointer; /* Changes the cursor to a pointer on hover */
+}
+
+.login-container {
+  display: flex; /* Enables flexbox layout */
+  justify-content: center; /* Centers the login card horizontally */
+  align-items: center; /* Centers the login card vertically */
+  height: 100vh; /* Makes the container span the full viewport height */
+  background-color: #7faf9d; /* Sets a light green background color */
+  padding: 1rem; /* Adds padding for smaller screens */
+  width: 40%; /* Takes up the right half of the screen */
+  margin-left: auto; /* Aligns the container to the right */
+}
+
+.login-card {
+  background: white; /* Sets the card background to white */
+  padding: 2rem; /* Adds padding inside the card */
+  border-radius: 10px; /* Rounds the corners of the card */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for depth */
+  text-align: center; /* Centers text inside the card */
+  width: 80%; /* Sets the card width relative to its container */
+  height: 80%; /* Sets the card height relative to its container */
+  display: flex; /* Enables flexbox layout */
+  flex-direction: column; /* Stacks child elements vertically */
+  align-items: center; /* Centers child elements horizontally */
+  justify-content: center; /* Centers child elements vertically */
+}
+
+.login-input {
+  width: 100%; /* Makes the input fields span the full width of the card */
+  height: 5%; /* Sets a consistent height for the input fields */
+  padding: 10px; /* Adds padding inside the input fields */
+  margin: 10px 0; /* Adds vertical spacing between input fields */
+  border: 1px solid #ccc; /* Adds a light gray border */
+  border-radius: 20px; /* Rounds the corners of the input fields */
+  font-size: 1rem; /* Sets a readable font size */
+}
+
+.login-buttons {
+  display: flex; /* Enables flexbox layout */
+  justify-content: space-between; /* Distributes buttons evenly */
+  margin-top: 2rem; /* Adds spacing above the buttons */
+  gap: 30px; /* Adds spacing between the buttons */
+}
+
+.login-button, .signup-button {
+  padding: 15px 22.5px; /* Adds padding for larger buttons */
+  font-size: 1.2rem; /* Increases font size for better readability */
+  border: none; /* Removes the border */
+  border-radius: 5px; /* Rounds the corners of the buttons */
+  cursor: pointer; /* Changes the cursor to a pointer on hover */
+}
+
+.login-button {
+  background-color: #d17aff; /* Sets a purple background color */
+  color: white; /* Sets the text color to white */
+}
+
+.signup-button {
+  background-color: #1fa40a; /* Sets a green background color */
+  color: white; /* Sets the text color to white */
+}
+
+.error-message {
+  color: red; /* Sets the text color to red */
+  font-size: 0.9rem; /* Sets a smaller font size */
+  margin-bottom: 1rem; /* Adds spacing below the error message */
+}
+
+.login-screen {
+  background-color: #154734; /* Sets a dark green background color */
+  position: fixed; /* Fixes the screen in place */
+  top: 0; /* Positions the screen at the top of the viewport */
+  left: 0; /* Positions the screen at the left of the viewport */
+  width: 100%; /* Makes the screen span the full width of the viewport */
+  height: 100%; /* Makes the screen span the full height of the viewport */
+  margin: 0; /* Removes default margins */
+  padding: 0; /* Removes default padding */
+  display: flex; /* Enables flexbox layout */
+  justify-content: center; /* Centers the content horizontally */
+  align-items: center; /* Centers the content vertically */
+}
+
+.welcome-text {
+  font-size: 2.5rem; /* Sets a large font size */
+  font-weight: bold; /* Makes the text bold */
+  color: green; /* Sets the text color to green */
+  margin-bottom: -1rem; /* Adds spacing below the text */
+}
+
+.login-subtitle {
+  font-size: 1.2rem; /* Sets a medium font size */
+  color: black; /* Sets the text color to black */
+  margin-bottom: 3rem; /* Adds spacing below the subtitle */
+}
+
+.login-image-container {
+  width: 60%; /* Takes up the left half of the screen */
+  display: flex; /* Enables flexbox layout */
+  flex-direction: column; /* Stacks elements vertically */
+  justify-content: center; /* Centers elements vertically */
+  align-items: center; /* Centers elements horizontally */
+  text-align: center; /* Centers text */
+}
+
+.agendum-title {
+  font-size: 5rem; /* Sets a very large font size */
+  font-weight: bold; /* Makes the text bold */
+  color: white; /* Sets the text color to white */
+  margin-bottom: 0.5rem; /* Adds spacing below the title */
+}
+
+.agendum-subtitle {
+  font-size: 1.2rem; /* Sets a smaller font size */
+  color: white; /* Sets the text color to white */
+  margin-bottom: 1rem; /* Adds spacing below the subtitle */
+}
+
+.login-image {
+  max-width: 50%; /* Scales the image to fit within the container */
+  height: auto; /* Maintains the aspect ratio of the image */
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .login-image-container {
+    display: none; /* Hides the image and text on smaller screens */
+  }
+
+  .login-container {
+    width: 100%; /* Makes the container span the full width */
+    margin-left: 0; /* Resets the margin */
+  }
+
+  .login-card {
+    width: 90%; /* Adjusts the card width for smaller screens */
+    padding: 1.5rem; /* Reduces padding inside the card */
+  }
+
+  .login-buttons {
+    flex-direction: column; /* Stacks buttons vertically */
+    gap: 20px; /* Adds spacing between buttons */
+  }
+
+  .login-button, .signup-button {
+    width: 100%; /* Makes buttons span the full width */
+  }
 }
