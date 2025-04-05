@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import TaskModal from "./components/TaskModal";
 import SubtaskModal from "./components/SubtaskModal";
 import TaskList from './components/TaskList';
+import CalendarView from "./components/CalendarView";
 import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, getParentTask, getSubtasks, getDependentTasks, deleteTask } from "./utils/api";
 
 const API_BASE = "http://127.0.0.1:5000"; // Backend URL
@@ -230,13 +231,17 @@ const App = () => {
 
 
   // Create Workspace
-  const createWorkspaceHandler = async () => {
-    if (!workspaceName) return alert("Workspace name required!");
+  const createWorkspaceHandler = async (name) => {
+    const trimmedWorkspaceName = name.trim(); // Trim the workspace name to remove extra spaces
+    if (!trimmedWorkspaceName) { // Ensure the trimmed name is not empty
+      alert("Workspace name required!");
+      return;
+    }
   
     try {
-      await createWorkspace(workspaceName, userId); //api call to utils
-      setWorkspaceName("");
-      fetchWorkspaces();
+      await createWorkspace(trimmedWorkspaceName, userId); // Use the trimmed name for the API call
+      setWorkspaceName(""); // Clear the input field only after the API call
+      await fetchWorkspaces(); // Refresh the workspace list after the API call
     } catch (error) {
       console.error("Error creating workspace:", error);
     }
@@ -331,9 +336,10 @@ const App = () => {
                   className="dropdown-item"
                   onClick={() => {
                     const newWorkspaceName = prompt("Enter the name of the new workspace:");
-                    if (newWorkspaceName) {
-                      setWorkspaceName(newWorkspaceName);
-                      createWorkspaceHandler();
+                    if (newWorkspaceName && newWorkspaceName.trim()) { // Ensure the input is not empty or whitespace
+                      createWorkspaceHandler(newWorkspaceName.trim()); // Pass the trimmed name directly to the handler
+                    } else {
+                      alert("Workspace name required!"); // Show an alert if the input is invalid
                     }
                   }}
                 >
@@ -346,7 +352,15 @@ const App = () => {
             {viewMode === "list" && (
               <div className="task-list-container">
                 <h2 className="task-list-header">Task List</h2>
-                <button onClick={() => setShowTaskModal(true)} className="task-button edit">Create Task</button>
+                <button 
+                  onClick={() => {
+                    setHighlightedTask(null); // Ensure no task is highlighted
+                    setShowTaskModal(true); // Open the modal for creating a new task
+                  }} 
+                  className="task-button edit"
+                >
+                  Create Task
+                </button>
                 <TaskList 
                   tasks={tasks} 
                   updateTask={updateTaskHandler} 
@@ -354,10 +368,10 @@ const App = () => {
                   workspace={currentWorkspace}
                   highlightedTask={highlightedTask} // Pass the highlighted task to TaskList
                   onTaskClick={(task) => {
-                    if (window.innerWidth > 768) {
-                      setHighlightedTask(task); // Update the highlighted task for desktop mode
+                    if (highlightedTask && highlightedTask.id === task.id) {
+                      setHighlightedTask(null); // Unhighlight the task if it is already highlighted
                     } else {
-                      console.log("Mobile mode: Task clicked", task); // Handle mobile-specific behavior
+                      setHighlightedTask(task); // Highlight the clicked task
                     }
                   }}
                 />
@@ -372,10 +386,16 @@ const App = () => {
             )}
 
             {viewMode === "calendar" && (
-              <div className="calendar-view-container">
-                <h2 className="calendar-view-header">Calendar View</h2>
-                <p>Calendar view is under construction.</p>
-              </div>
+              <CalendarView
+                tasks={tasks}
+                onTaskClick={(task) => {
+                  if (window.innerWidth > 768) {
+                    setHighlightedTask(task);
+                  } else {
+                    console.log("Mobile mode: Task clicked", task);
+                  }
+                }}
+              />
             )}
 
             {/* Render the TaskModal for creating a task */}
@@ -448,8 +468,8 @@ const App = () => {
         </div>
       )}
 {/* =============END OF LOGIN PAGE======================================================================= */}
-      {/* Always render the highlighted task container, but only when the user is logged in */}
-      {token && (
+      {/* Always render the highlighted task container, but only when the user is logged in and there are workspaces */}
+      {token && isMemberOfWorkspace && (
         <div className="highlighted-task-container">
           {highlightedTask ? (
             <>

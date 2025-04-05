@@ -407,10 +407,12 @@
   padding: 0.5rem 1rem;
   cursor: pointer;
   font-size: 1.2rem; /* Increase font size for dropdown items */
+  color: black; /* Explicitly set text color to black */
 }
 
 .dropdown-item:hover {
   background-color: #f1f1f1; /* Highlight the entire option on hover */
+  color: black; /* Ensure text remains black on hover */
 }
 
 .delete-workspace-button {
