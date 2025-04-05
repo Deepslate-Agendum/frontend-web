@@ -14,6 +14,7 @@
 import '../css/App.css';
 import { useEffect, useState } from "react";
 import TaskModal from "./components/TaskModal";
+import SubtaskModal from "./components/SubtaskModal";
 import TaskList from './components/TaskList';
 import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, getParentTask, getSubtasks, getDependentTasks, deleteTask } from "./utils/api";
 
@@ -34,6 +35,7 @@ const App = () => {
   const [userId, setUserId] = useState(localStorage.getItem("userId") || "");
   const [workspaceName, setWorkspaceName] = useState("");
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showSubtaskModal, setShowSubtaskModal] = useState(false);
   const [currentWorkspace, setCurrentWorkspace] = useState(null);
   const [isMemberOfWorkspace, setIsMemberOfWorkspace] = useState(true);
   const [highlightedTask, setHighlightedTask] = useState(null); // State for the highlighted task
@@ -298,37 +300,24 @@ const App = () => {
               <button onClick={handleLogout}>Log Out</button>
             </div>
 
-            <select 
-              className="app-dropdown" 
-              value={currentWorkspace ? getId(currentWorkspace) : ""}
-              onChange={(e) => {
-                if (e.target.value === "create-new") {
-                  const newWorkspaceName = prompt("Enter the name of the new workspace:");
-                  if (newWorkspaceName) {
-                    setWorkspaceName(newWorkspaceName);
-                    createWorkspaceHandler();
-                  }
-                } else {
-                  const selectedWorkspace = workspaces.find(ws => getId(ws) === e.target.value);
-                  if (selectedWorkspace) handleSelectWorkspace(selectedWorkspace);
-                }
-              }}
-            >
-              {currentWorkspace && (
-                <option value={getId(currentWorkspace)}>
-                  Current Workspace: {currentWorkspace.name}
-                </option>
-              )}
-              {workspaces.map((ws) => (
-                ws !== currentWorkspace && (
-                  <div key={getId(ws)} className="workspace-option">
-                    <option value={getId(ws)}>
-                      {ws.name}
-                    </option>
-                    <button 
-                      className="delete-workspace-button" 
+            {/* Custom dropdown menu */}
+            <div className="custom-dropdown">
+              <button className="dropdown-button">
+                {currentWorkspace ? `Current Workspace: ${currentWorkspace.name}` : "Select Workspace"}
+                <span className="caret">▼</span> {/* Add caret to indicate dropdown */}
+              </button>
+              <div className="dropdown-content">
+                {workspaces.map((ws) => (
+                  <div
+                    key={getId(ws)}
+                    className="dropdown-item"
+                    onClick={() => handleSelectWorkspace(ws)} // Allow clicking anywhere on the option to switch workspaces
+                  >
+                    <span>{ws.name}</span>
+                    <button
+                      className="delete-workspace-button"
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent triggering the dropdown selection
+                        e.stopPropagation(); // Prevent triggering the workspace selection
                         if (window.confirm(`Are you sure you want to delete the workspace "${ws.name}"?`)) {
                           deleteWorkspaceHandler(getId(ws));
                         }
@@ -337,24 +326,27 @@ const App = () => {
                       Delete
                     </button>
                   </div>
-                )
-              ))}
-              <option value="create-new">Create a New Workspace</option>
-            </select>
+                ))}
+                <div
+                  className="dropdown-item"
+                  onClick={() => {
+                    const newWorkspaceName = prompt("Enter the name of the new workspace:");
+                    if (newWorkspaceName) {
+                      setWorkspaceName(newWorkspaceName);
+                      createWorkspaceHandler();
+                    }
+                  }}
+                >
+                  <span>Create a New Workspace</span>
+                </div>
+              </div>
+            </div>
 
             {/* Conditional rendering based on viewMode */}
             {viewMode === "list" && (
               <div className="task-list-container">
                 <h2 className="task-list-header">Task List</h2>
                 <button onClick={() => setShowTaskModal(true)} className="task-button edit">Create Task</button>
-                {showTaskModal && (
-                  <TaskModal 
-                    onClose={() => setShowTaskModal(false)} 
-                    onCreate={createTaskHandler}
-                    workspaceId={currentWorkspace?.id}
-                  />
-                )}
-        
                 <TaskList 
                   tasks={tasks} 
                   updateTask={updateTaskHandler} 
@@ -383,6 +375,26 @@ const App = () => {
               <div className="calendar-view-container">
                 <h2 className="calendar-view-header">Calendar View</h2>
                 <p>Calendar view is under construction.</p>
+              </div>
+            )}
+
+            {/* Render the TaskModal for creating a task */}
+            {showTaskModal && (
+              <TaskModal 
+                onClose={() => setShowTaskModal(false)} 
+                onCreate={createTaskHandler}
+                workspaceId={currentWorkspace?.id}
+              />
+            )}
+
+            {/* Bottom App Bar for mobile view */}
+            {window.innerWidth <= 768 && (
+              <div className="bottom-app-bar">
+                <button onClick={() => setViewMode("list")}>List</button>
+                <button onClick={() => setViewMode("map")}>Map</button>
+                <button onClick={() => setShowTaskModal(true)}>Add Task</button>
+                <button onClick={() => setViewMode("calendar")}>Calendar</button>
+                <button onClick={() => alert("Profile clicked!")}>Profile</button>
               </div>
             )}
           </>
@@ -444,10 +456,59 @@ const App = () => {
               <h2 className="highlighted-task-header">Highlighted Task</h2>
               <div className="highlighted-task-content">
                 <h3>{highlightedTask.title || "No Title"}</h3>
-                <p>{highlightedTask.description || "No Description"}</p>
+                <p><strong>Description:</strong> {highlightedTask.description || "No Description"}</p>
                 <p><strong>Tags:</strong> {Array.isArray(highlightedTask.tags) ? highlightedTask.tags.join(", ") : highlightedTask.tags || "No Tags"}</p>
                 <p><strong>Due Date:</strong> {highlightedTask.due_date || "No Due Date"}</p>
+                <p><strong>Owner:</strong> {highlightedTask.ownerUsername || "Unknown"}</p>
+                <p><strong>Workspace:</strong> {highlightedTask.workspaceName || "Unknown"}</p>
+                <p><strong>Parent Task:</strong> {highlightedTask.parentTaskId || "None"}</p>
+                <p><strong>Dependent:</strong> {highlightedTask.dependent ? "Yes" : "No"}</p>
+                <p><strong>Completed:</strong> {highlightedTask.completed ? "Yes" : "No"}</p>
               </div>
+              {/* Buttons for task actions */}
+              <div className="highlighted-task-actions">
+                <button onClick={() => setShowTaskModal(true)}>Edit Task</button>
+                <button onClick={() => {
+                  deleteTaskHandler(highlightedTask.id);
+                  setHighlightedTask(null); // Clear the highlighted task after deletion
+                }}>Delete Task</button>
+                <button onClick={() => setShowSubtaskModal(true)}>Add Subtask</button>
+              </div>
+              {/* Render the TaskModal for editing the highlighted task */}
+              {showTaskModal && (
+                <TaskModal
+                  task={highlightedTask} // Pass the highlighted task to the modal
+                  onClose={() => setShowTaskModal(false)} // Close the modal
+                  onUpdate={(updatedData) => {
+                    updateTaskHandler(updatedData); // Call the update handler
+                    setHighlightedTask((prevTask) => ({
+                      ...prevTask,
+                      ...updatedData, // Update the highlighted task with new data
+                    }));
+                    setShowTaskModal(false); // Close the modal after updating
+                  }}
+                  workspace={currentWorkspace} // Pass the current workspace
+                />
+              )}
+              {/* Render the SubtaskModal for adding a subtask */}
+              {showSubtaskModal && (
+                <SubtaskModal
+                  parentTask={highlightedTask} // Pass the highlighted task as the parent
+                  onClose={() => setShowSubtaskModal(false)} // Close the modal
+                  onCreate={(newSubtask) => {
+                    createTaskHandler(
+                      newSubtask.title,
+                      newSubtask.description,
+                      newSubtask.tags,
+                      newSubtask.due_date,
+                      currentWorkspace?.id,
+                      highlightedTask.id, // Link the subtask to the parent task
+                      newSubtask.dependent
+                    );
+                    setShowSubtaskModal(false); // Close the modal after creating the subtask
+                  }}
+                />
+              )}
             </>
           ) : (
             <p className="no-task-selected">No task selected</p>

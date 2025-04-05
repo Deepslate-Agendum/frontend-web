@@ -26,19 +26,31 @@ const TaskList = ({ tasks, updateTask, deleteTask, workspace, onTaskClick, highl
     }
   };
 
+  const renderTasks = (tasks, parentId = null) => {
+    return tasks
+      .filter((task) => (parentId ? task.parentTaskId === parentId : !task.parentTaskId)) // Show tasks without a parent if parentId is null
+      .map((task) => (
+        <div key={task.id}>
+          <TaskItem
+            task={task}
+            isHighlighted={highlightedTask?.id === task.id}
+            onClick={() => handleTaskClick(task)}
+            onCheckboxChange={(task, checked) => {
+              const updatedTask = { ...task, completed: checked };
+              updateTask(updatedTask);
+            }}
+          />
+          {/* Render subtasks recursively */}
+          <div className="subtasks">
+            {renderTasks(tasks, task.id)}
+          </div>
+        </div>
+      ));
+  };
+
   return (
     <div>
-      {/* Render each task as a TaskItem component */}
-      {tasks.map((task) => (
-        <TaskItem
-          key={task.id} // Unique key for each task
-          task={task} // Pass task data as a prop
-          isHighlighted={highlightedTask?.id === task.id} // Check if the task is highlighted
-          onClick={() => handleTaskClick(task)} // Handle task click based on mode
-        />
-      ))}
-
-      {/* Render TaskDetails if a task is selected and in mobile mode */}
+      {renderTasks(tasks)} {/* Render tasks starting with no parent */}
       {isMobile && selectedTask && (
         <TaskDetails
           task={selectedTask} // Pass the selected task to TaskDetails
@@ -64,6 +76,7 @@ TaskList.propTypes = {
       id: PropTypes.string.isRequired, // Task ID is required
       title: PropTypes.string.isRequired, // Task title is required
       description: PropTypes.string, // Task description is optional
+      parentTaskId: PropTypes.string, // Parent task ID is optional
     })
   ).isRequired,
   updateTask: PropTypes.func.isRequired, // Function to update a task

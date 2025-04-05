@@ -245,7 +245,7 @@
 .view-buttons button {
   padding: 0.5rem 1rem; /* Add padding inside the buttons */
   font-size: 1rem; /* Set font size */
-  background-color: #007bff; /* Blue background for buttons */
+  background-color: #b01dff; /* Blue background for buttons */
   color: white; /* White text color */
   border: none; /* Remove border */
   border-radius: 5px; /* Add rounded corners */
@@ -253,7 +253,7 @@
 }
 
 .view-buttons button:hover {
-  background-color: #0056b3; /* Darker blue on hover */
+  background-color: #b950ff; /* Darker blue on hover */
 }
 
 /* ==WORKSPACE NOT FOUND CSS================================================================== */
@@ -329,8 +329,8 @@
   width: 60%; /* Default width matches the task list container */
   padding: 0.5rem; /* Add padding inside the dropdown */
   font-size: 1rem; /* Set font size */
-  border: 1px solid #ccc; /* Add a light grey border */
-  border-radius: 5px; /* Add rounded corners */
+  border: 1px solid #ae23ff; /* Add a light grey border */
+  border-radius: 0px; /* Add rounded corners */
   background-color: #d17aff; /* Purple background for the dropdown */
   color: rgb(0, 0, 0); /* Set text color to white for better contrast */
   cursor: pointer; /* Change cursor to pointer on hover */
@@ -339,13 +339,92 @@
 
 .app-dropdown:focus {
   outline: none; /* Remove default focus outline */
-  border-color: #007bff; /* Highlight border on focus */
+  border-color: #b01dff; /* Highlight border on focus */
   background-color: #b950ff; /* Slightly darker purple when focused */
 }
 
 .app-dropdown option:hover {
   background-color: #1fa40a; /* Green background for hovered options */
   color: white; /* Ensure text color is white for contrast */
+}
+
+/* Custom Dropdown Menu */
+.custom-dropdown {
+  position: fixed; /* Fix the dropdown to the screen */
+  top: 0; /* Align to the top of the viewport */
+  left: 0; /* Align to the left of the viewport */
+  width: 60%; /* Set the width to 60% */
+  height: 10%; /* Set the height to 10% */
+  z-index: 1000; /* Ensure it is above other elements */
+}
+
+.dropdown-button {
+  width: 100%; /* Make the button span the full width of the dropdown */
+  height: 100%; /* Make the button span the full height of the dropdown */
+  background-color: #d17aff; /* Purple background */
+  color: white;
+  font-size: 1.2rem; /* Increase font size for dropdown button text */
+  font-weight: bold; /* Bold text for emphasis */
+  border: none;
+  border-radius: 0; /* Remove rounded corners */
+  cursor: pointer;
+  text-align: left; /* Align text to the left */
+  padding: 0.5rem 1rem; /* Add padding inside the button */
+  display: flex; /* Use flexbox to align caret */
+  justify-content: space-between; /* Space text and caret evenly */
+  align-items: center; /* Center caret vertically */
+}
+
+.caret {
+  margin-left: 0.5rem; /* Add spacing between text and caret */
+  font-size: 0.8rem; /* Smaller font size for the caret */
+}
+
+.dropdown-button:hover {
+  background-color: #b950ff; /* Darker purple on hover */
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%; /* Position the dropdown content below the button */
+  left: 0;
+  width: 100%; /* Match the width of the dropdown button */
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 0; /* Remove rounded corners */
+  overflow: hidden;
+}
+
+.custom-dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 1.2rem; /* Increase font size for dropdown items */
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1; /* Highlight the entire option on hover */
+}
+
+.delete-workspace-button {
+  background-color: #dc3545; /* Red background */
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  pointer-events: auto; /* Ensure the delete button is clickable */
+}
+
+.delete-workspace-button:hover {
+  background-color: #a71d2a; /* Darker red on hover */
 }
 
 /* Task List Section */
@@ -355,7 +434,7 @@
   background-color: #154734; /* Dark green background for the task list */
   color: white; /* Set text color to white */
   padding: 2rem; /* Add padding around the task list */
-  border-radius: 10px; /* Rounded corners for the container */
+  border-radius: 0px; /* Rounded corners for the container */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
   position: fixed; /* Fix the container to the left side of the screen */
   bottom: 0; /* Align to the bottom of the viewport */
@@ -392,7 +471,7 @@
 
 .task-item.highlighted-task {
   background-color: #d0e7ff; /* Light blue background for highlighted tasks */
-  border: 1px solid #007bff; /* Blue border for highlighted tasks */
+  border: 1px solid #000000; /* Blue border for highlighted tasks */
 }
 
 .task-title {
@@ -416,7 +495,7 @@
 }
 
 .task-button.edit {
-  background-color: #007bff; /* Blue background for edit button */
+  background-color: #b01dff; /* Blue background for edit button */
 }
 
 .task-button.delete {
@@ -424,7 +503,7 @@
 }
 
 .task-button.edit:hover {
-  background-color: #0056b3; /* Darker blue on hover */
+  background-color: #b950ff; /* Darker blue on hover */
 }
 
 .task-button.delete:hover {
@@ -438,7 +517,7 @@
   right: 0; /* Align to the right of the viewport */
   width: 40%; /* Take up 40% of the screen width */
   height: 90%; /* Full height below the dropdown */
-  background-color: #ffdbdb; /* Light red background for the highlighted task */
+  background-color: #c9e0c5; /* Light red background for the highlighted task */
   padding: 1rem; /* Add padding inside the container */
   box-shadow: -2px 0 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
   overflow-y: auto; /* Enable scrolling for overflow content */
@@ -496,13 +575,67 @@
 
 .no-task-selected {
   font-size: 1rem; /* Regular font size */
-  color: #777; /* Light grey text color */
+  color: #000000; /* Light grey text color */
   text-align: center; /* Center the text horizontally */
   margin: 0; /* Remove default margins */
   position: absolute; /* Position relative to the container */
   top: 50%; /* Move to the middle of the container */
   left: 50%; /* Center horizontally */
   transform: translate(-50%, -50%); /* Adjust for exact centering */
+}
+
+.highlighted-task-actions {
+  margin-top: 1rem; /* Add spacing above the buttons */
+  display: flex; /* Arrange buttons in a row */
+  gap: 0.5rem; /* Add spacing between buttons */
+  justify-content: center; /* Center buttons horizontally */
+}
+
+.highlighted-task-actions button {
+  padding: 0.5rem 1rem; /* Add padding inside the buttons */
+  font-size: 1rem; /* Set font size */
+  background-color: #b01dff; /* Purple background for buttons */
+  color: white; /* White text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Add rounded corners */
+  cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+.highlighted-task-actions button:hover {
+  background-color: #b950ff; /* Darker purple on hover */
+}
+
+/* Bottom App Bar */
+.bottom-app-bar {
+  display: flex; /* Ensure the app bar is visible */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background-color: #154734; /* Dark green background */
+  justify-content: space-around; /* Space buttons evenly */
+  align-items: center;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  z-index: 1000; /* Ensure it is above other elements */
+}
+
+.bottom-app-bar button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.bottom-app-bar button:hover {
+  color: #b01dff; /* Purple color on hover */
+}
+
+@media (min-width: 769px) {
+  .bottom-app-bar {
+    display: none; /* Hide the app bar on larger screens */
+  }
 }
 
 /* Responsive styles */
@@ -540,5 +673,9 @@
 
   .highlighted-task-container {
     display: none; /* Hide the container on smaller screens */
+  }
+
+  .custom-dropdown {
+    width: 100%; /* Make dropdown span full width in mobile view */
   }
 }
