@@ -4,16 +4,16 @@
 import PropTypes from "prop-types"; // Importing PropTypes for type-checking props.
 import '../../css/TaskItem.css'; // Importing the CSS file for styling the component.
 
-const TaskItem = ({ task, onClick }) => {
+const TaskItem = ({ task, onClick, isHighlighted }) => {
   console.log("Rendering TaskItem:", task); // Debugging: Logs the task being rendered.
 
   return (
     <div 
-      className="task-item" // Applying a CSS class for styling.
-      onClick={() => onClick(task)} // Triggering the onClick callback with the task as an argument.
+      className={`task-item ${isHighlighted ? "highlighted-task" : ""}`} // Add a class if the task is highlighted
+      onClick={() => onClick(task)} // Triggering the onClick callback with the task as an argument
     >
-      <h3>{task.title || "No Title"}</h3> {/* Displaying the task title or a fallback if not provided. */}
-      <p>{task.description || "No Description"}</p> {/* Displaying the task description or a fallback if not provided. */}
+      <h3>{task.title || "No Title"}</h3> {/* Displaying the task title or a fallback if not provided */}
+      <p>{task.description || "No Description"}</p> {/* Displaying the task description or a fallback if not provided */}
     </div>
   );
 };
@@ -26,6 +26,7 @@ TaskItem.propTypes = {
     description: PropTypes.string, // The task may optionally have a description.
   }).isRequired,
   onClick: PropTypes.func.isRequired, // A function to handle click events is required.
+  isHighlighted: PropTypes.bool, // A boolean to indicate if the task is highlighted.
 };
 
 export default TaskItem; // Exporting the component for use in other parts of the application.

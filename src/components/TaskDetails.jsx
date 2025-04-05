@@ -18,30 +18,22 @@ const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask, works
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        {/* Close button to close the task details modal */}
+        {/* Close button positioned within the modal box */}
         <button className="close-button" onClick={onClose}>X</button>
-        {/* Display task title or a fallback if not available */}
         <h2>{task.title || "No Title"}</h2>
-        {/* Display task description or a fallback if not available */}
         <p><strong>Description:</strong> {task.description ?? "No Description"}</p>
-        {/* Display task tags as a comma-separated list or a fallback if not available */}
         <p>
           <strong>Tags:</strong>{" "}
           {Array.isArray(task.tags)
             ? task.tags.join(", ")
             : task.tags || "No Tags"}
         </p>
-        {/* Display task due date or a fallback if not available */}
         <p><strong>Due Date:</strong> {task.due_date ?? "No Due Date"}</p>
-
-        {/* Button to open the edit task modal */}
         <button onClick={() => setShowEditModal(true)}>Edit Task</button>
-        {/* Button to delete the task and close the modal */}
         <button onClick={() => {
           onDelete(task.id);
           onClose();
         }}>Delete Task</button>
-        {/* Button to open the add subtask modal */}
         <button onClick={() => setShowSubtaskModal(true)}>Add Subtask</button>
       </div>
 

@@ -18,6 +18,8 @@
   - Responsive styles for smaller screens.
   - Top-right container for welcome message and logout button.
   - New page styling with a purple background.
+  - Main page styling with a grey background.
+  - Task list section styling.
 */
 
 #root {
@@ -47,6 +49,7 @@
 }
 
 .modal-content {
+  position: relative; /* Ensure the close button is positioned relative to this container */
   background: white; /* Sets the modal background to white */
   padding: 20px; /* Adds padding inside the modal */
   border-radius: 10px; /* Rounds the corners of the modal */
@@ -54,11 +57,20 @@
 }
 
 .close-button {
-  background: red; /* Sets the button background color to red */
-  color: white; /* Sets the button text color to white */
-  border: none; /* Removes the border around the button */
-  padding: 5px 10px; /* Adds padding inside the button */
-  cursor: pointer; /* Changes the cursor to a pointer on hover */
+  position: absolute; /* Position relative to the modal box */
+  top: 10px; /* Position 10px from the top of the modal box */
+  right: 10px; /* Position 10px from the right of the modal box */
+  background: red; /* Red background for the button */
+  color: white; /* White text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Add rounded corners */
+  padding: 5px 10px; /* Add padding */
+  cursor: pointer; /* Change cursor to pointer on hover */
+  z-index: 10; /* Ensure the button is above other elements */
+}
+
+.close-button:hover {
+  background: darkred; /* Darker red on hover */
 }
 
 
@@ -187,13 +199,20 @@
 /* ==END OF LOGIN CSS================================================================== */
 
 .top-right-container {
+  width: 40%; /* Set the width to 40% */
+  height: 10%; /* Set the height to 10% */
   position: fixed; /* Fix the container to the screen */
-  top: 1rem; /* Position it 1rem from the top */
-  right: 1rem; /* Position it 1rem from the right */
+  top: 0; /* Align to the top of the viewport */
+  right: 0; /* Align to the right of the viewport */
   display: flex; /* Use flexbox for layout */
-  flex-direction: column; /* Stack elements vertically */
-  align-items: flex-end; /* Align elements to the right */
-  gap: 0.5rem; /* Add spacing between elements */
+  flex-direction: row; /* Arrange items in a row */
+  align-items: center; /* Center items vertically */
+  justify-content: space-between; /* Space items evenly */
+  padding: 0 1rem; /* Add horizontal padding */
+  color: white;
+  background-color: rgb(0, 0, 0); /* Background color */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+  box-sizing: border-box; /* Include padding in width/height */
 }
 
 .top-right-container p {
@@ -210,12 +229,32 @@
   border: none; /* Remove border */
   border-radius: 5px; /* Add rounded corners */
   cursor: pointer; /* Change cursor to pointer on hover */
+  position: relative; /* Enable positioning adjustments */
+  /* top: -10px; Move the button up by 5px */
 }
 
 .top-right-container button:hover {
   background-color: #268863; /* Darken the button color on hover */
 }
 
+.view-buttons {
+  display: flex; /* Arrange buttons in a row */
+  gap: 0.5rem; /* Add spacing between buttons */
+}
+
+.view-buttons button {
+  padding: 0.5rem 1rem; /* Add padding inside the buttons */
+  font-size: 1rem; /* Set font size */
+  background-color: #007bff; /* Blue background for buttons */
+  color: white; /* White text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Add rounded corners */
+  cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+.view-buttons button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
 
 /* ==WORKSPACE NOT FOUND CSS================================================================== */
 
@@ -267,6 +306,205 @@
   background-color: #b950ff; /* Darken the button color on hover */
 }
 
+/* Main page styling */
+.app-container {
+  position: fixed; /* Fix the container to the screen */
+  top: 0; /* Align to the top of the viewport */
+  left: 0; /* Align to the left of the viewport */
+  width: 100%; /* Full width of the viewport */
+  height: 100%; /* Full height of the viewport */
+  background-color: grey; /* Set the background color to grey */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack elements vertically */
+  margin: 0; /* Remove any default margins */
+  padding: 0; /* Remove any default padding */
+}
+
+/* Dropdown box styling */
+.app-dropdown {
+  position: fixed; /* Fix the dropdown to the screen */
+  top: 0; /* Align to the top of the viewport */
+  left: 0; /* Align to the left of the viewport */
+  height: 10%; /* Set the height to 10% of the viewport */
+  width: 60%; /* Default width matches the task list container */
+  padding: 0.5rem; /* Add padding inside the dropdown */
+  font-size: 1rem; /* Set font size */
+  border: 1px solid #ccc; /* Add a light grey border */
+  border-radius: 5px; /* Add rounded corners */
+  background-color: #d17aff; /* Purple background for the dropdown */
+  color: rgb(0, 0, 0); /* Set text color to white for better contrast */
+  cursor: pointer; /* Change cursor to pointer on hover */
+  box-sizing: border-box; /* Include padding and border in width/height */
+}
+
+.app-dropdown:focus {
+  outline: none; /* Remove default focus outline */
+  border-color: #007bff; /* Highlight border on focus */
+  background-color: #b950ff; /* Slightly darker purple when focused */
+}
+
+.app-dropdown option:hover {
+  background-color: #1fa40a; /* Green background for hovered options */
+  color: white; /* Ensure text color is white for contrast */
+}
+
+/* Task List Section */
+.task-list-container { 
+  box-sizing: border-box; /* Include padding and border in width/height */
+  border: 10px; /* Add a border around the task list */
+  background-color: #154734; /* Dark green background for the task list */
+  color: white; /* Set text color to white */
+  padding: 2rem; /* Add padding around the task list */
+  border-radius: 10px; /* Rounded corners for the container */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  position: fixed; /* Fix the container to the left side of the screen */
+  bottom: 0; /* Align to the bottom of the viewport */
+  left: 0; /* Align to the left of the viewport */
+  width: 60%; /* Default width */
+  height: 90%; /* Full height of the viewport */
+  overflow-y: auto; /* Enable scrolling for overflow content */
+}
+
+.task-list-header {
+  font-size: 1.5rem; /* Larger font size for the header */
+  font-weight: bold; /* Bold text for emphasis */
+  color: white; /* Ensure the header text is white */
+  margin-bottom: 1rem; /* Add spacing below the header */
+  text-align: center; /* Center the header text */
+}
+
+.task-item {
+  background-color: white; /* White background for each task */
+  padding: 1rem; /* Add padding inside each task */
+  border: 1px solid #ddd; /* Light grey border */
+  border-radius: 5px; /* Rounded corners for tasks */
+  margin-bottom: 1rem; /* Add spacing between tasks */
+  display: flex; /* Use flexbox for layout */
+  justify-content: space-between; /* Space out task content */
+  align-items: center; /* Align items vertically */
+  color: white; /* Set task item text color to white */
+}
+
+.task-item:hover {
+  background-color: #f1f1f1; /* Slightly darker background on hover */
+  color: white; /* Ensure text remains white on hover */
+}
+
+.task-item.highlighted-task {
+  background-color: #d0e7ff; /* Light blue background for highlighted tasks */
+  border: 1px solid #007bff; /* Blue border for highlighted tasks */
+}
+
+.task-title {
+  font-size: 1.2rem; /* Medium font size for task titles */
+  font-weight: bold; /* Bold text for task titles */
+  color: #555; /* Medium grey text color */
+}
+
+.task-actions {
+  display: flex; /* Use flexbox for layout */
+  gap: 0.5rem; /* Add spacing between action buttons */
+}
+
+.task-button {
+  padding: 0.5rem 1rem; /* Add padding inside buttons */
+  font-size: 0.9rem; /* Set font size */
+  color: white; /* White text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Rounded corners for buttons */
+  cursor: pointer; /* Pointer cursor on hover */
+}
+
+.task-button.edit {
+  background-color: #007bff; /* Blue background for edit button */
+}
+
+.task-button.delete {
+  background-color: #dc3545; /* Red background for delete button */
+}
+
+.task-button.edit:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.task-button.delete:hover {
+  background-color: #a71d2a; /* Darker red on hover */
+}
+
+/* Highlighted Task Section */
+.highlighted-task-container {
+  position: fixed; /* Fix the container to the screen */
+  top: 10%; /* Leave space for the dropdown */
+  right: 0; /* Align to the right of the viewport */
+  width: 40%; /* Take up 40% of the screen width */
+  height: 90%; /* Full height below the dropdown */
+  background-color: #ffdbdb; /* Light red background for the highlighted task */
+  padding: 1rem; /* Add padding inside the container */
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  overflow-y: auto; /* Enable scrolling for overflow content */
+  box-sizing: border-box; /* Include padding and border in width/height */
+  z-index: 1000; /* Ensure it is above other elements */
+  pointer-events: auto; /* Allow interaction with the container */
+}
+
+.map-view-container,
+.calendar-view-container {
+  margin-right: 40%; /* Leave space for the highlighted task container */
+  box-sizing: border-box; /* Ensure padding and border are included in width/height */
+}
+
+.map-view-container {
+  background-color: #e0f7fa; /* Light blue background for map view */
+  color: #00796b; /* Dark teal text color */
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 60%; /* Adjusted width to account for highlighted task container */
+  height: 90%;
+  overflow-y: auto;
+}
+
+.calendar-view-container {
+  background-color: #fff3e0; /* Light orange background for calendar view */
+  color: #e65100; /* Deep orange text color */
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 60%; /* Adjusted width to account for highlighted task container */
+  height: 90%;
+  overflow-y: auto;
+}
+
+.highlighted-task-header {
+  font-size: 1.5rem; /* Larger font size for the header */
+  font-weight: bold; /* Bold text for emphasis */
+  margin-bottom: 1rem; /* Add spacing below the header */
+  color: #333; /* Dark grey text color */
+}
+
+.highlighted-task-content {
+  font-size: 1rem; /* Regular font size for content */
+  color: #555; /* Medium grey text color */
+  line-height: 1.5; /* Improve readability */
+}
+
+.no-task-selected {
+  font-size: 1rem; /* Regular font size */
+  color: #777; /* Light grey text color */
+  text-align: center; /* Center the text horizontally */
+  margin: 0; /* Remove default margins */
+  position: absolute; /* Position relative to the container */
+  top: 50%; /* Move to the middle of the container */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%); /* Adjust for exact centering */
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
   .login-image-container {
@@ -290,5 +528,17 @@
 
   .login-button, .signup-button {
     width: 100%; /* Makes buttons span the full width */
+  }
+
+  .app-dropdown {
+    width: 100%; /* Make the dropdown span the full width */
+  }
+
+  .task-list-container {
+    width: 100%; /* Make the task list container span the full width */
+  }
+
+  .highlighted-task-container {
+    display: none; /* Hide the container on smaller screens */
   }
 }
