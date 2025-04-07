@@ -12,9 +12,11 @@
   "dependencies": {
     "agendum-frontend": "file:",
     "axios": "^1.8.2",
+    "dagre": "^0.8.5",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "reactflow": "^11.11.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
