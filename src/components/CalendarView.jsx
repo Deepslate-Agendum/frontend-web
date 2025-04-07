@@ -1,11 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Calendar from "react-calendar"; // Ensure this import works after installing the package
 import "react-calendar/dist/Calendar.css";
 import "../../css/CalendarView.css";
+import TaskDetails from "./TaskDetails"; // Import TaskDetails component
 
-const CalendarView = ({ tasks, onTaskClick, onCreateTask }) => {
+const CalendarView = ({ tasks, onTaskClick, onCreateTask, onUpdateTask, onDeleteTask }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTask, setSelectedTask] = useState(null); // State to track the selected task for the popup
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768); // State to track if the view is mobile
+
+  // Update `isMobile` state on window resize
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const getTasksForDate = (date) => {
     const formattedDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
@@ -14,6 +24,14 @@ const CalendarView = ({ tasks, onTaskClick, onCreateTask }) => {
     return tasks.filter(
       (task) => task.due_date && task.due_date === formattedDate // Compare normalized dates
     );
+  };
+
+  const handleTaskClick = (task) => {
+    if (isMobile) {
+      setSelectedTask(task); // Show the popup in mobile mode
+    } else {
+      onTaskClick(task); // Highlight the task in the highlighted task section
+    }
   };
 
   return (
@@ -40,7 +58,7 @@ const CalendarView = ({ tasks, onTaskClick, onCreateTask }) => {
             <li
               key={task.id}
               className="calendar-task"
-              onClick={() => onTaskClick(task)}
+              onClick={() => handleTaskClick(task)} // Handle task click based on the view mode
             >
               {task.title || "Untitled Task"}
             </li>
@@ -56,6 +74,25 @@ const CalendarView = ({ tasks, onTaskClick, onCreateTask }) => {
           Create Task
         </button>
       </div>
+
+      {/* Render TaskDetails popup only in mobile mode */}
+      {isMobile && selectedTask && (
+        <TaskDetails
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)} // Close the popup
+          onUpdate={(updatedData) => {
+            onUpdateTask(updatedData); // Call the update handler
+            setSelectedTask(updatedData); // Update the selected task
+          }}
+          onDelete={() => {
+            onDeleteTask(selectedTask.id); // Call the delete handler
+            setSelectedTask(null); // Close the popup after deletion
+          }}
+          onCreateSubtask={(parentId, newSubtask) => {
+            console.log("Creating subtask for task", parentId, newSubtask);
+          }}
+        />
+      )}
     </div>
   );
 };
@@ -70,6 +107,8 @@ CalendarView.propTypes = {
   ).isRequired,
   onTaskClick: PropTypes.func.isRequired,
   onCreateTask: PropTypes.func.isRequired, // Add prop type for the create task handler
+  onUpdateTask: PropTypes.func.isRequired, // Add prop type for the update task handler
+  onDeleteTask: PropTypes.func.isRequired, // Add prop type for the delete task handler
 };
 
 export default CalendarView;
