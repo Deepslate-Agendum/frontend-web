@@ -5,13 +5,18 @@
  * - Fetches tasks and workspaces from the backend API.
  * - Provides functionality to create, update, and delete tasks and workspaces.
  * - Renders the UI for login, task management, and workspace management.
+* - Supports multiple views: list view, map view, and calendar view.
+ * - Displays a highlighted task that is always visible.
  * - Uses utility functions from the `api` module for backend communication.
+* - Includes a dropdown for workspace selection and management.
  */
 
 import '../css/App.css';
 import { useEffect, useState } from "react";
 import TaskModal from "./components/TaskModal";
+import SubtaskModal from "./components/SubtaskModal";
 import TaskList from './components/TaskList';
+import CalendarView from "./components/CalendarView";
 import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, getParentTask, getSubtasks, getDependentTasks, deleteTask } from "./utils/api";
 
 const API_BASE = "http://127.0.0.1:5000"; // Backend URL
@@ -31,7 +36,11 @@ const App = () => {
   const [userId, setUserId] = useState(localStorage.getItem("userId") || "");
   const [workspaceName, setWorkspaceName] = useState("");
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showSubtaskModal, setShowSubtaskModal] = useState(false);
   const [currentWorkspace, setCurrentWorkspace] = useState(null);
+  const [isMemberOfWorkspace, setIsMemberOfWorkspace] = useState(true);
+  const [highlightedTask, setHighlightedTask] = useState(null); // State for the highlighted task
+  const [viewMode, setViewMode] = useState("list"); // State to track the current view mode
 
   // Fetch workspaces on initial render
   useEffect(() => {
@@ -46,6 +55,15 @@ const App = () => {
       setTasks([]);
     }
   }, [currentWorkspace]);
+
+  // Update `isMemberOfWorkspace` based on fetched workspaces
+  useEffect(() => {
+    if (workspaces.length === 0) {
+      setIsMemberOfWorkspace(false);
+    } else {
+      setIsMemberOfWorkspace(true);
+    }
+  }, [workspaces]);
   
 
   //Authentication Endpoints
@@ -213,13 +231,17 @@ const App = () => {
 
 
   // Create Workspace
-  const createWorkspaceHandler = async () => {
-    if (!workspaceName) return alert("Workspace name required!");
+  const createWorkspaceHandler = async (name) => {
+    const trimmedWorkspaceName = name.trim(); // Trim the workspace name to remove extra spaces
+    if (!trimmedWorkspaceName) { // Ensure the trimmed name is not empty
+      alert("Workspace name required!");
+      return;
+    }
   
     try {
-      await createWorkspace(workspaceName, userId); //api call to utils
-      setWorkspaceName("");
-      fetchWorkspaces();
+      await createWorkspace(trimmedWorkspaceName, userId); // Use the trimmed name for the API call
+      setWorkspaceName(""); // Clear the input field only after the API call
+      await fetchWorkspaces(); // Refresh the workspace list after the API call
     } catch (error) {
       console.error("Error creating workspace:", error);
     }
@@ -246,11 +268,11 @@ const App = () => {
     setCurrentWorkspace(ws);
   };
 
-
-
-
-
-
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleLogin(); // Trigger login when Enter is pressed
+    }
+  };
 
 
 //-----------------------------------------------------------------------------------------
@@ -269,40 +291,156 @@ const App = () => {
       )}
       {/* <h1>Deepslate Agendum</h1> */}
   
+{/* Main application */}
       {token ? (
-        <>
-          <p>Welcome, <strong>{username}</strong>!</p>
-          <button onClick={handleLogout}>Log Out</button>
-  
-          <h2>Task List</h2>
-          <button onClick={() => setShowTaskModal(true)}>Create Task</button>
-          {showTaskModal && <TaskModal 
-                              onClose={() => setShowTaskModal(false)} 
-                              onCreate={createTaskHandler}
-                              workspaceId={currentWorkspace?.id}
-                            />}
-  
-          <TaskList 
-            tasks={tasks} 
-            updateTask={updateTaskHandler} 
-            deleteTask={deleteTaskHandler}
-            workspace={currentWorkspace}
-          />
-  
-          <h2>Workspaces</h2>
-          <input type="text" placeholder="Workspace name" value={workspaceName} onChange={(e) => setWorkspaceName(e.target.value)} />
-          <button onClick={createWorkspaceHandler}>Create Workspace</button>
-  
-          {workspaces.map((ws) => (
-            <div key={getId(ws)}>
-              <div onClick={() => handleSelectWorkspace(ws)}>
-                <p style={{ color: (getId(ws) == (currentWorkspace && getId(currentWorkspace))) ? "white" : "gray" }}>{ws.name}</p>
+        isMemberOfWorkspace ? (
+          <>
+            <div className="top-right-container">
+              <div className="view-buttons">
+                <button onClick={() => setViewMode("list")}>List View</button>
+                <button onClick={() => setViewMode("map")}>Map View</button>
+                <button onClick={() => setViewMode("calendar")}>Calendar View</button>
               </div>
-              <button onClick={() => deleteWorkspaceHandler(getId(ws))}>Delete</button>
+              <p>Welcome, <strong>{username}</strong>!</p>
+              <button onClick={handleLogout}>Log Out</button>
             </div>
-          ))}
-        </>
+
+            {/* Custom dropdown menu */}
+            <div className="custom-dropdown">
+              <button className="dropdown-button">
+                {currentWorkspace ? `Current Workspace: ${currentWorkspace.name}` : "Select Workspace"}
+                <span className="caret">▼</span> {/* Add caret to indicate dropdown */}
+              </button>
+              <div className="dropdown-content">
+                {workspaces.map((ws) => (
+                  <div
+                    key={getId(ws)}
+                    className="dropdown-item"
+                    onClick={() => handleSelectWorkspace(ws)} // Allow clicking anywhere on the option to switch workspaces
+                  >
+                    <span>{ws.name}</span>
+                    <button
+                      className="delete-workspace-button"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent triggering the workspace selection
+                        if (window.confirm(`Are you sure you want to delete the workspace "${ws.name}"?`)) {
+                          deleteWorkspaceHandler(getId(ws));
+                        }
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+                <div
+                  className="dropdown-item"
+                  onClick={() => {
+                    const newWorkspaceName = prompt("Enter the name of the new workspace:");
+                    if (newWorkspaceName && newWorkspaceName.trim()) { // Ensure the input is not empty or whitespace
+                      createWorkspaceHandler(newWorkspaceName.trim()); // Pass the trimmed name directly to the handler
+                    } else {
+                      alert("Workspace name required!"); // Show an alert if the input is invalid
+                    }
+                  }}
+                >
+                  <span>Create a New Workspace</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Conditional rendering based on viewMode */}
+            {viewMode === "list" && (
+              <div className="task-list-container">
+                <h2 className="task-list-header">Task List</h2>
+                <button 
+                  onClick={() => {
+                    setHighlightedTask(null); // Ensure no task is highlighted
+                    setShowTaskModal(true); // Open the modal for creating a new task
+                  }} 
+                  className="task-button edit"
+                >
+                  Create Task
+                </button>
+                <TaskList 
+                  tasks={tasks} 
+                  updateTask={updateTaskHandler} 
+                  deleteTask={deleteTaskHandler}
+                  workspace={currentWorkspace}
+                  highlightedTask={highlightedTask} // Pass the highlighted task to TaskList
+                  onTaskClick={(task) => {
+                    if (highlightedTask && highlightedTask.id === task.id) {
+                      setHighlightedTask(null); // Unhighlight the task if it is already highlighted
+                    } else {
+                      setHighlightedTask(task); // Highlight the clicked task
+                    }
+                  }}
+                />
+              </div>
+            )}
+
+            {viewMode === "map" && (
+              <div className="map-view-container">
+                <h2 className="map-view-header">Map View</h2>
+                <p>Map view is under construction.</p>
+              </div>
+            )}
+
+            {viewMode === "calendar" && (
+              <CalendarView
+                tasks={tasks}
+                onTaskClick={(task) => {
+                  if (window.innerWidth > 768) {
+                    setHighlightedTask(task);
+                  } else {
+                    console.log("Mobile mode: Task clicked", task);
+                  }
+                }}
+              />
+            )}
+
+            {/* Render the TaskModal for creating a task */}
+            {showTaskModal && (
+              <TaskModal 
+                onClose={() => setShowTaskModal(false)} 
+                onCreate={createTaskHandler}
+                workspaceId={currentWorkspace?.id}
+              />
+            )}
+
+            {/* Bottom App Bar for mobile view */}
+            {window.innerWidth <= 768 && (
+              <div className="bottom-app-bar">
+                <button onClick={() => setViewMode("list")}>List</button>
+                <button onClick={() => setViewMode("map")}>Map</button>
+                <button onClick={() => setShowTaskModal(true)}>Add Task</button>
+                <button onClick={() => setViewMode("calendar")}>Calendar</button>
+                <button onClick={() => alert("Profile clicked!")}>Profile</button>
+              </div>
+            )}
+          </>
+        ) : (
+// No workspace available page
+          <div className="no-workspace-page">
+            <h1>No Workspaces Found</h1>
+            <p>Let's create a workspace!</p>
+            {/* TODO: FIX BUG: The workspace created here does exist, but the name will not show up on the main screen. */}
+            <div className="create-workspace-form">
+              <input 
+                type="text" 
+                placeholder="Workspace name" 
+                value={workspaceName} 
+                onChange={(e) => setWorkspaceName(e.target.value)} 
+                className="workspace-input"
+              />
+              <button onClick={createWorkspaceHandler} className="workspace-button">Create Workspace</button>
+            </div>
+          </div>
+        )
       ) : (
+
+// =============LOGIN PAGE=======================================================================
+
+        // TODO: Add logic to handle if login and/or password is empty
         <div className="login-container">
           <div className="login-card">
             <h1 className="welcome-text">Welcome</h1>
@@ -320,12 +458,81 @@ const App = () => {
               placeholder="Enter password" 
               value={password} 
               onChange={(e) => setPassword(e.target.value)} 
+              onKeyPress={handleKeyPress} // Listen for Enter key press
             />
             <div className="login-buttons">
               <button className="login-button" onClick={handleLogin}>Log In</button>
               <button className="signup-button" onClick={createUserHandler}>Create User</button>
             </div>
           </div>
+        </div>
+      )}
+{/* =============END OF LOGIN PAGE======================================================================= */}
+      {/* Always render the highlighted task container, but only when the user is logged in and there are workspaces */}
+      {token && isMemberOfWorkspace && (
+        <div className="highlighted-task-container">
+          {highlightedTask ? (
+            <>
+              <h2 className="highlighted-task-header">Highlighted Task</h2>
+              <div className="highlighted-task-content">
+                <h3>{highlightedTask.title || "No Title"}</h3>
+                <p><strong>Description:</strong> {highlightedTask.description || "No Description"}</p>
+                <p><strong>Tags:</strong> {Array.isArray(highlightedTask.tags) ? highlightedTask.tags.join(", ") : highlightedTask.tags || "No Tags"}</p>
+                <p><strong>Due Date:</strong> {highlightedTask.due_date || "No Due Date"}</p>
+                <p><strong>Owner:</strong> {highlightedTask.ownerUsername || "Unknown"}</p>
+                <p><strong>Workspace:</strong> {highlightedTask.workspaceName || "Unknown"}</p>
+                <p><strong>Parent Task:</strong> {highlightedTask.parentTaskId || "None"}</p>
+                <p><strong>Dependent:</strong> {highlightedTask.dependent ? "Yes" : "No"}</p>
+                <p><strong>Completed:</strong> {highlightedTask.completed ? "Yes" : "No"}</p>
+              </div>
+              {/* Buttons for task actions */}
+              <div className="highlighted-task-actions">
+                <button onClick={() => setShowTaskModal(true)}>Edit Task</button>
+                <button onClick={() => {
+                  deleteTaskHandler(highlightedTask.id);
+                  setHighlightedTask(null); // Clear the highlighted task after deletion
+                }}>Delete Task</button>
+                <button onClick={() => setShowSubtaskModal(true)}>Add Subtask</button>
+              </div>
+              {/* Render the TaskModal for editing the highlighted task */}
+              {showTaskModal && (
+                <TaskModal
+                  task={highlightedTask} // Pass the highlighted task to the modal
+                  onClose={() => setShowTaskModal(false)} // Close the modal
+                  onUpdate={(updatedData) => {
+                    updateTaskHandler(updatedData); // Call the update handler
+                    setHighlightedTask((prevTask) => ({
+                      ...prevTask,
+                      ...updatedData, // Update the highlighted task with new data
+                    }));
+                    setShowTaskModal(false); // Close the modal after updating
+                  }}
+                  workspace={currentWorkspace} // Pass the current workspace
+                />
+              )}
+              {/* Render the SubtaskModal for adding a subtask */}
+              {showSubtaskModal && (
+                <SubtaskModal
+                  parentTask={highlightedTask} // Pass the highlighted task as the parent
+                  onClose={() => setShowSubtaskModal(false)} // Close the modal
+                  onCreate={(newSubtask) => {
+                    createTaskHandler(
+                      newSubtask.title,
+                      newSubtask.description,
+                      newSubtask.tags,
+                      newSubtask.due_date,
+                      currentWorkspace?.id,
+                      highlightedTask.id, // Link the subtask to the parent task
+                      newSubtask.dependent
+                    );
+                    setShowSubtaskModal(false); // Close the modal after creating the subtask
+                  }}
+                />
+              )}
+            </>
+          ) : (
+            <p className="no-task-selected">No task selected</p>
+          )}
         </div>
       )}
     </div>
