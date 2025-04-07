@@ -9,12 +9,12 @@ import "../../css/App.css";
 // Helper function to extract the ID from a document object
 const getId = (document) => document._id["$oid"];
 
-const TaskModal = ({ onClose, onCreate, onUpdate, task, workspace }) => {
+const TaskModal = ({ onClose, onCreate, onUpdate, task, preFilledTask, workspace }) => {
   // State variables for form inputs
-  const [title, setTitle] = useState(task ? task.title : "");
-  const [description, setDescription] = useState(task ? task.description : "");
-  const [tags, setTags] = useState(task ? String(task.tags) : "");
-  const [dueDate, setDueDate] = useState(task ? task.due_date : "");
+  const [title, setTitle] = useState(task ? task.title : preFilledTask?.title || "");
+  const [description, setDescription] = useState(task ? task.description : preFilledTask?.description || "");
+  const [tags, setTags] = useState(task ? String(task.tags) : preFilledTask?.tags?.join(", ") || "");
+  const [dueDate, setDueDate] = useState(task ? task.due_date : preFilledTask?.due_date || "");
 
   // Effect to update state when the task prop changes
   useEffect(() => {
@@ -88,6 +88,12 @@ TaskModal.propTypes = {
     tags: PropTypes.arrayOf(PropTypes.string),
     due_date: PropTypes.string,
     currentWorkspaceId: PropTypes.number,
+  }),
+  preFilledTask: PropTypes.shape({
+    title: PropTypes.string,
+    description: PropTypes.string,
+    tags: PropTypes.arrayOf(PropTypes.string),
+    due_date: PropTypes.string,
   }),
   workspace: PropTypes.object, // Workspace object containing task context
 };

@@ -538,7 +538,6 @@
   background-color: #e0f7fa; /* Light blue background for map view */
   color: #00796b; /* Dark teal text color */
   padding: 2rem;
-  border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: fixed;
   bottom: 0;
@@ -552,7 +551,6 @@
   background-color: #fff3e0; /* Light orange background for calendar view */
   color: #e65100; /* Deep orange text color */
   padding: 2rem;
-  border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: fixed;
   bottom: 0;
@@ -674,10 +672,14 @@
   }
 
   .highlighted-task-container {
-    display: none; /* Hide the container on smaller screens */
+    display: none; /* Hide the highlighted task container in mobile mode */
   }
 
   .custom-dropdown {
-    width: 100%; /* Make dropdown span full width in mobile view */
+    width: 100%; /* Make the dropdown span the full width in mobile mode */
+  }
+
+  .calendar-view-container {
+    width: 100%; /* Make the calendar view span the full width in mobile mode */
   }
 }
