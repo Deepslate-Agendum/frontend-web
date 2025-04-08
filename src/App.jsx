@@ -26,6 +26,7 @@ const getId = (document) => document._id["$oid"];
 
 const App = () => {
   // State variables for managing tasks, workspaces, and user session
+  const [mapClickPosition, setMapClickPosition] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [workspaces, setWorkspaces] = useState([]);
   const [usernameInput, setUsernameInput] = useState("");
@@ -152,11 +153,13 @@ const App = () => {
         workspace_id: getId(currentWorkspace),
         parentTaskId, //optional for subtasks creation
         dependent, //optional for subtasks creation
-        position, //for map view
+        position: mapClickPosition || position, // use mapClickPosition if available
       });
   
-      setTasks((prevTasks) => [...prevTasks, newTask]);
+      //setTasks((prevTasks) => [...prevTasks, newTask]); //frontend validation
       setShowTaskModal(false);
+      await fetchTasks(); //backend validation
+      setMapClickPosition(null);
       return newTask;
     } catch (error) {
       console.error("Error creating task:", error);
@@ -188,7 +191,7 @@ const App = () => {
       console.error("Error deleting task:", error);
     }
   };
-/*
+
   const getDependentTasksHandler = async (parentTaskId) => {
     try {
       return await getDependentTasks(parentTaskId);
@@ -212,7 +215,6 @@ const App = () => {
       return null;
     }
   };
-  */
 
 
   //Workspace endpoints
@@ -333,7 +335,7 @@ const App = () => {
                 <div
                   className="dropdown-item"
                   onClick={() => {
-                    const newWorkspaceName = prompt("Enter the name of the new workspace:");
+                    const newWorkspaceName = ("Enter the name of the new workspace:");
                     if (newWorkspaceName) {
                       setWorkspaceName(newWorkspaceName);
                       createWorkspaceHandler();
@@ -375,6 +377,10 @@ const App = () => {
                   onCreateTask={createTaskHandler}
                   onUpdateTask={updateTaskHandler}
                   onTaskClick={(task) => setHighlightedTask(task)}
+                  setShowTaskModal={setShowTaskModal}
+                  setMapClickPosition={setMapClickPosition}
+                  deleteTask={deleteTaskHandler}
+                  workspace={currentWorkspace}
                 />
               </div>
             )}
@@ -392,6 +398,7 @@ const App = () => {
                 onClose={() => setShowTaskModal(false)} 
                 onCreate={createTaskHandler}
                 workspaceId={currentWorkspace?.id}
+                prefillPosition={mapClickPosition}
               />
             )}
 
