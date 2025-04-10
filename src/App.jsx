@@ -17,6 +17,7 @@ import TaskModal from "./components/TaskModal";
 import SubtaskModal from "./components/SubtaskModal";
 import TaskList from './components/TaskList';
 import MapView from './components/MapView';
+import CalendarView from "./components/CalendarView"; // Ensure CalendarView is imported
 import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, getParentTask, getSubtasks, getDependentTasks, deleteTask } from "./utils/api";
 
 //const API_BASE = "http://127.0.0.1:5000"; // Backend URL
@@ -42,6 +43,7 @@ const App = () => {
   const [isMemberOfWorkspace, setIsMemberOfWorkspace] = useState(true);
   const [highlightedTask, setHighlightedTask] = useState(null); // State for the highlighted task
   const [viewMode, setViewMode] = useState("list"); // State to track the current view mode
+  const [preFilledTask, setPreFilledTask] = useState(null); // State for pre-filled task
 
   // Fetch workspaces on initial render
   useEffect(() => {
@@ -165,6 +167,21 @@ const App = () => {
       console.error("Error creating task:", error);
     }
   };
+
+  // Function to handle task creation from CalendarView
+  const handleCreateTaskFromCalendar = (selectedDate) => {
+    const formattedDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000)
+      .toISOString()
+      .split("T")[0]; // Normalize to local timezone and format as YYYY-MM-DD
+    setHighlightedTask(null); // Ensure no task is highlighted
+    setShowTaskModal(true); // Open the TaskModal
+    setPreFilledTask({
+      title: "", // Ensure the title is empty for a new task
+      description: "", // Ensure the description is empty for a new task
+      tags: [], // Ensure no tags are pre-filled
+      due_date: formattedDate, // Use the correctly normalized date
+    });
+  };
   
   
   
@@ -239,11 +256,30 @@ const App = () => {
     if (!workspaceName) return alert("Workspace name required!");
   
     try {
-      await createWorkspace(workspaceName, userId); //api call to utils
-      setWorkspaceName("");
-      fetchWorkspaces();
+      const newWorkspace = await createWorkspace(trimmedWorkspaceName, userId); // Use the trimmed name for the API call
+      setWorkspaceName(""); // Clear the input field only after the API call
+      setWorkspaces((prevWorkspaces) => [...prevWorkspaces, newWorkspace]); // Add the new workspace to the state
+      setCurrentWorkspace(newWorkspace); // Set the newly created workspace as the current workspace
+  
+      // Retry logic for fetching tasks
+      let attempts = 0;
+      const maxAttempts = 3;
+      while (attempts < maxAttempts) {
+        try {
+          await fetchTasks(getId(newWorkspace)); // Attempt to fetch tasks
+          return; // Exit the function if successful
+        } catch (error) {
+          attempts++;
+          console.error(`Attempt ${attempts} to fetch tasks failed:`, error);
+          if (attempts === maxAttempts) {
+            // alert("Failed to fetch tasks for the new workspace after multiple attempts. The page will now refresh.");
+            window.location.reload(); // Refresh the page if all attempts fail
+          }
+        }
+      }
     } catch (error) {
       console.error("Error creating workspace:", error);
+      alert("Failed to create workspace. Please try again.");
     }
   };
   
@@ -386,19 +422,35 @@ const App = () => {
             )}
 
             {viewMode === "calendar" && (
+
               <div className="calendar-view-container">
-                <h2 className="calendar-view-header">Calendar View</h2>
-                <p>Calendar view is under construction.</p>
+              <CalendarView
+                tasks={tasks}
+                onTaskClick={(task) => {
+                  if (window.innerWidth > 768) {
+                    setHighlightedTask(task);
+                  } else {
+                    console.log("Mobile mode: Task clicked", task);
+                  }
+                }}
+                onCreateTask={handleCreateTaskFromCalendar} // Pass the handler for creating tasks from CalendarView
+              />
               </div>
+
             )}
 
             {/* Render the TaskModal for creating a task */}
             {showTaskModal && (
               <TaskModal 
-                onClose={() => setShowTaskModal(false)} 
-                onCreate={createTaskHandler}
+                onClose={() => {
+                  setShowTaskModal(false);
+                  setPreFilledTask(null); // Clear pre-filled task after closing
+                }} 
+                onCreate={createTaskHandler} // Use the create task handler
                 workspaceId={currentWorkspace?.id}
-                prefillPosition={mapClickPosition}
+
+                task={null} // Pass null to ensure the modal is in create mode
+                preFilledTask={preFilledTask} // Pass pre-filled task for creation
               />
             )}
 
@@ -418,7 +470,6 @@ const App = () => {
           <div className="no-workspace-page">
             <h1>No Workspaces Found</h1>
             <p>Let's create a workspace!</p>
-            {/* TODO: FIX BUG: The workspace created here does exist, but the name will not show up on the main screen. */}
             <div className="create-workspace-form">
               <input 
                 type="text" 
@@ -427,7 +478,12 @@ const App = () => {
                 onChange={(e) => setWorkspaceName(e.target.value)} 
                 className="workspace-input"
               />
-              <button onClick={createWorkspaceHandler} className="workspace-button">Create Workspace</button>
+              <button 
+                onClick={() => createWorkspaceHandler(workspaceName)} 
+                className="workspace-button"
+              >
+                Create Workspace
+              </button>
             </div>
           </div>
         )
@@ -463,8 +519,9 @@ const App = () => {
         </div>
       )}
 {/* =============END OF LOGIN PAGE======================================================================= */}
-      {/* Always render the highlighted task container, but only when the user is logged in */}
-      {token && (
+
+      {/* Always render the highlighted task container, but only when the user is logged in, there are workspaces, and not in mobile mode */}
+      {token && isMemberOfWorkspace && window.innerWidth > 768 && (
         <div className="highlighted-task-container">
           {highlightedTask ? (
             <>
@@ -489,41 +546,6 @@ const App = () => {
                 }}>Delete Task</button>
                 <button onClick={() => setShowSubtaskModal(true)}>Add Subtask</button>
               </div>
-              {/* Render the TaskModal for editing the highlighted task */}
-              {showTaskModal && (
-                <TaskModal
-                  task={highlightedTask} // Pass the highlighted task to the modal
-                  onClose={() => setShowTaskModal(false)} // Close the modal
-                  onUpdate={(updatedData) => {
-                    updateTaskHandler(updatedData); // Call the update handler
-                    setHighlightedTask((prevTask) => ({
-                      ...prevTask,
-                      ...updatedData, // Update the highlighted task with new data
-                    }));
-                    setShowTaskModal(false); // Close the modal after updating
-                  }}
-                  workspace={currentWorkspace} // Pass the current workspace
-                />
-              )}
-              {/* Render the SubtaskModal for adding a subtask */}
-              {showSubtaskModal && (
-                <SubtaskModal
-                  parentTask={highlightedTask} // Pass the highlighted task as the parent
-                  onClose={() => setShowSubtaskModal(false)} // Close the modal
-                  onCreate={(newSubtask) => {
-                    createTaskHandler(
-                      newSubtask.title,
-                      newSubtask.description,
-                      newSubtask.tags,
-                      newSubtask.due_date,
-                      currentWorkspace?.id,
-                      highlightedTask.id, // Link the subtask to the parent task
-                      newSubtask.dependent
-                    );
-                    setShowSubtaskModal(false); // Close the modal after creating the subtask
-                  }}
-                />
-              )}
             </>
           ) : (
             <p className="no-task-selected">No task selected</p>
