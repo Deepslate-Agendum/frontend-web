@@ -12,6 +12,7 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import dagre from "dagre";
 import TaskDetails from "./TaskDetails";
+import '../../css/MapView.css'
 
 const nodeWidth = 172;
 const nodeHeight = 36;
@@ -135,9 +136,9 @@ const MapView = ({ tasks, onCreateTask, onUpdateTask, onTaskClick, setShowTaskMo
         setSelectedTask(task);
     }
   };
-
+  
   return (
-    <div style={{ width: "100%", height: "600px" }}>
+    <div style={{ width: "100%", height: "600px" }} >
       <ReactFlowProvider>
         <ReactFlow
           nodes={nodes}
@@ -150,7 +151,7 @@ const MapView = ({ tasks, onCreateTask, onUpdateTask, onTaskClick, setShowTaskMo
           onNodeClick={onNodeClick}
           fitView
         >
-          <MiniMap />
+          {/* <MiniMap /> */}
           <Controls />
           <Background gap={12} size={1} />
         </ReactFlow>

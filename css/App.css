@@ -547,6 +547,22 @@
   overflow-y: auto;
 }
 
+
+@media (max-width: 768px) {
+  .map-view-container {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .react-flow__renderer {
+    width: 100vw;
+    height: 100vh;
+  }
+  
+}
 .calendar-view-container {
   background-color: #fff3e0; /* Light orange background for calendar view */
   color: #e65100; /* Deep orange text color */

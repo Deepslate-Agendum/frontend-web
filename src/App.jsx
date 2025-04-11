@@ -148,14 +148,14 @@ const App = () => {
     try {
       const newTask = await createTask({
         name: title,
-        title,
         description,
         tags,
         due_date,
         workspace_id: getId(currentWorkspace),
         parentTaskId, //optional for subtasks creation
         dependent, //optional for subtasks creation
-        position: mapClickPosition || position, // use mapClickPosition if available
+        x_location: (mapClickPosition || position)?.x || 0,
+        y_location: (mapClickPosition || position)?.y || 0,      
       });
   
       //setTasks((prevTasks) => [...prevTasks, newTask]); //frontend validation
@@ -407,7 +407,6 @@ const App = () => {
 
             {viewMode === "map" && (
               <div className="map-view-container">
-                <h2 className="map-view-header">Map View</h2>
                 <MapView 
                   tasks={tasks}
                   onCreateTask={createTaskHandler}
