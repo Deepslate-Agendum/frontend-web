@@ -37,6 +37,7 @@ const TaskModal = ({ onClose, onCreate, onUpdate, task, preFilledTask, workspace
     console.log("TaskModal is submitting an update:", task?.id);
 
     if (task) {
+      const safeDueDate = dueDate ? new Date(dueDate).toISOString().split("T")[0] : "";
       // Prepare the updated task object
       const updatedTask = {
         id: task.id,
@@ -44,15 +45,16 @@ const TaskModal = ({ onClose, onCreate, onUpdate, task, preFilledTask, workspace
         title: title.trim(),
         description: description.trim(),
         tags: formattedTags,
-        due_date: dueDate || "",
+        due_date: safeDueDate,
         workspace_id: getId(workspace) || "" // Extract workspace ID
       };
 
       onUpdate(updatedTask); // Call the update handler with the updated task
     } else {
       // Call the create handler with new task details
-      onCreate(title, description, formattedTags, dueDate, workspace);
-    }
+      const safeDueDate = dueDate ? new Date(dueDate).toISOString().split("T")[0] : "";
+      onCreate(title, description, formattedTags, safeDueDate, workspace);
+      }
 
     onClose(); // Close the modal after submission
   };

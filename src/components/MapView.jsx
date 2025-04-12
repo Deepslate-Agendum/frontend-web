@@ -64,17 +64,15 @@ const MapView = ({ tasks, onCreateTask, onUpdateTask, onTaskClick, setShowTaskMo
     }));
   }, [tasks]);
 
-  const edgesFromTasks = useMemo(() => { //this is where i'm trying to draw edges, i think its not working because parent task stuff isnt working 
-    return tasks
-      .filter((task) => task.parentTaskId)
-      .map((task) => ({
-        id: `e-${task.parentTaskId}-${task.id}`,
-        source: task.parentTaskId,
-        target: task.id,
-        animated: true,
-        style: { stroke: "#555" },
-      }));
-  }, [tasks]);
+  const edgesFromTasks = tasks.flatMap((task) => { //this is where i'm trying to draw edges, i think its not working because parent task stuff isnt working 
+    return task.dependencies?.map((depId) => ({
+      id: `e-${depId}-${task.id}`,
+      source: depId,
+      target: task.id,
+      animated: true,
+      style: { stroke: "#555" },
+    })) || [];
+  });
 
   const layouted = useMemo(() => getLayoutedElements(nodesFromTasks, edgesFromTasks), [nodesFromTasks, edgesFromTasks]);
   const [nodes, setNodes, onNodesChange] = useNodesState(layouted);  //stores nodes in frontend
@@ -90,8 +88,11 @@ const MapView = ({ tasks, onCreateTask, onUpdateTask, onTaskClick, setShowTaskMo
       id: task.id,
       type: "default",
       data: { label: task.title || "Untitled Task" },
-      position: task.position || { x: Math.random() * 200, y: Math.random() * 200 },
-    }));
+      position: {
+        x: task.x_location ?? 0,
+        y: task.y_location ?? 0,
+      }      
+      }));
     setNodes(updatedNodes);
   }, [tasks, setNodes]);
   
@@ -99,7 +100,11 @@ const MapView = ({ tasks, onCreateTask, onUpdateTask, onTaskClick, setShowTaskMo
   const onNodeDragStop = useCallback( //updates stuff when drag is done
     async (_, node) => {
       try {
-        await onUpdateTask({ id: node.id, position: node.position });
+        await onUpdateTask({ 
+          id: node.id,
+          x_location: node.position.x,
+          y_location: node.position.y
+        });
       } catch (err) {
         console.error("Error saving node position:", err);
       }

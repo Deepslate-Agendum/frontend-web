@@ -127,6 +127,7 @@ const App = () => {
     try {
       if (getId(currentWorkspace)) {
         const allTasks = await getTasks(getId(currentWorkspace)); //api call to utils
+        console.log("Fetched tasks:", allTasks);
         const filteredTasks = allTasks
         setTasks(filteredTasks);
       }
@@ -144,18 +145,37 @@ const App = () => {
       alert("Error: No workspace selected.");
       return null;
     }
+
+  const x = (mapClickPosition || position)?.x || 0;
+  const y = (mapClickPosition || position)?.y || 0;
+  const safeDueDate = due_date ? new Date(due_date).toISOString().split("T")[0] : "";
+
+  const payload = {
+    name: title,
+    description,
+    tags,
+    due_date: safeDueDate,
+    workspace_id: getId(currentWorkspace),
+    parentTaskId,
+    dependent,
+    x_location: x,
+    y_location: y,
+  };
+  
+  console.log("🟢 Payload to backend:", payload);
+  
   
     try {
       const newTask = await createTask({
         name: title,
         description,
         tags,
-        due_date,
+        due_date: safeDueDate,
         workspace_id: getId(currentWorkspace),
         parentTaskId, //optional for subtasks creation
         dependent, //optional for subtasks creation
-        x_location: (mapClickPosition || position)?.x || 0,
-        y_location: (mapClickPosition || position)?.y || 0,      
+        x_location: x,
+        y_location: y,
       });
   
       //setTasks((prevTasks) => [...prevTasks, newTask]); //frontend validation
@@ -252,29 +272,28 @@ const App = () => {
 
 
   // Create Workspace
-  const createWorkspaceHandler = async () => {
-    if (!workspaceName) return alert("Workspace name required!");
+  const createWorkspaceHandler = async (name) => {
+    const trimmedName = name?.trim();
+    if (!trimmedName) {
+      alert("Workspace name required!");
+      return;
+    }
   
     try {
-      const newWorkspace = await createWorkspace(trimmedWorkspaceName, userId); // Use the trimmed name for the API call
+      const newWorkspace = await createWorkspace(trimmedName, userId); // use trimmedName here
       setWorkspaceName(""); // Clear the input field only after the API call
-      setWorkspaces((prevWorkspaces) => [...prevWorkspaces, newWorkspace]); // Add the new workspace to the state
-      setCurrentWorkspace(newWorkspace); // Set the newly created workspace as the current workspace
-  
-      // Retry logic for fetching tasks
+      setWorkspaces((prev) => [...prev, newWorkspace]);
+      setCurrentWorkspace(newWorkspace);
+      
       let attempts = 0;
-      const maxAttempts = 3;
-      while (attempts < maxAttempts) {
+      while (attempts < 3) {
         try {
-          await fetchTasks(getId(newWorkspace)); // Attempt to fetch tasks
-          return; // Exit the function if successful
-        } catch (error) {
+          await fetchTasks(getId(newWorkspace)); // this requires newWorkspace to be valid
+          return;
+        } catch (err) {
           attempts++;
-          console.error(`Attempt ${attempts} to fetch tasks failed:`, error);
-          if (attempts === maxAttempts) {
-            // alert("Failed to fetch tasks for the new workspace after multiple attempts. The page will now refresh.");
-            window.location.reload(); // Refresh the page if all attempts fail
-          }
+          console.error(`Attempt ${attempts} to fetch tasks failed`, err);
+          if (attempts === 3) window.location.reload();
         }
       }
     } catch (error) {
@@ -282,6 +301,7 @@ const App = () => {
       alert("Failed to create workspace. Please try again.");
     }
   };
+  
   
 
   // Delete Workspace
@@ -371,12 +391,13 @@ const App = () => {
                 <div
                   className="dropdown-item"
                   onClick={() => {
-                    const newWorkspaceName = ("Enter the name of the new workspace:");
-                    if (newWorkspaceName) {
-                      setWorkspaceName(newWorkspaceName);
-                      createWorkspaceHandler();
+                    const name = prompt("Enter the name of the new workspace:");
+                    if (name) {
+                      setWorkspaceName(name);
+                      createWorkspaceHandler(name.trim());
                     }
                   }}
+                  
                 >
                   <span>Create a New Workspace</span>
                 </div>
