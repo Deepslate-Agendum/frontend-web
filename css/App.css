@@ -312,7 +312,7 @@
   top: 0; /* Align to the top of the viewport */
   left: 0; /* Align to the left of the viewport */
   width: 100%; /* Full width of the viewport */
-  height: 100%; /* Full height of the viewport */
+  height: calc(100vh - 60px); /* Full viewport height minus 60px */
   background-color: grey; /* Set the background color to grey */
   display: flex; /* Use flexbox for layout */
   flex-direction: column; /* Stack elements vertically */
@@ -439,10 +439,11 @@
   border-radius: 0px; /* Rounded corners for the container */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
   position: fixed; /* Fix the container to the left side of the screen */
-  bottom: 0; /* Align to the bottom of the viewport */
+  bottom: 0; /* Default for desktop mode */
   left: 0; /* Align to the left of the viewport */
   width: 60%; /* Default width */
   height: 90%; /* Full height of the viewport */
+  /* height: calc(100vh - 60px); Full viewport height minus 60px */
   overflow-y: auto; /* Enable scrolling for overflow content */
 }
 
@@ -524,8 +525,12 @@
   box-shadow: -2px 0 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
   overflow-y: auto; /* Enable scrolling for overflow content */
   box-sizing: border-box; /* Include padding and border in width/height */
-  z-index: 1000; /* Ensure it is above other elements */
-  pointer-events: auto; /* Allow interaction with the container */
+  z-index: -1; /* Ensure it is behind all other components */
+  pointer-events: none; /* Prevent interaction with the container */
+}
+
+.highlighted-task-container.hidden {
+  display: none; /* Completely hide the container */
 }
 
 .map-view-container,
@@ -616,7 +621,7 @@
   background-color: #154734; /* Dark green background */
   justify-content: space-around; /* Space buttons evenly */
   align-items: center;
-  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  box-shadow: 0 -2px 4px rgba(255, 255, 255, 0.473); /* Subtle shadow for depth */
   z-index: 1000; /* Ensure it is above other elements */
 }
 
@@ -669,6 +674,8 @@
 
   .task-list-container {
     width: 100%; /* Make the task list container span the full width */
+    bottom: 60px; /* Move up by 60px in mobile mode */
+    height: calc(90% - 60px);
   }
 
   .highlighted-task-container {
@@ -682,4 +689,40 @@
   .calendar-view-container {
     width: 100%; /* Make the calendar view span the full width in mobile mode */
   }
+}
+
+.profile-view-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full viewport height */
+  width: 100%; /* Full width of the screen */
+  background-color: #f0f0f0; /* Light gray background for the profile view */
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.create-task-bottom {
+  margin-top: 1rem; /* Add spacing above the button */
+  width: 60px; /* Set width for the circle */
+  height: 60px; /* Set height for the circle */
+  text-align: center; /* Center the button text */
+  padding: 0; /* Remove extra padding */
+  font-size: 1.5rem; /* Increase font size for better visibility */
+  font-weight: bold;
+  background-color: #1fa40a; /* Green background */
+  color: white;
+  border: none;
+  border-radius: 50%; /* Make the button circular */
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex; /* Use flexbox to center content */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  margin-left: auto; /* Center horizontally */
+  margin-right: auto; /* Center horizontally */
+}
+
+.create-task-bottom:hover {
+  background-color: #148c08; /* Darker green on hover */
 }

@@ -17,6 +17,7 @@ import TaskModal from "./components/TaskModal";
 import SubtaskModal from "./components/SubtaskModal";
 import TaskList from './components/TaskList';
 import CalendarView from "./components/CalendarView"; // Ensure CalendarView is imported
+import ProfileView from "./components/ProfileView"; // Import the ProfileView component
 import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, getParentTask, getSubtasks, getDependentTasks, deleteTask } from "./utils/api";
 
 const API_BASE = "http://127.0.0.1:5000"; // Backend URL
@@ -40,8 +41,16 @@ const App = () => {
   const [currentWorkspace, setCurrentWorkspace] = useState(null);
   const [isMemberOfWorkspace, setIsMemberOfWorkspace] = useState(true);
   const [highlightedTask, setHighlightedTask] = useState(null); // State for the highlighted task
-  const [viewMode, setViewMode] = useState("list"); // State to track the current view mode
+  const [viewMode, setViewMode] = useState(localStorage.getItem("viewMode") || "list"); // Restore view mode from localStorage
   const [preFilledTask, setPreFilledTask] = useState(null); // State for pre-filled task
+  const [showProfileView, setShowProfileView] = useState(localStorage.getItem("showProfileView") === "true"); // Restore profile view state
+  const [previousViewMode, setPreviousViewMode] = useState(null); // Track the previous view mode
+
+  // Save view mode and profile view state to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("viewMode", viewMode);
+    localStorage.setItem("showProfileView", showProfileView);
+  }, [viewMode, showProfileView]);
 
   // Fetch workspaces on initial render
   useEffect(() => {
@@ -66,6 +75,16 @@ const App = () => {
     }
   }, [workspaces]);
   
+  useEffect(() => {
+    const handleResize = () => {
+      window.location.reload(); // Refresh the page on screen size change
+    };
+
+    window.addEventListener("resize", handleResize); // Add event listener for resize
+    return () => {
+      window.removeEventListener("resize", handleResize); // Cleanup event listener on unmount
+    };
+  }, []);
 
   //Authentication Endpoints
 
@@ -75,19 +94,19 @@ const App = () => {
   const handleLogin = async () => {
     setLoginError(""); // Reset error
     try {
-      const data = await loginUser(usernameInput, password); //api call from utils
+      const data = await loginUser(usernameInput.trim(), password.trim()); // Ensure trimmed inputs
       localStorage.setItem("token", data.token);
-      localStorage.setItem("username", usernameInput);
+      localStorage.setItem("username", usernameInput.trim());
       localStorage.setItem("userId", getId(data.user));
       setToken(data.token);
-      setUsername(usernameInput);
+      setUsername(usernameInput.trim());
       setUserId(getId(data.user));
       setUsernameInput("");
       setPassword("");
       console.log("Login successful!");
     } catch (err) {
-      setLoginError("Invalid credentials");
-      console.error("Login failed:", err);
+      setLoginError(err.message); // Display the error message from the API
+      console.error("Login failed:", err.message);
     }
   };
 
@@ -107,12 +126,21 @@ const App = () => {
   //SignUp (createUser)
   const createUserHandler = async () => {
     try {
-      await createUser(usernameInput, password); //api call to utils
-      console.log("User created successfully");
-      setUsernameInput("");
-      setPassword("");
+      if (!usernameInput.trim() || !password.trim()) {
+        alert("Username and password are required!");
+        return;
+      }
+      const response = await createUser(usernameInput.trim(), password.trim()); // Ensure trimmed inputs are sent
+      if (response && response.success) {
+        alert("User created successfully! You can now log in.");
+        setUsernameInput(""); // Clear the username input
+        setPassword(""); // Clear the password input
+      } else {
+        alert("Failed to create user. Please try again.");
+      }
     } catch (error) {
       console.error("Error creating user:", error);
+      alert(error.response?.data?.message || "Failed to create user. Please try again.");
     }
   };
   
@@ -309,6 +337,17 @@ const App = () => {
     }
   };
 
+  const handleShowProfileView = () => {
+    setPreviousViewMode(viewMode); // Save the current view mode before switching to the profile view
+    setShowProfileView(true);
+  };
+
+  const handleBackFromProfile = () => {
+    setShowProfileView(false);
+    if (previousViewMode) {
+      setViewMode(previousViewMode); // Restore the previous view mode
+    }
+  };
 
 //-----------------------------------------------------------------------------------------
 
@@ -328,7 +367,28 @@ const App = () => {
   
 {/* Main application */}
       {token ? (
-        isMemberOfWorkspace ? (
+        showProfileView ? (
+          <div className="profile-view-wrapper">
+            <ProfileView
+              user={{ username }}
+              onUpdateProfile={(updatedProfile) => {
+                setUsername(updatedProfile.username); // Update the username
+                alert("Profile updated successfully!");
+              }}
+              onLogout={handleLogout} // Log out from the profile view
+              onDeleteAccount={() => {
+                if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+                  alert("Account deleted successfully!");
+                  handleLogout();
+                }
+              }}
+              onBack={handleBackFromProfile} // Go back to the previous view
+              workspaces={workspaces}
+              onCreateWorkspace={createWorkspaceHandler}
+              onDeleteWorkspace={deleteWorkspaceHandler}
+            />
+          </div>
+        ) : isMemberOfWorkspace ? (
           <>
             <div className="top-right-container">
               <div className="view-buttons">
@@ -336,7 +396,9 @@ const App = () => {
                 <button onClick={() => setViewMode("map")}>Map View</button>
                 <button onClick={() => setViewMode("calendar")}>Calendar View</button>
               </div>
-              <p>Welcome, <strong>{username}</strong>!</p>
+              <p>
+                Welcome, <strong onClick={handleShowProfileView} style={{ cursor: "pointer", textDecoration: "underline" }}>{username}</strong>!
+              </p>
               <button onClick={handleLogout}>Log Out</button>
             </div>
 
@@ -387,15 +449,6 @@ const App = () => {
             {viewMode === "list" && (
               <div className="task-list-container">
                 <h2 className="task-list-header">Task List</h2>
-                <button 
-                  onClick={() => {
-                    setHighlightedTask(null); // Ensure no task is highlighted
-                    setShowTaskModal(true); // Open the modal for creating a new task
-                  }} 
-                  className="task-button edit"
-                >
-                  Create Task
-                </button>
                 <TaskList 
                   tasks={tasks} 
                   updateTask={updateTaskHandler} 
@@ -410,6 +463,17 @@ const App = () => {
                     }
                   }}
                 />
+                {window.innerWidth > 768 && ( // Show the button only in desktop mode
+                  <button 
+                    onClick={() => {
+                      setHighlightedTask(null); // Ensure no task is highlighted
+                      setShowTaskModal(true); // Open the modal for creating a new task
+                    }} 
+                    className="task-button edit create-task-bottom"
+                  >
+                    +
+                  </button>
+                )}
               </div>
             )}
 
@@ -451,11 +515,23 @@ const App = () => {
             {/* Bottom App Bar for mobile view */}
             {window.innerWidth <= 768 && (
               <div className="bottom-app-bar">
-                <button onClick={() => setViewMode("list")}>List</button>
-                <button onClick={() => setViewMode("map")}>Map</button>
-                <button onClick={() => setShowTaskModal(true)}>Add Task</button>
-                <button onClick={() => setViewMode("calendar")}>Calendar</button>
-                <button onClick={() => alert("Profile clicked!")}>Profile</button>
+                <button onClick={() => {
+                  setShowProfileView(false); // Exit profile view
+                  setViewMode("list"); // Switch to list view
+                }}>List</button>
+                <button onClick={() => {
+                  setShowProfileView(false); // Exit profile view
+                  setViewMode("map"); // Switch to map view
+                }}>Map</button>
+                <button onClick={() => {
+                  setShowProfileView(false); // Exit profile view
+                  setShowTaskModal(true); // Open task modal
+                }}>Add Task</button>
+                <button onClick={() => {
+                  setShowProfileView(false); // Exit profile view
+                  setViewMode("calendar"); // Switch to calendar view
+                }}>Calendar</button>
+                <button onClick={() => setShowProfileView(true)}>Profile</button>
               </div>
             )}
           </>
@@ -513,9 +589,9 @@ const App = () => {
         </div>
       )}
 {/* =============END OF LOGIN PAGE======================================================================= */}
-      {/* Always render the highlighted task container, but only when the user is logged in, there are workspaces, and not in mobile mode */}
-      {token && isMemberOfWorkspace && window.innerWidth > 768 && (
-        <div className="highlighted-task-container">
+      {/* Always render the highlighted task container, but hide it when in profile view */}
+      {token && isMemberOfWorkspace && !showProfileView && window.innerWidth > 768 && (
+        <div className={`highlighted-task-container ${showProfileView ? "hidden" : ""}`}>
           {highlightedTask ? (
             <>
               <h2 className="highlighted-task-header">Highlighted Task</h2>
@@ -543,6 +619,28 @@ const App = () => {
           ) : (
             <p className="no-task-selected">No task selected</p>
           )}
+        </div>
+      )}
+      {/* Bottom App Bar for mobile view */}
+      {window.innerWidth <= 768 && (
+        <div className="bottom-app-bar">
+          <button onClick={() => {
+            setShowProfileView(false); // Exit profile view
+            setViewMode("list"); // Switch to list view
+          }}>List</button>
+          <button onClick={() => {
+            setShowProfileView(false); // Exit profile view
+            setViewMode("map"); // Switch to map view
+          }}>Map</button>
+          <button onClick={() => {
+            setShowProfileView(false); // Exit profile view
+            setShowTaskModal(true); // Open task modal
+          }}>Add Task</button>
+          <button onClick={() => {
+            setShowProfileView(false); // Exit profile view
+            setViewMode("calendar"); // Switch to calendar view
+          }}>Calendar</button>
+          <button onClick={() => setShowProfileView(true)}>Profile</button>
         </div>
       )}
     </div>

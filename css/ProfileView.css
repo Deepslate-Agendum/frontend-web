@@ -1,0 +1,222 @@
+/* ProfileView.css */
+
+.profile-view-container {
+  padding: 1rem;
+  background-color: #154734; /* Update background color to dark green */
+  color: #333;
+  font-family: Arial, sans-serif;
+  width: 80%; /* Default width for desktop mode */
+  height: 100vh; /* Full viewport height */
+  overflow-y: auto; /* Enable vertical scrolling if content overflows */
+}
+
+@media (max-width: 768px) {
+  .profile-view-container {
+    width: 100%; /* Full width for mobile mode */
+    height: calc(100vh - 60px); /* Adjust height for mobile mode */
+    /* bottom: 60px; Move up by 60px in mobile mode */
+  }
+}
+
+.back-button {
+  background-color: #d17aff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  position: absolute; /* Position the button absolutely */
+  top: 1rem; /* Align it to the top */
+  left: 1rem; /* Align it to the left */
+}
+
+.profile-header {
+  text-align: center;
+  margin: 2rem;
+  color: white;
+}
+
+/* .profile-picture {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+} */
+
+.profile-section {
+  margin-bottom: 2rem;
+  padding-inline: 3rem; /* Add horizontal padding */
+  padding-block: 1rem; /* Keep vertical padding */
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 60%; /* Default width for desktop mode */
+  margin-left: auto; /* Center horizontally */
+  margin-right: auto; /* Center horizontally */
+}
+
+@media (max-width: 768px) {
+  .profile-section {
+    width: 80%; /* Adjust width for mobile mode */
+  }
+}
+
+.profile-field {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.profile-field label {
+  font-weight: bold;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.edit-button {
+  background-color: #1fa40a;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.edit-button:hover {
+  background-color: #16970a; /* Darker green on hover */
+}
+
+.workspace-list {
+  list-style: none;
+  padding: 0;
+}
+
+.workspace-item {
+  display: flex;
+  justify-content: space-between;
+  /* margin-bottom: 0.5rem; */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effect */
+  padding : 5px;
+  border-radius: 10px;;
+}
+
+.workspace-item:hover {
+  background-color: #f0f0f0; /* Light gray background on hover */
+  transform: scale(1.02); /* Slightly enlarge the item on hover */
+}
+
+.delete-workspace-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+}
+
+.action-workspace-button {
+  background-color: #007bff; /* Blue background */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  margin-right: 0.5rem; /* Add spacing between the action and delete buttons */
+}
+
+.action-workspace-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.leave-workspace-button {
+  background-color: #dfbd00; /* Blue background */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  margin-right: 0.5rem; /* Add spacing between the action and delete buttons */
+}
+
+.leave-workspace-button:hover {
+  background-color: rgb(145, 142, 0); /* Darker blue on hover */
+}
+
+.create-workspace {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.create-workspace input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.create-workspace button {
+  background-color: #1fa40a;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.create-workspace button:hover {
+  background-color: #148c08; /* Darker green on hover */
+}
+
+.danger-zone {
+  background-color: #ffe6e6;
+  border: 1px solid #ffcccc;
+  margin-bottom: 60px;
+}
+
+.logout-button {
+  background-color: #ffcc00;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  display: inline-block; /* Ensure buttons are side by side */
+  margin: 0 0.5rem; /* Add horizontal spacing between buttons */
+}
+
+.logout-button:hover {
+  background-color: #e6b800; /* Darker yellow on hover */
+}
+
+.delete-account-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  display: inline-block; /* Ensure buttons are side by side */
+  margin: 0 0.5rem; /* Add horizontal spacing between buttons */
+}
+
+.delete-account-button:hover {
+  background-color: #a71d2a; /* Darker red on hover */
+}
+
+.profile-view-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full viewport height */
+  width: 100%; /* Full width of the screen */
+  background-color: #154734; /* Correct background color */
+  padding: 1rem;
+  box-sizing: border-box;
+}

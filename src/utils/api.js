@@ -15,9 +15,10 @@ export const loginUser = async (username, password) => {
     const response = await axios.post(`${API_BASE_URL}/user/login`, { username, password });
     return response.data; // Returns the response data on success
   } catch (error) {
-    // Logs and rethrows the error if the request fails
-    console.error("Login failed:", error.response?.data || error.message);
-    throw error;
+    // Logs and throws a meaningful error message
+    const errorMessage = error.response?.data?.message || "Login failed. Please check your credentials.";
+    console.error("Login failed:", errorMessage);
+    throw new Error(errorMessage);
   }
 };
 
