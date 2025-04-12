@@ -146,8 +146,8 @@ const App = () => {
       return null;
     }
 
-  const x = (mapClickPosition || position)?.x || 0;
-  const y = (mapClickPosition || position)?.y || 0;
+  const x = String((mapClickPosition || position)?.x || 0);
+  const y = String((mapClickPosition || position)?.y || 0);
   const safeDueDate = due_date ? new Date(due_date).toISOString().split("T")[0] : "";
 
   const payload = {
@@ -162,7 +162,7 @@ const App = () => {
     y_location: y,
   };
   
-  console.log("🟢 Payload to backend:", payload);
+  console.log("!!!!!Payload to backend:", payload);
   
   
     try {
