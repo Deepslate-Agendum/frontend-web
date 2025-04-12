@@ -30,7 +30,7 @@ Follow these steps to set up the project locally:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/frontend-web.git
+   git clone https://github.com/Deepslate-Agendum/frontend-web
    cd frontend-web
    ```
 
@@ -41,13 +41,10 @@ Follow these steps to set up the project locally:
 
 3. Start the development server:
    ```bash
-   npm start
+   npm run dev
    ```
 
-4. Open the application in your browser:
-   ```
-   http://localhost:3000
-   ```
+4. Open the application in your browser at the displayed URL
 
 ### Environment Variables
 

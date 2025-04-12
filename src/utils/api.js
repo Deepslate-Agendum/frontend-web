@@ -8,6 +8,11 @@ import axios from "axios";
 // Base URL for all API requests
 const API_BASE_URL = "/api";
 
+const DependencyManner = {
+  blocking: "Blocking",
+  subtask: "Subtask",
+}
+
 // Function to log in a user
 export const loginUser = async (username, password) => {
   try {
@@ -184,3 +189,41 @@ export const getParentTask = async (subtaskId) => {
     throw error;
   }
 };
+
+export const createDependency = async (workspaceId, dependentId, dependeeId, manner) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/workspace/${workspaceId}/dependency`, {
+      dependee_id: dependeeId,
+      dependent_id: dependentId,
+      manner: manner,
+    });
+
+    return response.data.result;
+  }
+  catch (error) {
+    console.error(`createDependency(${workspaceId, dependentId, dependeeId, manner}) failed with the following response:\n${error.response?.data}`)
+    throw error;
+  }
+}
+
+export const getDependency = async (workspaceId, dependencyId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/workspace/${workspaceId}/dependency/${dependencyId}`);
+    return response.data.result;
+  }
+  catch (error) {
+    console.error(`getDependency(${workspaceId, dependencyId}) failed with the following response:\n${error.response?.data}`)
+    throw error;
+  }
+}
+
+export const deleteDependency = async (workspaceId, dependencyId) => {
+  try {
+    const response = await axios.delete(`${API_BASE_URL}/workspace/${workspaceId}/dependency/${dependencyId}`);
+    return response.data.result;
+  }
+  catch (error) {
+    console.error(`deleteDependency(${workspaceId, dependencyId}) failed with the following response:\n${error.response?.data}`)
+    throw error;
+  }
+}

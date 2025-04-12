@@ -16,17 +16,19 @@ import { useEffect, useState } from "react";
 import TaskModal from "./components/TaskModal";
 import SubtaskModal from "./components/SubtaskModal";
 import TaskList from './components/TaskList';
+import MapView from './components/MapView';
 import CalendarView from "./components/CalendarView"; // Ensure CalendarView is imported
 import ProfileView from "./components/ProfileView"; // Import the ProfileView component
 import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, getParentTask, getSubtasks, getDependentTasks, deleteTask } from "./utils/api";
 
-const API_BASE = "http://127.0.0.1:5000"; // Backend URL
+//const API_BASE = "http://127.0.0.1:5000"; // Backend URL
 
 // HACK: until back end serialization is working
 const getId = (document) => document._id["$oid"];
 
 const App = () => {
   // State variables for managing tasks, workspaces, and user session
+  const [mapClickPosition, setMapClickPosition] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [workspaces, setWorkspaces] = useState([]);
   const [usernameInput, setUsernameInput] = useState("");
@@ -165,26 +167,30 @@ const App = () => {
   
   
   //Create Task
-  const createTaskHandler = async (title, description, tags, due_date, workspace_id, parentTaskId = null, dependent = false) => {
+  const createTaskHandler = async (title, description, tags, due_date, workspace_id, parentTaskId = null, dependent = false, position = {}) => {
     if (!currentWorkspace) {
       alert("Error: No workspace selected.");
-      return;
+      return null;
     }
   
     try {
       const newTask = await createTask({
         name: title,
-        title,
         description,
         tags,
         due_date,
         workspace_id: getId(currentWorkspace),
         parentTaskId, //optional for subtasks creation
         dependent, //optional for subtasks creation
+        x_location: (mapClickPosition || position)?.x || 0,
+        y_location: (mapClickPosition || position)?.y || 0,      
       });
   
-      setTasks((prevTasks) => [...prevTasks, newTask]);
+      //setTasks((prevTasks) => [...prevTasks, newTask]); //frontend validation
       setShowTaskModal(false);
+      await fetchTasks(); //backend validation
+      setMapClickPosition(null);
+      return newTask;
     } catch (error) {
       console.error("Error creating task:", error);
     }
@@ -254,7 +260,6 @@ const App = () => {
       return null;
     }
   };
-  
 
 
   //Workspace endpoints
@@ -275,12 +280,8 @@ const App = () => {
 
 
   // Create Workspace
-  const createWorkspaceHandler = async (name) => {
-    const trimmedWorkspaceName = name.trim(); // Trim the workspace name to remove extra spaces
-    if (!trimmedWorkspaceName) { // Ensure the trimmed name is not empty
-      alert("Workspace name required!");
-      return;
-    }
+  const createWorkspaceHandler = async () => {
+    if (!workspaceName) return alert("Workspace name required!");
   
     try {
       const newWorkspace = await createWorkspace(trimmedWorkspaceName, userId); // Use the trimmed name for the API call
@@ -432,11 +433,10 @@ const App = () => {
                 <div
                   className="dropdown-item"
                   onClick={() => {
-                    const newWorkspaceName = prompt("Enter the name of the new workspace:");
-                    if (newWorkspaceName && newWorkspaceName.trim()) { // Ensure the input is not empty or whitespace
-                      createWorkspaceHandler(newWorkspaceName.trim()); // Pass the trimmed name directly to the handler
-                    } else {
-                      alert("Workspace name required!"); // Show an alert if the input is invalid
+                    const newWorkspaceName = ("Enter the name of the new workspace:");
+                    if (newWorkspaceName) {
+                      setWorkspaceName(newWorkspaceName);
+                      createWorkspaceHandler();
                     }
                   }}
                 >
@@ -456,10 +456,10 @@ const App = () => {
                   workspace={currentWorkspace}
                   highlightedTask={highlightedTask} // Pass the highlighted task to TaskList
                   onTaskClick={(task) => {
-                    if (highlightedTask && highlightedTask.id === task.id) {
-                      setHighlightedTask(null); // Unhighlight the task if it is already highlighted
+                    if (window.innerWidth > 768) {
+                      setHighlightedTask(task); // Update the highlighted task for desktop mode
                     } else {
-                      setHighlightedTask(task); // Highlight the clicked task
+                      console.log("Mobile mode: Task clicked", task); // Handle mobile-specific behavior
                     }
                   }}
                 />
@@ -479,13 +479,22 @@ const App = () => {
 
             {viewMode === "map" && (
               <div className="map-view-container">
-                <h2 className="map-view-header">Map View</h2>
-                <p>Map view is under construction.</p>
+                <MapView 
+                  tasks={tasks}
+                  onCreateTask={createTaskHandler}
+                  onUpdateTask={updateTaskHandler}
+                  onTaskClick={(task) => setHighlightedTask(task)}
+                  setShowTaskModal={setShowTaskModal}
+                  setMapClickPosition={setMapClickPosition}
+                  deleteTask={deleteTaskHandler}
+                  workspace={currentWorkspace}
+                />
               </div>
             )}
 
             {viewMode === "calendar" && (
-              <CalendarView
+              <div className="calendar-view-container">
+                                <CalendarView
                 tasks={tasks}
                 onTaskClick={(task) => {
                   if (window.innerWidth > 768) {
@@ -496,6 +505,7 @@ const App = () => {
                 }}
                 onCreateTask={handleCreateTaskFromCalendar} // Pass the handler for creating tasks from CalendarView
               />
+              </div>
             )}
 
             {/* Render the TaskModal for creating a task */}
@@ -507,8 +517,7 @@ const App = () => {
                 }} 
                 onCreate={createTaskHandler} // Use the create task handler
                 workspaceId={currentWorkspace?.id}
-                task={null} // Pass null to ensure the modal is in create mode
-                preFilledTask={preFilledTask} // Pass pre-filled task for creation
+                prefillPosition={mapClickPosition}
               />
             )}
 
