@@ -46,6 +46,8 @@
   display: flex; /* Enables flexbox layout for centering modal content */
   align-items: center; /* Centers modal content vertically */
   justify-content: center; /* Centers modal content horizontally */
+  z-index: 2000; /* high value to ensure it's above everything */
+
 }
 
 .modal-content {
@@ -54,6 +56,8 @@
   padding: 20px; /* Adds padding inside the modal */
   border-radius: 10px; /* Rounds the corners of the modal */
   text-align: center; /* Centers text inside the modal */
+  z-index: 2001; /* high value to ensure it's above everything */
+
 }
 
 .close-button {

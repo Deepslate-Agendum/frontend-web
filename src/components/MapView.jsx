@@ -64,7 +64,7 @@ const MapViewContent = ({
 
   const nodesFromTasks = useMemo(() => {
     return tasks.map((task) => {
-      const id = task.id || task._id?.$oid;
+      const id = String(task.id || task._id?.$oid);
       return {
         id,
         type: "default",
@@ -80,16 +80,9 @@ const MapViewContent = ({
   }, [tasks]);
 
   const edgesFromDependencies = useMemo(() => {
-    const normalizeId = (obj) => {
-      if (!obj) return undefined;
-      if (typeof obj === "string") return obj;
-      if (obj.$oid) return obj.$oid;
-      return obj;
-    };
-
     return dependencies.map((dep) => {
-      const source = normalizeId(dep.depended_on_task);
-      const target = normalizeId(dep.dependent_task);
+      const source = String(dep.depended_on_task?.id || dep.depended_on_task);
+      const target = String(dep.dependent_task?.id || dep.dependent_task);
       return {
         id: `e-${source}-${target}`,
         source,
@@ -120,15 +113,11 @@ const MapViewContent = ({
   }, [nodesFromTasks, edgesFromDependencies]);
 
   useEffect(() => {
-      // Lock scrolling when MapView mounts
-      document.body.style.overflow = "hidden";
-
-      // Unlock when MapView unmounts
-      return () => {
-        document.body.style.overflow = "auto";
-      };
-    }, []);
-
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
 
   const onNodeDragStart = useCallback((_, node) => {
     setIsDragging(true);
@@ -198,8 +187,17 @@ const MapViewContent = ({
 
   const onNodeClick = (_, node) => {
     const task = tasks.find((t) => t.id === node.id || t._id?.$oid === node.id);
-    if (task) setSelectedTask(task);
+    if (!task) return;
+  
+    const isSmallScreen = window.innerWidth <= 768;
+  
+    if (isSmallScreen) {
+      setSelectedTask(task); // opens TaskDetails modal
+    } else {
+      onTaskClick(task); // highlight task in side panel
+    }
   };
+  
 
   return (
     <>
@@ -265,7 +263,7 @@ const MapView = (props) => {
         left: 0,
         right: 0,
         bottom: 0,
-        zIndex: 1, 
+        zIndex: 1,
         overflow: "hidden",
       }}
     >
@@ -276,12 +274,11 @@ const MapView = (props) => {
           setDraggedNode={setDraggedNode}
         />
 
-        {/* Trashcan */}
         <div
           id="trashcan"
           style={{
             position: "absolute",
-            bottom: 90, // slightly higher
+            bottom: 90,
             left: 20,
             width: 80,
             height: 80,
