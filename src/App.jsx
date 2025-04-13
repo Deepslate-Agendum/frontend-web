@@ -143,51 +143,40 @@ const App = () => {
   
   
   //Create Task
-  const createTaskHandler = async (title, description, tags, due_date, workspace_id, dependencies = [], position = {}) => {
+  const createTaskHandler = async (title, description, tags, due_date, workspace_id, dependencies = [], position = null) => {
     if (!currentWorkspace) {
       alert("Error: No workspace selected.");
       return null;
     }
-
-  const x = String((mapClickPosition || position)?.x || 0);
-  const y = String((mapClickPosition || position)?.y || 0);
-  const safeDueDate = due_date ? new Date(due_date).toISOString().split("T")[0] : "";
-
-  const payload = {
-    name: title,
-    description,
-    tags,
-    due_date: safeDueDate,
-    workspace_id: getId(currentWorkspace),
-    dependencies,
-    x_location: x,
-    y_location: y,
-  };
   
-  console.log("!!!!!Payload to backend:", payload);
+    const x = String(position?.x ?? 0);
+    const y = String(position?.y ?? 0);
+    const safeDueDate = due_date ? new Date(due_date).toISOString().split("T")[0] : "";
   
+    const payload = {
+      name: title,
+      description,
+      tags,
+      due_date: safeDueDate,
+      workspace_id: getId(currentWorkspace),
+      dependencies,
+      x_location: x,
+      y_location: y,
+    };
+  
+    console.log("Creating task at:", payload);
   
     try {
-      const newTask = await createTask({
-        name: title,
-        description,
-        tags,
-        due_date: safeDueDate,
-        workspace_id: getId(currentWorkspace),
-        dependencies: [],
-        x_location: x,
-        y_location: y,
-      });
-  
-      //setTasks((prevTasks) => [...prevTasks, newTask]); //frontend validation
+      const newTask = await createTask(payload);
       setShowTaskModal(false);
-      await fetchTasks(); //backend validation
-      setMapClickPosition(null);
+      await fetchTasks(); // backend refresh
+      setMapClickPosition(null); // clear for next task
       return newTask;
     } catch (error) {
       console.error("Error creating task:", error);
     }
   };
+  
 
   // Function to handle task creation from CalendarView
   const handleCreateTaskFromCalendar = (selectedDate) => {
@@ -489,6 +478,7 @@ const App = () => {
                   setMapClickPosition={setMapClickPosition}
                   deleteTask={deleteTaskHandler}
                   workspace={currentWorkspace}
+                  prefillPosition={mapClickPosition}
                 />
               </div>
             )}
@@ -514,9 +504,9 @@ const App = () => {
               <TaskModal 
                 onClose={() => {
                   setShowTaskModal(false);
-                  setPreFilledTask(null); // Clear pre-filled task after closing
+                  setMapClickPosition(null);
                 }} 
-                onCreate={createTaskHandler} // Use the create task handler
+                onCreate={createTaskHandler}
                 workspaceId={currentWorkspace?.id}
                 prefillPosition={mapClickPosition}
               />

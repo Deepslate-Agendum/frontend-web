@@ -7,14 +7,14 @@ import PropTypes from "prop-types";
 import "../../css/App.css";
 
 // Helper function to extract the ID from a document object
-const getId = (document) => document._id["$oid"];
+const getId = (document) => document?._id?.["$oid"] || "";
 
-const TaskModal = ({ onClose, onCreate, onUpdate, task, preFilledTask, workspace }) => {
+const TaskModal = ({ onClose, onCreate, onUpdate, task, prefillPosition, workspace }) => {
   // State variables for form inputs
-  const [title, setTitle] = useState(task ? task.title : preFilledTask?.title || "");
-  const [description, setDescription] = useState(task ? task.description : preFilledTask?.description || "");
-  const [tags, setTags] = useState(task ? String(task.tags) : preFilledTask?.tags?.join(", ") || "");
-  const [dueDate, setDueDate] = useState(task ? task.due_date : preFilledTask?.due_date || "");
+  const [title, setTitle] = useState(task ? task.title : prefillPosition?.title || "");
+  const [description, setDescription] = useState(task ? task.description : prefillPosition?.description || "");
+  const [tags, setTags] = useState(task ? String(task.tags) : prefillPosition?.tags?.join(", ") || "");
+  const [dueDate, setDueDate] = useState(task ? task.due_date : prefillPosition?.due_date || "");
 
   // Effect to update state when the task prop changes
   useEffect(() => {
@@ -29,35 +29,40 @@ const TaskModal = ({ onClose, onCreate, onUpdate, task, preFilledTask, workspace
 
   // Handle form submission for creating or updating a task
   const handleSubmit = () => {
-    // Convert tags input (a comma-separated string) into an array
     const formattedTags = tags
       ? tags.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0)
       : [];
-
-    console.log("TaskModal is submitting an update:", task?.id);
-
+  
+    const safeDueDate = dueDate ? new Date(dueDate).toISOString().split("T")[0] : "";
+  
     if (task) {
-      const safeDueDate = dueDate ? new Date(dueDate).toISOString().split("T")[0] : "";
-      // Prepare the updated task object
       const updatedTask = {
         id: task.id,
-        name: title.trim(), // Ensure no leading/trailing spaces
+        name: title.trim(),
         title: title.trim(),
         description: description.trim(),
         tags: formattedTags,
         due_date: safeDueDate,
-        workspace_id: getId(workspace) || "" // Extract workspace ID
+        workspace_id: getId(workspace),
       };
-
-      onUpdate(updatedTask); // Call the update handler with the updated task
+      onUpdate(updatedTask);
     } else {
-      // Call the create handler with new task details
-      const safeDueDate = dueDate ? new Date(dueDate).toISOString().split("T")[0] : "";
-      onCreate(title, description, formattedTags, safeDueDate, workspace);
-      }
-
-    onClose(); // Close the modal after submission
+      // This ensures (0, 0) if undefined, or the clicked position if MapView
+      const position = prefillPosition ?? { x: 0, y: 0 };
+      onCreate(
+        title,
+        description,
+        formattedTags,
+        safeDueDate,
+        getId(workspace),
+        [],
+        position
+      );
+    }
+  
+    onClose();
   };
+  
 
   return (
     <div className="modal-overlay">
