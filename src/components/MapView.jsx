@@ -57,8 +57,10 @@ const MapViewContent = ({
   setMapClickPosition,
   deleteTask,
   workspace,
+  setIsDragging,
+  setDraggedNode,
 }) => {
-  const { project } = useReactFlow(); // ✅ this is now safe inside ReactFlow
+  const { project } = useReactFlow();
   const [selectedTask, setSelectedTask] = useState(null);
 
   const nodesFromTasks = useMemo(() => {
@@ -109,7 +111,7 @@ const MapViewContent = ({
   );
   const [nodes, setNodes, onNodesChange] = useNodesState(layouted);
   const [edges, setEdges, onEdgesChange] = useEdgesState(edgesFromDependencies);
-
+  
   useEffect(() => {
     const updated = getLayoutedElements(nodesFromTasks, edgesFromDependencies);
     setNodes(updated);
@@ -119,25 +121,49 @@ const MapViewContent = ({
     }, 0);
   }, [nodesFromTasks, edgesFromDependencies]);
 
-  const onNodeDragStop = useCallback(async (_, node) => {
-    try {
-      const draggedTask = tasks.find((t) => t.id === node.id || t._id?.$oid === node.id);
-      if (!draggedTask) return;
+  const onNodeDragStart = useCallback((_, node) => {
+    setIsDragging(true);
+    setDraggedNode(node);
+  }, []);
 
-      await onUpdateTask({
-        id: node.id,
-        name: draggedTask.title,
-        description: draggedTask.description || "",
-        tags: draggedTask.tags || [],
-        due_date: draggedTask.due_date || "",
-        workspace_id: workspace?.id || workspace?._id?.$oid || draggedTask.workspace_id,
-        x_location: String(node.position.x),
-        y_location: String(node.position.y),
-      });
-    } catch (err) {
-      console.error("Error saving node position:", err);
+const onNodeDragStop = useCallback(async (event, node) => {
+  setIsDragging(false);
+  setDraggedNode(null);
+
+  const trash = document.getElementById("trashcan");
+  if (trash) {
+    const trashBounds = trash.getBoundingClientRect();
+    const { clientX, clientY } = event;
+
+    if (
+      clientX >= trashBounds.left &&
+      clientX <= trashBounds.right &&
+      clientY >= trashBounds.top &&
+      clientY <= trashBounds.bottom
+    ) {
+      deleteTask(node.id);
+      return;
     }
-  }, [tasks, onUpdateTask]);
+  }
+
+  try {
+    const draggedTask = tasks.find((t) => t.id === node.id || t._id?.$oid === node.id);
+    if (!draggedTask) return;
+
+    await onUpdateTask({
+      id: node.id,
+      name: draggedTask.title,
+      description: draggedTask.description || "",
+      tags: draggedTask.tags || [],
+      due_date: draggedTask.due_date || "",
+      workspace_id: workspace?.id || workspace?._id?.$oid || draggedTask.workspace_id,
+      x_location: String(node.position.x),
+      y_location: String(node.position.y),
+    });
+  } catch (err) {
+    console.error("Error saving node position:", err);
+  }
+}, [tasks, onUpdateTask]);
 
   const onConnect = useCallback(async ({ source, target }) => {
     try {
@@ -159,10 +185,6 @@ const MapViewContent = ({
 const onPaneClick = useCallback((event) => {
   const flowPosition = screenToFlowPosition({ x: event.clientX, y: event.clientY });
 
-  // Optional offset to fine-tune placement
-  //flowPosition.x -= 100;
-  //flowPosition.y -= 60;
-
   setMapClickPosition(flowPosition);
   setShowTaskModal(true);
 }, [screenToFlowPosition, setMapClickPosition, setShowTaskModal]);
@@ -180,6 +202,7 @@ const onPaneClick = useCallback((event) => {
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onNodeDragStart={onNodeDragStart}
         onNodeDragStop={onNodeDragStop}
         onConnect={onConnect}
         onPaneClick={onPaneClick}
@@ -225,13 +248,41 @@ const onPaneClick = useCallback((event) => {
 };
 
 const MapView = (props) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [draggedNode, setDraggedNode] = useState(null);
+
   return (
-    <div style={{ width: "100%", height: "600px" }}>
+    <div style={{ width: "100%", height: "600px", position: "relative" }}>
       <ReactFlowProvider>
-        <MapViewContent {...props} />
+        <MapViewContent 
+        {...props} 
+        setIsDragging={setIsDragging}
+        setDraggedNode={setDraggedNode}
+        />
+        <div
+          id="trashcan"
+          style={{
+            position: "absolute",
+            bottom: 70,
+            left: 20,
+            width: 80,
+            height: 80,
+            borderRadius: 40,
+            backgroundColor: "rgba(255, 0, 0, 0.6)",
+            color: "white",
+            display: isDragging ? "flex" : "none",
+            justifyContent: "center",
+            alignItems: "center",
+            fontSize: 18,
+            zIndex: 1000,
+          }}
+        >
+          Delete
+        </div>
       </ReactFlowProvider>
     </div>
   );
 };
+
 
 export default MapView;
