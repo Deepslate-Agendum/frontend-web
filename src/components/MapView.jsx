@@ -6,7 +6,6 @@ import ReactFlow, {
   Controls,
   Background,
   useReactFlow,
-  SmoothStepEdge,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import dagre from "dagre";
@@ -15,9 +14,6 @@ import "../../css/MapView.css";
 
 const nodeWidth = 172;
 const nodeHeight = 36;
-const edgeTypes = {
-  smoothstep: SmoothStepEdge,
-};
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -102,7 +98,7 @@ const MapViewContent = ({
           id: `e-${source}-${target}`,
           source,
           target,
-          type: "smoothstep",
+          type: "bezier",
           animated: true,
           style: { stroke: "#555" },
           markerEnd: {
@@ -226,7 +222,6 @@ const MapViewContent = ({
         onConnect={onConnect}
         onPaneClick={onPaneClick}
         onNodeClick={onNodeClick}
-        edgeTypes={edgeTypes}
       >
         <Controls position="bottom-left" style={{ zIndex: 1000 }} />
         <Background gap={12} size={1} />
