@@ -20,7 +20,6 @@ import MapView from './components/MapView';
 import CalendarView from "./components/CalendarView"; // Ensure CalendarView is imported
 import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, deleteTask, getAllDependencies, createDependency } from "./utils/api";
 import { getId, getTaskDependencies } from "./utils/wrapper.js";
-import {  } from "./utils/wrapper.js"
 
 //const API_BASE = "http://127.0.0.1:5000"; // Backend URL
 
