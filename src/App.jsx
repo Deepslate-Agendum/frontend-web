@@ -505,12 +505,16 @@ const App = () => {
                 onClose={() => {
                   setShowTaskModal(false);
                   setMapClickPosition(null);
+                  setHighlightedTask(null); // Clear if we were editing
                 }} 
                 onCreate={createTaskHandler}
-                workspaceId={currentWorkspace?.id}
+                onUpdate={updateTaskHandler}
+                task={highlightedTask} // <-- this is the key fix
                 prefillPosition={mapClickPosition}
+                workspace={currentWorkspace}
               />
             )}
+
 
             {/* Bottom App Bar for mobile view */}
             {window.innerWidth <= 768 && (

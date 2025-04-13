@@ -44,6 +44,8 @@ const TaskModal = ({ onClose, onCreate, onUpdate, task, prefillPosition, workspa
         tags: formattedTags,
         due_date: safeDueDate,
         workspace_id: getId(workspace),
+        x_location: String(task.x_location ?? "0"),
+        y_location: String(task.y_location ?? "0"),
       };
       onUpdate(updatedTask);
     } else {
@@ -85,24 +87,31 @@ const TaskModal = ({ onClose, onCreate, onUpdate, task, prefillPosition, workspa
 
 // Define prop types for the component
 TaskModal.propTypes = {
-  onClose: PropTypes.func.isRequired, // Function to close the modal
-  onCreate: PropTypes.func, // Function to handle task creation
-  onUpdate: PropTypes.func, // Function to handle task updates
+  onClose: PropTypes.func.isRequired,
+  onCreate: PropTypes.func,
+  onUpdate: PropTypes.func,
   task: PropTypes.shape({
     id: PropTypes.string,
     title: PropTypes.string,
     description: PropTypes.string,
-    tags: PropTypes.arrayOf(PropTypes.string),
+    tags: PropTypes.oneOfType([
+      PropTypes.arrayOf(PropTypes.string),
+      PropTypes.string,
+    ]),
     due_date: PropTypes.string,
-    currentWorkspaceId: PropTypes.number,
+    x_location: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    y_location: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   }),
-  preFilledTask: PropTypes.shape({
+  prefillPosition: PropTypes.shape({
     title: PropTypes.string,
     description: PropTypes.string,
     tags: PropTypes.arrayOf(PropTypes.string),
     due_date: PropTypes.string,
+    x: PropTypes.number,
+    y: PropTypes.number,
   }),
-  workspace: PropTypes.object, // Workspace object containing task context
+  workspace: PropTypes.object,
 };
+
 
 export default TaskModal;

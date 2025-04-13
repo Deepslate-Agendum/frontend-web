@@ -108,7 +108,7 @@ const MapViewContent = ({
     setEdges([]);
     setTimeout(() => {
       setEdges(edgesFromDependencies);
-      fitView();
+      //fitView();
     }, 0);
   }, [nodesFromTasks, edgesFromDependencies]);
 
