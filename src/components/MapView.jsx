@@ -252,7 +252,7 @@ const MapView = (props) => {
   const [draggedNode, setDraggedNode] = useState(null);
 
   return (
-    <div style={{ width: "100%", height: "600px", position: "relative" }}>
+    <div style={{ width: "100%", height: "100vh", position: "relative" }}>
       <ReactFlowProvider>
         <MapViewContent 
         {...props} 
