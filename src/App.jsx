@@ -18,7 +18,7 @@ import SubtaskModal from "./components/SubtaskModal";
 import TaskList from './components/TaskList';
 import MapView from './components/MapView';
 import CalendarView from "./components/CalendarView"; // Ensure CalendarView is imported
-import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, getParentTask, getSubtasks, getDependentTasks, deleteTask } from "./utils/api";
+import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, getParentTask, getSubtasks, getDependentTasks, deleteTask, getAllDependencies, createDependency } from "./utils/api";
 
 //const API_BASE = "http://127.0.0.1:5000"; // Backend URL
 
@@ -44,6 +44,7 @@ const App = () => {
   const [highlightedTask, setHighlightedTask] = useState(null); // State for the highlighted task
   const [viewMode, setViewMode] = useState("list"); // State to track the current view mode
   const [preFilledTask, setPreFilledTask] = useState(null); // State for pre-filled task
+  const [dependencies, setDependencies] = useState([]);
 
   // Fetch workspaces on initial render
   useEffect(() => {
@@ -54,8 +55,10 @@ const App = () => {
   useEffect(() => {
     if (currentWorkspace) {
       fetchTasks(getId(currentWorkspace));
+      fetchDependencies(getId(currentWorkspace));
     } else {
       setTasks([]);
+      setDependencies([]);
     }
   }, [currentWorkspace]);
 
@@ -140,7 +143,7 @@ const App = () => {
   
   
   //Create Task
-  const createTaskHandler = async (title, description, tags, due_date, workspace_id, parentTaskId = null, dependent = false, position = {}) => {
+  const createTaskHandler = async (title, description, tags, due_date, workspace_id, dependencies = [], position = {}) => {
     if (!currentWorkspace) {
       alert("Error: No workspace selected.");
       return null;
@@ -156,8 +159,7 @@ const App = () => {
     tags,
     due_date: safeDueDate,
     workspace_id: getId(currentWorkspace),
-    parentTaskId,
-    dependent,
+    dependencies,
     x_location: x,
     y_location: y,
   };
@@ -172,8 +174,7 @@ const App = () => {
         tags,
         due_date: safeDueDate,
         workspace_id: getId(currentWorkspace),
-        parentTaskId, //optional for subtasks creation
-        dependent, //optional for subtasks creation
+        dependencies: [],
         x_location: x,
         y_location: y,
       });
@@ -273,6 +274,10 @@ const App = () => {
 
   // Create Workspace
   const createWorkspaceHandler = async (name) => {
+    if (!userId) {
+      alert("You must be logged in to create a workspace.");
+      return;
+    }
     const trimmedName = name?.trim();
     if (!trimmedName) {
       alert("Workspace name required!");
@@ -329,6 +334,50 @@ const App = () => {
       handleLogin(); // Trigger login when Enter is pressed
     }
   };
+
+  // dependencies 
+  const fetchDependencies = async (workspaceId) => {
+    try {
+      console.log("Fetching dependencies for workspaceId:", workspaceId);
+      const data = await getAllDependencies(workspaceId); // from api.js
+      setDependencies(data);
+    } catch (err) {
+      console.error("Error fetching dependencies:", err);
+      setDependencies([]);
+    }
+  };
+
+  const createDependencyHandler = async ({ source, target }) => {
+    try {
+      const normalizeId = (id) => typeof id === "string" ? id : id?._id || id?.$oid;
+  
+      const workspaceId = getId(currentWorkspace);
+      const dependentId = normalizeId(target);
+      const dependeeId = normalizeId(source);
+      const manner = "Blocking";
+  
+      // Log all values
+      console.log("Creating dependency with:", {
+        workspaceId,
+        dependentId,
+        dependeeId,
+        manner
+      });
+  
+      if (!workspaceId || !dependeeId || !dependentId) {
+        throw new Error("Missing required fields for dependency creation.");
+      }
+  
+      await createDependency(workspaceId, dependeeId, dependentId, manner);
+      await fetchDependencies(workspaceId);
+    } catch (error) {
+      console.error("Error creating dependency:", error);
+    }
+  };
+  
+  
+  
+  
 
 
 //-----------------------------------------------------------------------------------------
@@ -430,6 +479,9 @@ const App = () => {
               <div className="map-view-container">
                 <MapView 
                   tasks={tasks}
+                  dependencies={dependencies}
+                  onCreateDependency={createDependencyHandler}
+                  fetchDependencies={fetchDependencies}
                   onCreateTask={createTaskHandler}
                   onUpdateTask={updateTaskHandler}
                   onTaskClick={(task) => setHighlightedTask(task)}

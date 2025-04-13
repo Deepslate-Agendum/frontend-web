@@ -189,21 +189,24 @@ export const getParentTask = async (subtaskId) => {
   }
 };
 
-export const createDependency = async (workspaceId, dependentId, dependeeId, manner) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/workspace/${workspaceId}/dependency`, {
-      dependee_id: dependeeId,
-      dependent_id: dependentId,
-      manner: manner,
-    });
+export const createDependency = async (workspaceId, dependeeId, dependentId, manner) => {
+  const payload = {
+    dependee_id: dependeeId,
+    dependent_id: dependentId,
+    manner: manner,
+  };
 
+  console.log("*!Api.js: Sending dependency payload:", payload);
+
+  try {
+    const response = await axios.post(`${API_BASE_URL}/workspace/${workspaceId}/dependency/`, payload);
     return response.data.result;
-  }
-  catch (error) {
-    console.error(`createDependency(${workspaceId, dependentId, dependeeId, manner}) failed with the following response:\n${error.response?.data}`)
+  } catch (error) {
+    console.error(`createDependency(${workspaceId}, ...) failed with:`, error.response?.data || error.message);
     throw error;
   }
-}
+};
+
 
 export const getDependency = async (workspaceId, dependencyId) => {
   try {
@@ -225,4 +228,20 @@ export const deleteDependency = async (workspaceId, dependencyId) => {
     console.error(`deleteDependency(${workspaceId, dependencyId}) failed with the following response:\n${error.response?.data}`)
     throw error;
   }
+
+
 }
+
+export const getAllDependencies = async (workspaceId) => {
+  try {
+    const response = await axios.get(`/api/dependency`, {
+      params: { workspace_id: workspaceId }
+    });
+    return response.data.result;
+  } catch (error) {
+    console.error(`getAllDependencies(${workspaceId}) failed:\n`, error.response?.data);
+    throw error;
+  }
+};
+
+

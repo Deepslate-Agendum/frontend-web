@@ -47,7 +47,9 @@ const getLayoutedElements = (nodes, edges, direction = "LR") => {
 
 const MapView = ({
   tasks,
+  dependencies = [],
   onCreateTask,
+  onCreateDependency,
   onUpdateTask,
   onTaskClick,
   setShowTaskModal,
@@ -72,57 +74,82 @@ const MapView = ({
     });
   }, [tasks]);
 
-  const edgesFromTasks = useMemo(() => {
-    return tasks.flatMap((task) => {
-      const targetId = task.id || task._id?.$oid;
-      return (task.dependencies || []).map((sourceId) => ({
-        id: `e-${sourceId}-${targetId}`,
-        source: sourceId,
-        target: targetId,
-        animated: true,
-        style: { stroke: "#555" },
-        markerEnd: {
-          type: 'arrowclosed',
-          color: '#555',
-        },
-      }));
-    });
-  }, [tasks]);
+  const edgesFromDependencies = useMemo(() => {
+    return dependencies.map((dep) => ({
+      id: `e-${dep.source}-${dep.target}`,
+      source: dep.source,
+      target: dep.target,
+      animated: true,
+      style: { stroke: "#555" },
+      markerEnd: {
+        type: 'arrowclosed',
+        color: '#555',
+      },
+    }));
+  }, [dependencies]);
+  
 
-  const layouted = useMemo(() => getLayoutedElements(nodesFromTasks, edgesFromTasks), [nodesFromTasks, edgesFromTasks]);
 
+  const layouted = useMemo(() => getLayoutedElements(nodesFromTasks, edgesFromDependencies), [nodesFromTasks, edgesFromDependencies]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(edgesFromDependencies);
+  
   const [nodes, setNodes, onNodesChange] = useNodesState(layouted);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(edgesFromTasks);
   const [selectedTask, setSelectedTask] = useState(null);
 
   useEffect(() => {
-    setEdges(edgesFromTasks);
-  }, [edgesFromTasks]);
-
-  useEffect(() => {
-    setNodes(layouted);
-  }, [layouted, setNodes]);
+    const updated = getLayoutedElements(nodesFromTasks, edgesFromDependencies);
+    setNodes(updated);
+    setEdges(edgesFromDependencies);
+  }, [nodesFromTasks, edgesFromDependencies]);
+  
 
   const onNodeDragStop = useCallback(async (_, node) => {
     try {
+      const draggedTask = tasks.find((t) => t.id === node.id || t._id?.$oid === node.id);
+      if (!draggedTask) return;
+
+      console.log("(!DRAG!) Updating task with payload:", {
+        id: node.id,
+        name: draggedTask.title,
+        description: draggedTask.description || "",
+        tags: draggedTask.tags || [],
+        due_date: draggedTask.due_date || "",
+        workspace_id: draggedTask.workspace_id,
+        x_location: String(node.position.x),
+        y_location: String(node.position.y),
+      });
+      
       await onUpdateTask({
         id: node.id,
+        name: draggedTask.title,
+        description: draggedTask.description || "",
+        tags: draggedTask.tags || [],
+        due_date: draggedTask.due_date || "",
+        workspace_id: workspace?.id || workspace?._id?.$oid || draggedTask.workspace_id,
         x_location: String(node.position.x),
         y_location: String(node.position.y),
       });
     } catch (err) {
       console.error("Error saving node position:", err);
     }
-  }, [onUpdateTask]);
+  }, [tasks, onUpdateTask]);
 
-  const onConnect = useCallback(async (connection) => {
-    const { source, target } = connection;
+  const onConnect = useCallback(async ({ source, target }) => {
     try {
-      await onUpdateTask({ id: target, parentTaskId: source });
+      const targetTask = tasks.find((t) => t.id === target || t._id?.$oid === target);
+      if (!targetTask) return;
+
+      await onCreateDependency({
+        source,
+        target,
+        workspace_id: workspace?.id,
+      });
+      
+
     } catch (err) {
       console.error("Failed to update task dependency:", err);
     }
-  }, [onUpdateTask]);
+  }, [tasks, onUpdateTask]);
 
   const onPaneClick = useCallback((event) => {
     const bounds = event.target.getBoundingClientRect();
@@ -173,8 +200,8 @@ const MapView = ({
                 newSubtask.tags,
                 newSubtask.due_date,
                 workspace?.id,
-                parentId,
-                newSubtask.dependent,
+                null,
+                false,
                 {
                   x: String(newSubtask.position?.x || 0),
                   y: String(newSubtask.position?.y || 0),
