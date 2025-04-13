@@ -6,6 +6,7 @@ import ReactFlow, {
   Controls,
   Background,
   useReactFlow,
+  SmoothStepEdge,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import dagre from "dagre";
@@ -14,6 +15,9 @@ import "../../css/MapView.css";
 
 const nodeWidth = 172;
 const nodeHeight = 36;
+const edgeTypes = {
+  smoothstep: SmoothStepEdge,
+};
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -59,7 +63,7 @@ const MapViewContent = ({
   setIsDragging,
   setDraggedNode,
 }) => {
-  const { screenToFlowPosition, fitView } = useReactFlow();
+  const { screenToFlowPosition } = useReactFlow();
   const [selectedTask, setSelectedTask] = useState(null);
 
   const nodesFromTasks = useMemo(() => {
@@ -79,20 +83,38 @@ const MapViewContent = ({
     });
   }, [tasks]);
 
+  const nodeIds = useMemo(
+    () => new Set(tasks.map((task) => String(task.id || task._id?.$oid))),
+    [tasks]
+  );
+
   const edgesFromDependencies = useMemo(() => {
-    return dependencies.map((dep) => {
-      const source = String(dep.depended_on_task?.id || dep.depended_on_task);
-      const target = String(dep.dependent_task?.id || dep.dependent_task);
-      return {
-        id: `e-${source}-${target}`,
-        source,
-        target,
-        animated: true,
-        style: { stroke: "#555" },
-        markerEnd: { type: "arrowclosed", color: "#555" },
-      };
-    });
-  }, [dependencies]);
+    const normalizeId = (obj) =>
+      typeof obj === "string"
+        ? obj
+        : obj?.id || obj?._id?.$oid || obj?.$oid || "";
+
+    return dependencies
+      .map((dep) => {
+        const source = String(normalizeId(dep.depended_on_task));
+        const target = String(normalizeId(dep.dependent_task));
+        return {
+          id: `e-${source}-${target}`,
+          source,
+          target,
+          type: "smoothstep",
+          animated: true,
+          style: { stroke: "#555" },
+          markerEnd: {
+            type: "arrowclosed",
+            width: 20,
+            height: 20,
+            color: "#555",
+          },
+        };
+      })
+      .filter((edge) => nodeIds.has(edge.source) && nodeIds.has(edge.target));
+  }, [dependencies, nodeIds]);
 
   const layouted = useMemo(
     () => getLayoutedElements(nodesFromTasks, edgesFromDependencies),
@@ -105,11 +127,7 @@ const MapViewContent = ({
   useEffect(() => {
     const updated = getLayoutedElements(nodesFromTasks, edgesFromDependencies);
     setNodes(updated);
-    setEdges([]);
-    setTimeout(() => {
-      setEdges(edgesFromDependencies);
-      //fitView();
-    }, 0);
+    setEdges(edgesFromDependencies);
   }, [nodesFromTasks, edgesFromDependencies]);
 
   useEffect(() => {
@@ -188,16 +206,13 @@ const MapViewContent = ({
   const onNodeClick = (_, node) => {
     const task = tasks.find((t) => t.id === node.id || t._id?.$oid === node.id);
     if (!task) return;
-  
-    const isSmallScreen = window.innerWidth <= 768;
-  
-    if (isSmallScreen) {
-      setSelectedTask(task); // opens TaskDetails modal
+
+    if (window.innerWidth <= 768) {
+      setSelectedTask(task);
     } else {
-      onTaskClick(task); // highlight task in side panel
+      onTaskClick(task);
     }
   };
-  
 
   return (
     <>
@@ -211,7 +226,7 @@ const MapViewContent = ({
         onConnect={onConnect}
         onPaneClick={onPaneClick}
         onNodeClick={onNodeClick}
-        fitView
+        edgeTypes={edgeTypes}
       >
         <Controls position="bottom-left" style={{ zIndex: 1000 }} />
         <Background gap={12} size={1} />
