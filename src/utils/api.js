@@ -234,14 +234,14 @@ export const deleteDependency = async (workspaceId, dependencyId) => {
 
 export const getAllDependencies = async (workspaceId) => {
   try {
-    const response = await axios.get(`/api/dependency`, {
-      params: { workspace_id: workspaceId }
-    });
+    const response = await axios.get(`${API_BASE_URL}/workspace/${workspaceId}/dependency/`);
     return response.data.result;
   } catch (error) {
-    console.error(`getAllDependencies(${workspaceId}) failed:\n`, error.response?.data);
+    console.error(`getAllDependencies(${workspaceId}) failed:\n${error.response?.data}`);
     throw error;
   }
 };
+
+
 
 

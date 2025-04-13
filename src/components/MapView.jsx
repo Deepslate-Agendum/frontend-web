@@ -12,6 +12,7 @@ import dagre from "dagre";
 import TaskDetails from "./TaskDetails";
 import '../../css/MapView.css';
 
+
 const nodeWidth = 172;
 const nodeHeight = 36;
 
@@ -74,19 +75,38 @@ const MapView = ({
     });
   }, [tasks]);
 
+  //console.log("Full dependency objects:", dependencies);
   const edgesFromDependencies = useMemo(() => {
-    return dependencies.map((dep) => ({
-      id: `e-${dep.source}-${dep.target}`,
-      source: dep.source,
-      target: dep.target,
-      animated: true,
-      style: { stroke: "#555" },
-      markerEnd: {
-        type: 'arrowclosed',
-        color: '#555',
-      },
-    }));
+    const normalizeId = (obj) => {
+      if (!obj) return undefined;
+      if (typeof obj === "string") return obj;
+      if (obj.$oid) return obj.$oid;
+      return obj;
+    };
+  
+    return dependencies.map((dep) => {
+      const source = normalizeId(dep.depended_on_task);
+      const target = normalizeId(dep.dependent_task);
+  
+      console.log("Resolved edge:", source, "->", target);
+  
+      return {
+        id: `e-${source}-${target}`,
+        source,
+        target,
+        animated: true,
+        style: { stroke: "#555" },
+        markerEnd: {
+          type: 'arrowclosed',
+          color: '#555',
+        },
+      };
+    });
   }, [dependencies]);
+  
+  
+  
+  
   
 
 
@@ -98,9 +118,15 @@ const MapView = ({
 
   useEffect(() => {
     const updated = getLayoutedElements(nodesFromTasks, edgesFromDependencies);
+  
     setNodes(updated);
-    setEdges(edgesFromDependencies);
+  
+    setEdges([]);
+    setTimeout(() => {
+      setEdges(edgesFromDependencies);
+    }, 0);
   }, [nodesFromTasks, edgesFromDependencies]);
+  
   
 
   const onNodeDragStop = useCallback(async (_, node) => {
@@ -163,6 +189,10 @@ const MapView = ({
     const task = tasks.find((t) => t.id === node.id || t._id?.$oid === node.id);
     if (task) setSelectedTask(task);
   };
+  console.log("Node IDs:", nodes.map(n => n.id));
+console.log("Edge source-target pairs:", edges.map(e => `${e.source} -> ${e.target}`));
+
+
 
   return (
     <div style={{ width: "100%", height: "600px" }}>
