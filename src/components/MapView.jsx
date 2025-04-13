@@ -96,8 +96,8 @@ const MapViewContent = ({
 
     return dependencies
       .map((dep) => {
-        const source = String(normalizeId(dep.depended_on_task));
-        const target = String(normalizeId(dep.dependent_task));
+        const source = String(normalizeId(dep.dependee));
+        const target = String(normalizeId(dep.dependent));
         return {
           id: `e-${source}-${target}`,
           source,
