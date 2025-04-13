@@ -1,40 +1,32 @@
-import * as api from "./utils/api";
+import * as api from "./api";
 
 // HACK: until back end serialization is working
-const getId = (document) => document._id["$oid"];
+export const getOid = (reference) => reference["$oid"];
+export const getId = (document) => getOid(document._id);
 
-async function getTaskDependencies(task) {
-    let dependencies = await api.getDependencies(task.dependencies);
+export async function getTaskDependencies(workspace, task) {
+    let dependencies = await api.getDependencies(getId(workspace), task.dependencies);
     let blocks = []; // I am the dependee of a "Blocking" dependency (= the blockee depends on me)
     let blockers = []; // I am the dependant of a "Blocking" dependency (= I depend on my blockers)
     let subtasks = []; // I am the dependee of a "Subtask" dependency (= the subtask depends on me)
     let parents = []; // I am the dependant of a "Subtask" dependency (= I depend on my parents)
     for (let dependency of dependencies) {
-        if (dependency.manner === "Blocking") {
-            if (getId(dependency.dependee) === getId(task)) {
-                blocks.push(getId(dependency.dependent));
+        // if (dependency.manner === "Blocking") {
+            if (getOid(dependency.depended_on_task) === task.id) {
+                blocks.push(getOid(dependency.dependent_task));
             } else {
-                blockers.push(getId(dependency.dependee));
+                blockers.push(getOid(dependency.depended_on_task));
             }
-        } else if (dependency.manner === "Subtask") {
-            if (getId(dependency.dependee) === getId(task)) {
-                subtasks.push(getId(dependency.dependent));
-            } else {
-                parents.push(getId(dependency.dependee));
-            }
-        } else {
-            throw Error(`Unrecognized dependency manner ${dependency.manner}`)
-        }
+        // } else if (dependency.manner === "Subtask") {
+        //     if (getId(dependency.depended_on_task) === getId(task)) {
+        //         subtasks.push(getId(dependency.dependent_task));
+        //     } else {
+        //         parents.push(getId(dependency.depended_on_task));
+        //     }
+        // } else {
+        //     throw Error(`Unrecognized dependency manner ${dependency.manner}`)
+        // }
     }
 
     return { blocks, blockers, subtasks, parents };
 }
-
-export const getDependentTasks = async (parentTaskId) => {
-};
-
-export const getSubtasks = async (parentTaskId) => {
-};
-
-export const getParentTask = async (subtaskId) => {
-};
