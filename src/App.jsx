@@ -18,12 +18,10 @@ import SubtaskModal from "./components/SubtaskModal";
 import TaskList from './components/TaskList';
 import MapView from './components/MapView';
 import CalendarView from "./components/CalendarView"; // Ensure CalendarView is imported
-import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, getParentTask, getSubtasks, getDependentTasks, deleteTask, getAllDependencies, createDependency } from "./utils/api";
+import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, deleteTask, getAllDependencies, createDependency } from "./utils/api";
+import { getId, getTaskDependencies } from "./utils/wrapper.js";
 
 //const API_BASE = "http://127.0.0.1:5000"; // Backend URL
-
-// HACK: until back end serialization is working
-const getId = (document) => document._id["$oid"];
 
 const App = () => {
   // State variables for managing tasks, workspaces, and user session
