@@ -11,11 +11,11 @@ const getId = (document) => document?._id?.["$oid"] || "";
 
 const TaskModal = ({ onClose, onCreate, onUpdate, task, prefillPosition, workspace, preFilledTask }) => {
   // State variables for form inputs
-  const [title, setTitle] = useState(task ? task.title : prefillPosition?.title || preFilledTask.title || "");
-  const [description, setDescription] = useState(task ? task.description : prefillPosition?.description || preFilledTask.description || "");
-  const [tags, setTags] = useState(task ? String(task.tags) : prefillPosition?.tags?.join(", ") || preFilledTask.tags || "");
-  const [dueDate, setDueDate] = useState(task ? task.due_date : prefillPosition?.due_date || preFilledTask?.due_date || "" );
-
+  const [title, setTitle] = useState(task?.title ?? prefillPosition?.title ?? preFilledTask?.title ?? "");
+  const [description, setDescription] = useState(task?.description ?? prefillPosition?.description ?? preFilledTask?.description ?? "");
+  const [tags, setTags] = useState(task?.tags ? String(task.tags) : prefillPosition?.tags?.join(", ") ?? preFilledTask?.tags?.join(", ") ?? "");
+  const [dueDate, setDueDate] = useState(task?.due_date ?? prefillPosition?.due_date ?? preFilledTask?.due_date ?? "");
+  
   // Effect to update state when the task prop changes
   useEffect(() => {
     if (task) {

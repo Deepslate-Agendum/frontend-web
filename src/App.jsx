@@ -334,33 +334,15 @@ const App = () => {
     }
   };
 
-  const createDependencyHandler = async ({ source, target }) => {
+  const createDependencyHandler = async ({ dependeeId, dependentId, workspace_id, manner = "Blocking" }) => {
     try {
-      const normalizeId = (id) => typeof id === "string" ? id : id?._id || id?.$oid;
-  
-      const workspaceId = getId(currentWorkspace);
-      const dependentId = normalizeId(target);
-      const dependeeId = normalizeId(source);
-      const manner = "Blocking";
-  
-      // Log all values
-      console.log("Creating dependency with:", {
-        workspaceId,
-        dependentId,
-        dependeeId,
-        manner
-      });
-  
-      if (!workspaceId || !dependeeId || !dependentId) {
-        throw new Error("Missing required fields for dependency creation.");
-      }
-  
-      await createDependency(workspaceId, dependeeId, dependentId, manner);
-      await fetchDependencies(workspaceId);
-    } catch (error) {
-      console.error("Error creating dependency:", error);
+      await createDependency(workspace_id, dependeeId, dependentId, manner);
+      await fetchDependencies(workspace_id); // refresh edges
+    } catch (err) {
+      console.error("createDependencyHandler failed:", err);
     }
   };
+  
   
   
   

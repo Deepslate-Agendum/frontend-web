@@ -11,6 +11,7 @@ import "reactflow/dist/style.css";
 import dagre from "dagre";
 import TaskDetails from "./TaskDetails";
 import "../../css/MapView.css";
+import { getId } from "../utils/wrapper";
 
 const nodeWidth = 172;
 const nodeHeight = 36;
@@ -108,6 +109,7 @@ const MapViewContent = ({
             color: "#555",
           },
         };
+        
       })
       .filter((edge) => nodeIds.has(edge.source) && nodeIds.has(edge.target));
   }, [dependencies, nodeIds]);
@@ -179,19 +181,22 @@ const MapViewContent = ({
   }, [tasks, onUpdateTask]);
 
   const onConnect = useCallback(async ({ source, target }) => {
+    const sourceTask = tasks.find((t) => t.id === source || t._id?.$oid === source);
     const targetTask = tasks.find((t) => t.id === target || t._id?.$oid === target);
-    if (!targetTask) return;
-
+    if (!sourceTask || !targetTask) return;
+  
     try {
       await onCreateDependency({
-        source,
-        target,
-        workspace_id: workspace?.id,
+        workspace_id: getId(workspace),
+        dependeeId: target,
+        dependentId: source,
+        manner: "Blocking",
       });
     } catch (err) {
       console.error("Failed to update task dependency:", err);
     }
   }, [tasks, onCreateDependency]);
+  
 
   const onPaneClick = useCallback((event) => {
     const flowPosition = screenToFlowPosition({ x: event.clientX, y: event.clientY });
