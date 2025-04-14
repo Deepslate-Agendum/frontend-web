@@ -63,6 +63,8 @@ const TaskList = ({ tasks, updateTask, deleteTask, workspace, onTaskClick, highl
           onDelete={() => deleteTask(selectedTask.id)} // Delete the selected task
           onCreateSubtask={(parentId, newSubtask) => createTask(parentId, newSubtask)} // Create a subtask
           workspace={workspace} // Pass workspace context
+          completedTasks={completedTasks}
+          toggleTaskCompletion={toggleTaskCompletion}
         />
       )}
     </div>
