@@ -504,12 +504,14 @@ const App = () => {
                   setShowTaskModal(false);
                   setMapClickPosition(null);
                   setHighlightedTask(null); // Clear if we were editing
+                  setPreFilledTask (null);
                 }} 
                 onCreate={createTaskHandler}
                 onUpdate={updateTaskHandler}
                 task={highlightedTask} // <-- this is the key fix
                 prefillPosition={mapClickPosition}
                 workspace={currentWorkspace}
+                preFilledTask={preFilledTask}
               />
             )}
 
