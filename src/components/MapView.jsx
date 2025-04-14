@@ -51,6 +51,7 @@ const MapViewContent = ({
   dependencies = [],
   onCreateTask,
   onCreateDependency,
+  onDeleteDependency,
   onUpdateTask,
   onTaskClick,
   setShowTaskModal,
@@ -99,7 +100,7 @@ const MapViewContent = ({
           id: `e-${source}-${target}`,
           source,
           target,
-          type: "bezier",
+          type: "default",
           animated: true,
           style: { stroke: "#555" },
           markerEnd: {
@@ -214,6 +215,19 @@ const MapViewContent = ({
       onTaskClick(task);
     }
   };
+  
+  const handleEdgeClick = useCallback((event, edge) => {
+    event.stopPropagation();
+    if (window.confirm("Delete this dependency?")) {
+      const [, dependeeId, dependentId] = edge.id.split("-");
+      onDeleteDependency({
+        workspace_id: getId(workspace),
+        dependeeId,
+        dependentId,
+      });
+    }
+  }, [workspace, onDeleteDependency]);
+  
 
   return (
     <>
@@ -227,6 +241,7 @@ const MapViewContent = ({
         onConnect={onConnect}
         onPaneClick={onPaneClick}
         onNodeClick={onNodeClick}
+        onEdgeClick={handleEdgeClick}
       >
         <Controls position="bottom-left" style={{ zIndex: 1000 }} />
         <Background gap={12} size={1} />

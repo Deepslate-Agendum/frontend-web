@@ -12,13 +12,13 @@
  */
 
 import '../css/App.css';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback} from "react";
 import TaskModal from "./components/TaskModal";
 import SubtaskModal from "./components/SubtaskModal";
 import TaskList from './components/TaskList';
 import MapView from './components/MapView';
 import CalendarView from "./components/CalendarView"; // Ensure CalendarView is imported
-import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, deleteTask, getAllDependencies, createDependency } from "./utils/api";
+import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, deleteTask, getAllDependencies, createDependency, deleteDependency } from "./utils/api";
 import { getId, getTaskDependencies } from "./utils/wrapper.js";
 
 //const API_BASE = "http://127.0.0.1:5000"; // Backend URL
@@ -342,10 +342,44 @@ const App = () => {
       console.error("createDependencyHandler failed:", err);
     }
   };
+
+const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }) => {
+  try {
+    const all = await getAllDependencies(workspace_id);
+
+    const match = all.find(d =>
+      d.dependee === dependeeId &&
+      d.dependent === dependentId
+    );
+
+    if (!match) {
+      console.warn("No matching dependency found to delete.");
+      return;
+    }
+
+    await deleteDependency(workspace_id, match.id);
+    await fetchDependencies(workspace_id);
+  } catch (err) {
+    console.error("deleteDependencyHandler failed:", err);
+  }
+};
+
   
   
-  
-  
+  const handleEdgeClick = useCallback(
+    (event, edge) => {
+      event.stopPropagation();
+      if (window.confirm("Delete this dependency?")) {
+        const [, dependeeId, dependentId] = edge.id.split("-");
+        deleteDependencyHandler({
+          workspace_id: getId(currentWorkspace),
+          dependeeId,
+          dependentId,
+        });
+      }
+    },
+    [currentWorkspace]
+  );
   
 
 
@@ -459,6 +493,7 @@ const App = () => {
                   deleteTask={deleteTaskHandler}
                   workspace={currentWorkspace}
                   prefillPosition={mapClickPosition}
+                  onDeleteDependency={deleteDependencyHandler}
                 />
               </div>
             )}
