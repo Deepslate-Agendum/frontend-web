@@ -3,7 +3,7 @@
 // `SubtaskModal` for adding subtasks. The component also handles closing the modal and propagating 
 // updates to parent components.
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import TaskModal from "./TaskModal";
 import SubtaskModal from "./SubtaskModal";
@@ -15,6 +15,19 @@ const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask, works
   // State to control the visibility of the add subtask modal
   const [showSubtaskModal, setShowSubtaskModal] = useState(false);
 
+  useEffect(() => {
+    const handleEsc = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, [onClose]);
+
+  
   return (
     <div className="modal-overlay">
       <div className="modal-content">

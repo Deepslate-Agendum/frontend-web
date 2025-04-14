@@ -19,13 +19,24 @@ const TaskModal = ({ onClose, onCreate, onUpdate, task, prefillPosition, workspa
   // Effect to update state when the task prop changes
   useEffect(() => {
     if (task) {
-      console.log("✏️ Editing Task:", task);
+      console.log("Editing Task:", task);
       setTitle(task.title || "");
       setDescription(task.description || "");
       setTags(Array.isArray(task.tags) ? task.tags.join(", ") : task.tags || "");
       setDueDate(task.due_date || "");
     }
-  }, [task]);
+    
+    const handleEsc = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, [task, onClose]);
 
   // Handle form submission for creating or updating a task
   const handleSubmit = () => {
