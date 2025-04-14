@@ -43,6 +43,7 @@ const App = () => {
   const [viewMode, setViewMode] = useState("list"); // State to track the current view mode
   const [preFilledTask, setPreFilledTask] = useState(null); // State for pre-filled task
   const [dependencies, setDependencies] = useState([]);
+  const [completedTasks, setCompletedTasks] = useState(new Set());
 
   // Fetch workspaces on initial render
   useEffect(() => {
@@ -380,6 +381,37 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
     },
     [currentWorkspace]
   );
+
+  const toggleTaskCompletion = (taskId) => {
+    const task = tasks.find(t => (t.id || t._id?.$oid) === taskId);
+    if (!task) return;
+  
+    // Dependencies that this task relies on (dependees)
+    const blockingDependencies = dependencies.filter(d =>
+      (d.dependent?.id || d.dependent?._id?.$oid || d.dependent) === taskId
+    );
+  
+    const allDepsComplete = blockingDependencies.every(d =>
+      completedTasks.has(d.dependee?.id || d.dependee?._id?.$oid || d.dependee)
+    );
+  
+    if (!allDepsComplete) {
+      alert("You cannot complete this task until all its dependencies are complete.");
+      return;
+    }
+  
+    setCompletedTasks(prev => {
+      const updated = new Set(prev);
+      if (updated.has(taskId)) {
+        updated.delete(taskId);
+      } else {
+        updated.add(taskId);
+      }
+      return updated;
+    });
+  };
+  
+  
   
 
 
@@ -474,6 +506,8 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
                       console.log("Mobile mode: Task clicked", task); // Handle mobile-specific behavior
                     }
                   }}
+                  completedTasks={completedTasks}
+                  toggleTaskCompletion={toggleTaskCompletion}
                 />
               </div>
             )}
@@ -494,6 +528,8 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
                   workspace={currentWorkspace}
                   prefillPosition={mapClickPosition}
                   onDeleteDependency={deleteDependencyHandler}
+                  completedTasks={completedTasks}
+                  toggleTaskCompletion={toggleTaskCompletion}
                 />
               </div>
             )}
@@ -510,6 +546,8 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
                   }
                 }}
                 onCreateTask={handleCreateTaskFromCalendar} // Pass the handler for creating tasks from CalendarView
+                completedTasks={completedTasks}
+                toggleTaskCompletion={toggleTaskCompletion}
               />
               </div>
             )}

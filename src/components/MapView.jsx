@@ -60,6 +60,8 @@ const MapViewContent = ({
   workspace,
   setIsDragging,
   setDraggedNode,
+  completedTasks = new Set(),
+  toggleTaskCompletion = () => {},
 }) => {
   const { screenToFlowPosition } = useReactFlow();
   const [selectedTask, setSelectedTask] = useState(null);
@@ -70,7 +72,11 @@ const MapViewContent = ({
       return {
         id,
         type: "default",
-        data: { label: task.title || "Untitled Task" },
+        className: completedTasks.has(id) ? "completed-node" : "",
+        data: { 
+          label: task.title || "Untitled Task",
+          completed: completedTasks.has(id),
+        },        
         position: {
           x: task.x_location !== undefined ? parseFloat(task.x_location) : Math.random() * 200,
           y: task.y_location !== undefined ? parseFloat(task.y_location) : Math.random() * 200,
@@ -79,7 +85,8 @@ const MapViewContent = ({
         targetPosition: "left",
       };
     });
-  }, [tasks]);
+  }, [tasks, completedTasks]);
+  
 
   const nodeIds = useMemo(
     () => new Set(tasks.map((task) => String(task.id || task._id?.$oid))),
@@ -115,26 +122,42 @@ const MapViewContent = ({
       .filter((edge) => nodeIds.has(edge.source) && nodeIds.has(edge.target));
   }, [dependencies, nodeIds]);
 
-  const layouted = useMemo(
-    () => getLayoutedElements(nodesFromTasks, edgesFromDependencies),
-    [nodesFromTasks, edgesFromDependencies]
-  );
-
-  const [nodes, setNodes, onNodesChange] = useNodesState(layouted);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(edgesFromDependencies);
-
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  
   useEffect(() => {
-    const updated = getLayoutedElements(nodesFromTasks, edgesFromDependencies);
-    setNodes(updated);
+    if (!tasks || tasks.length === 0) return;
+  
+    const updatedNodes = tasks.map((task) => {
+      const id = String(task.id || task._id?.$oid);
+      const completed = completedTasks.has(id);
+      return {
+        id,
+        type: "default",
+        className: completed ? "completed-node" : "",
+        data: {
+          label: (
+            <div>
+              <strong style={{ textDecoration: completed ? "line-through" : "none" }}>
+                {task.title || "Untitled Task"}
+              </strong>
+            </div>
+          )
+        },
+        position: {
+          x: task.x_location !== undefined ? parseFloat(task.x_location) : Math.random() * 200,
+          y: task.y_location !== undefined ? parseFloat(task.y_location) : Math.random() * 200,
+        },
+        sourcePosition: "right",
+        targetPosition: "left",
+      };
+    });
+  
+    const layouted = getLayoutedElements(updatedNodes, edgesFromDependencies);
+    setNodes(layouted);
     setEdges(edgesFromDependencies);
-  }, [nodesFromTasks, edgesFromDependencies]);
-
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, []);
+  }, [tasks, dependencies, completedTasks]);
+  
 
   const onNodeDragStart = useCallback((_, node) => {
     setIsDragging(true);
@@ -216,6 +239,7 @@ const MapViewContent = ({
     }
   };
   
+  
   const handleEdgeClick = useCallback((event, edge) => {
     event.stopPropagation();
     if (window.confirm("Delete this dependency?")) {
@@ -242,6 +266,10 @@ const MapViewContent = ({
         onPaneClick={onPaneClick}
         onNodeClick={onNodeClick}
         onEdgeClick={handleEdgeClick}
+        onNodeDoubleClick={(_, node) => {
+          toggleTaskCompletion(node.id);
+        }}
+        
       >
         <Controls position="bottom-left" style={{ zIndex: 1000 }} />
         <Background gap={12} size={1} />
@@ -275,6 +303,8 @@ const MapViewContent = ({
             );
           }}
           workspace={workspace}
+          completedTasks={completedTasks}
+          toggleTaskCompletion={toggleTaskCompletion}        
         />
       )}
     </>
@@ -302,6 +332,8 @@ const MapView = (props) => {
           {...props}
           setIsDragging={setIsDragging}
           setDraggedNode={setDraggedNode}
+          completedTasks={props.completedTasks}
+          toggleTaskCompletion={props.toggleTaskCompletion}
         />
 
         <div

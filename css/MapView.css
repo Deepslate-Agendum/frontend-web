@@ -1,3 +1,12 @@
 .react-flow__panel.react-flow__attribution {
     display: none;
   }
+
+  .react-flow__node-default.completed-node {
+    opacity: 0.9;
+    border: 2px dashed #00cc66;
+    background-color: #b6f2c4;
+    color: #000;
+    font-weight: bold;
+  }
+  
