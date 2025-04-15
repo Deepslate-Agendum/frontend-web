@@ -46,6 +46,8 @@
   display: flex; /* Enables flexbox layout for centering modal content */
   align-items: center; /* Centers modal content vertically */
   justify-content: center; /* Centers modal content horizontally */
+  z-index: 9999; /* high value to ensure it's above everything */
+
 }
 
 .modal-content {
@@ -54,6 +56,8 @@
   padding: 20px; /* Adds padding inside the modal */
   border-radius: 10px; /* Rounds the corners of the modal */
   text-align: center; /* Centers text inside the modal */
+  z-index: 2001; /* high value to ensure it's above everything */
+
 }
 
 .close-button {
@@ -579,6 +583,17 @@
   }
   
 }
+
+.react-flow__controls {
+  bottom: 80px !important; /* default */
+}
+
+@media (max-width: 600px) {
+  .react-flow__controls {
+    bottom: 130px !important; /* raise it above nav bar */
+  }
+}
+
 .calendar-view-container {
   background-color: #fff3e0; /* Light orange background for calendar view */
   color: #e65100; /* Deep orange text color */

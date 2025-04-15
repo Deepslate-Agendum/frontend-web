@@ -3,18 +3,31 @@
 // `SubtaskModal` for adding subtasks. The component also handles closing the modal and propagating 
 // updates to parent components.
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import TaskModal from "./TaskModal";
 import SubtaskModal from "./SubtaskModal";
 import '../../css/TaskDetails.css'
 
-const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask, workspace }) => {
+const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask, workspace, completedTasks, toggleTaskCompletion }) => {
   // State to control the visibility of the edit task modal
   const [showEditModal, setShowEditModal] = useState(false);
   // State to control the visibility of the add subtask modal
   const [showSubtaskModal, setShowSubtaskModal] = useState(false);
 
+  useEffect(() => {
+    const handleEsc = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, [onClose]);
+
+  
   return (
     <div className="modal-overlay">
       <div className="modal-content">
@@ -29,6 +42,15 @@ const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask, works
             : task.tags || "No Tags"}
         </p>
         <p><strong>Due Date:</strong> {task.due_date ?? "No Due Date"}</p>
+        <p>
+          <strong>Completed:</strong>
+          <input
+            type="checkbox"
+            className="task-details-checkbox"
+            checked={completedTasks?.has(task.id)}
+            onChange={() => toggleTaskCompletion(task.id)}
+          />
+        </p>
         <button onClick={() => setShowEditModal(true)}>Edit Task</button>
         <button onClick={() => {
           onDelete(task.id);
@@ -83,6 +105,9 @@ TaskDetails.propTypes = {
   onUpdate: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   onCreateSubtask: PropTypes.func.isRequired,
+  completedTasks: PropTypes.instanceOf(Set),
+  toggleTaskCompletion: PropTypes.func,
+
 };
 
 export default TaskDetails;
