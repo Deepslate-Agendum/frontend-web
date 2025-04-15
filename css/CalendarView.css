@@ -9,6 +9,14 @@
   height: 100%; /* Increase height to fill more space */
 }
 
+@media (max-width: 768px) {
+  .calendar-view-container {
+    width: 100%; /* Full width for mobile mode */
+    bottom: 60px; /* Move up by 60px in mobile mode */
+    height: calc(100% - 60px);
+  }
+}
+
 .calendar-view-header {
   font-size: 1.5rem;
   font-weight: bold;
@@ -164,4 +172,64 @@
 .create-task-button:hover {
   background-color: #157a0f; /* Darker green on hover */
   border-color: #0f5a0b; /* Darker border on hover */
+}
+
+.calendar-and-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem; /* Add spacing below the calendar and button */
+}
+
+.no-date-tasks-button {
+  margin-top: 1rem; /* Add spacing above the button */
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background-color: #b01dff; /* Blue background */
+  border: 2px solid #b950ff; /* Darker blue border */
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.no-date-tasks-button:hover {
+  background-color: #b950ff; /* Darker blue on hover */
+  border-color: #b01dff; /* Even darker border on hover */
+}
+
+.no-date-tasks-list {
+  margin-top: 2rem;
+  background-color: #f0f0f0; /* Light gray background */
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.no-date-tasks-list h3 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.no-date-tasks-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.no-date-tasks-list li {
+  padding: 1rem;
+  font-size: 1.2rem;
+  border: 1px solid #ddd;
+  background-color: #e6e6e6;
+  margin-bottom: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.no-date-tasks-list li:hover {
+  background-color: #cccccc; /* Darker gray on hover */
 }

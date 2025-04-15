@@ -18,7 +18,8 @@ import SubtaskModal from "./components/SubtaskModal";
 import TaskList from './components/TaskList';
 import MapView from './components/MapView';
 import CalendarView from "./components/CalendarView"; // Ensure CalendarView is imported
-import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, deleteTask, getAllDependencies, createDependency, deleteDependency } from "./utils/api";
+import ProfileView from "./components/ProfileView"; // Import the ProfileView component
+import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, deleteTask, getAllDependencies, createDependency, deleteDependency,  } from "./utils/api";
 import { getId, getTaskDependencies } from "./utils/wrapper.js";
 
 //const API_BASE = "http://127.0.0.1:5000"; // Backend URL
@@ -40,8 +41,16 @@ const App = () => {
   const [currentWorkspace, setCurrentWorkspace] = useState(null);
   const [isMemberOfWorkspace, setIsMemberOfWorkspace] = useState(true);
   const [highlightedTask, setHighlightedTask] = useState(null); // State for the highlighted task
-  const [viewMode, setViewMode] = useState("list"); // State to track the current view mode
+  const [viewMode, setViewMode] = useState(localStorage.getItem("viewMode") || "list"); // Restore view mode from localStorage
   const [preFilledTask, setPreFilledTask] = useState(null); // State for pre-filled task
+  const [showProfileView, setShowProfileView] = useState(localStorage.getItem("showProfileView") === "true"); // Restore profile view state
+  const [previousViewMode, setPreviousViewMode] = useState(null); // Track the previous view mode
+
+  // Save view mode and profile view state to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("viewMode", viewMode);
+    localStorage.setItem("showProfileView", showProfileView);
+  }, [viewMode, showProfileView]);
   const [dependencies, setDependencies] = useState([]);
   const [completedTasks, setCompletedTasks] = useState(new Set());
 
@@ -70,6 +79,16 @@ const App = () => {
     }
   }, [workspaces]);
   
+  useEffect(() => {
+    const handleResize = () => {
+      window.location.reload(); // Refresh the page on screen size change
+    };
+
+    window.addEventListener("resize", handleResize); // Add event listener for resize
+    return () => {
+      window.removeEventListener("resize", handleResize); // Cleanup event listener on unmount
+    };
+  }, []);
 
   //Authentication Endpoints
 
@@ -79,19 +98,19 @@ const App = () => {
   const handleLogin = async () => {
     setLoginError(""); // Reset error
     try {
-      const data = await loginUser(usernameInput, password); //api call from utils
+      const data = await loginUser(usernameInput.trim(), password.trim()); // Ensure trimmed inputs
       localStorage.setItem("token", data.token);
-      localStorage.setItem("username", usernameInput);
+      localStorage.setItem("username", usernameInput.trim());
       localStorage.setItem("userId", getId(data.user));
       setToken(data.token);
-      setUsername(usernameInput);
+      setUsername(usernameInput.trim());
       setUserId(getId(data.user));
       setUsernameInput("");
       setPassword("");
       console.log("Login successful!");
     } catch (err) {
-      setLoginError("Invalid credentials");
-      console.error("Login failed:", err);
+      setLoginError(err.message); // Display the error message from the API
+      console.error("Login failed:", err.message);
     }
   };
 
@@ -111,12 +130,21 @@ const App = () => {
   //SignUp (createUser)
   const createUserHandler = async () => {
     try {
-      await createUser(usernameInput, password); //api call to utils
-      console.log("User created successfully");
-      setUsernameInput("");
-      setPassword("");
+      if (!usernameInput.trim() || !password.trim()) {
+        alert("Username and password are required!");
+        return;
+      }
+      const response = await createUser(usernameInput.trim(), password.trim()); // Ensure trimmed inputs are sent
+      if (response && response.success) {
+        alert("User created successfully! You can now log in.");
+        setUsernameInput(""); // Clear the username input
+        setPassword(""); // Clear the password input
+      } else {
+        alert("Failed to create user. Please try again.");
+      }
     } catch (error) {
       console.error("Error creating user:", error);
+      alert(error.response?.data?.message || "Failed to create user. Please try again.");
     }
   };
   
@@ -315,6 +343,7 @@ const App = () => {
 
   const handleSelectWorkspace = (ws) => {
     setCurrentWorkspace(ws);
+    setHighlightedTask(null); // Clear the highlighted task when switching workspaces
   };
 
   const handleKeyPress = (e) => {
@@ -323,6 +352,17 @@ const App = () => {
     }
   };
 
+  const handleShowProfileView = () => {
+    setPreviousViewMode(viewMode); // Save the current view mode before switching to the profile view
+    setShowProfileView(true);
+  };
+
+  const handleBackFromProfile = () => {
+    setShowProfileView(false);
+    if (previousViewMode) {
+      setViewMode(previousViewMode); // Restore the previous view mode
+    }
+  };
   // dependencies 
   const fetchDependencies = async (workspaceId) => {
     try {
@@ -433,7 +473,28 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
   
 {/* Main application */}
       {token ? (
-        isMemberOfWorkspace ? (
+        showProfileView ? (
+          <div className="profile-view-wrapper">
+            <ProfileView
+              user={{ username }}
+              onUpdateProfile={(updatedProfile) => {
+                setUsername(updatedProfile.username); // Update the username
+                alert("Profile updated successfully!");
+              }}
+              onLogout={handleLogout} // Log out from the profile view
+              onDeleteAccount={() => {
+                if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+                  alert("Account deleted successfully!");
+                  handleLogout();
+                }
+              }}
+              onBack={handleBackFromProfile} // Go back to the previous view
+              workspaces={workspaces}
+              onCreateWorkspace={createWorkspaceHandler}
+              onDeleteWorkspace={deleteWorkspaceHandler}
+            />
+          </div>
+        ) : isMemberOfWorkspace ? (
           <>
             <div className="top-right-container">
               <div className="view-buttons">
@@ -441,7 +502,9 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
                 <button onClick={() => setViewMode("map")}>Map View</button>
                 <button onClick={() => setViewMode("calendar")}>Calendar View</button>
               </div>
-              <p>Welcome, <strong>{username}</strong>!</p>
+              <p>
+                Welcome, <strong onClick={handleShowProfileView} style={{ cursor: "pointer", textDecoration: "underline" }}>{username}</strong>!
+              </p>
               <button onClick={handleLogout}>Log Out</button>
             </div>
 
@@ -492,7 +555,6 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
             {viewMode === "list" && (
               <div className="task-list-container">
                 <h2 className="task-list-header">Task List</h2>
-                <button onClick={() => setShowTaskModal(true)} className="task-button edit">Create Task</button>
                 <TaskList 
                   tasks={tasks} 
                   updateTask={updateTaskHandler} 
@@ -501,7 +563,7 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
                   highlightedTask={highlightedTask} // Pass the highlighted task to TaskList
                   onTaskClick={(task) => {
                     if (window.innerWidth > 768) {
-                      setHighlightedTask(task); // Update the highlighted task for desktop mode
+                      setHighlightedTask((prevTask) => (prevTask?.id === task.id ? null : task)); // Toggle highlight
                     } else {
                       console.log("Mobile mode: Task clicked", task); // Handle mobile-specific behavior
                     }
@@ -509,6 +571,17 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
                   completedTasks={completedTasks}
                   toggleTaskCompletion={toggleTaskCompletion}
                 />
+                {window.innerWidth > 768 && ( // Show the button only in desktop mode
+                  <button 
+                    onClick={() => {
+                      setHighlightedTask(null); // Ensure no task is highlighted
+                      setShowTaskModal(true); // Open the modal for creating a new task
+                    }} 
+                    className="task-button edit create-task-bottom"
+                  >
+                    +
+                  </button>
+                )}
               </div>
             )}
 
@@ -521,7 +594,7 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
                   fetchDependencies={fetchDependencies}
                   onCreateTask={createTaskHandler}
                   onUpdateTask={updateTaskHandler}
-                  onTaskClick={(task) => setHighlightedTask(task)}
+                  onTaskClick={(task) => setHighlightedTask((prevTask) => (prevTask?.id === task.id ? null : task))} // Toggle highlight
                   setShowTaskModal={setShowTaskModal}
                   setMapClickPosition={setMapClickPosition}
                   deleteTask={deleteTaskHandler}
@@ -540,7 +613,7 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
                 tasks={tasks}
                 onTaskClick={(task) => {
                   if (window.innerWidth > 768) {
-                    setHighlightedTask(task);
+                    setHighlightedTask((prevTask) => (prevTask?.id === task.id ? null : task)); // Toggle highlight
                   } else {
                     console.log("Mobile mode: Task clicked", task);
                   }
@@ -574,11 +647,23 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
             {/* Bottom App Bar for mobile view */}
             {window.innerWidth <= 768 && (
               <div className="bottom-app-bar">
-                <button onClick={() => setViewMode("list")}>List</button>
-                <button onClick={() => setViewMode("map")}>Map</button>
-                <button onClick={() => setShowTaskModal(true)}>Add Task</button>
-                <button onClick={() => setViewMode("calendar")}>Calendar</button>
-                <button onClick={() => alert("Profile clicked!")}>Profile</button>
+                <button onClick={() => {
+                  setShowProfileView(false); // Exit profile view
+                  setViewMode("list"); // Switch to list view
+                }}>List</button>
+                <button onClick={() => {
+                  setShowProfileView(false); // Exit profile view
+                  setViewMode("map"); // Switch to map view
+                }}>Map</button>
+                <button onClick={() => {
+                  setShowProfileView(false); // Exit profile view
+                  setShowTaskModal(true); // Open task modal
+                }}>Add Task</button>
+                <button onClick={() => {
+                  setShowProfileView(false); // Exit profile view
+                  setViewMode("calendar"); // Switch to calendar view
+                }}>Calendar</button>
+                <button onClick={() => setShowProfileView(true)}>Profile</button>
               </div>
             )}
           </>
@@ -636,10 +721,9 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
         </div>
       )}
 {/* =============END OF LOGIN PAGE======================================================================= */}
-
-      {/* Always render the highlighted task container, but only when the user is logged in, there are workspaces, and not in mobile mode */}
-      {token && isMemberOfWorkspace && window.innerWidth > 768 && (
-        <div className="highlighted-task-container">
+      {/* Always render the highlighted task container, but hide it when in profile view */}
+      {token && isMemberOfWorkspace && !showProfileView && window.innerWidth > 768 && (
+        <div className={`highlighted-task-container ${showProfileView ? "hidden" : ""}`}>
           {highlightedTask ? (
             <>
               <h2 className="highlighted-task-header">Highlighted Task</h2>
@@ -667,6 +751,28 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
           ) : (
             <p className="no-task-selected">No task selected</p>
           )}
+        </div>
+      )}
+      {/* Bottom App Bar for mobile view */}
+      {window.innerWidth <= 768 && (
+        <div className="bottom-app-bar">
+          <button onClick={() => {
+            setShowProfileView(false); // Exit profile view
+            setViewMode("list"); // Switch to list view
+          }}>List</button>
+          <button onClick={() => {
+            setShowProfileView(false); // Exit profile view
+            setViewMode("map"); // Switch to map view
+          }}>Map</button>
+          <button onClick={() => {
+            setShowProfileView(false); // Exit profile view
+            setShowTaskModal(true); // Open task modal
+          }}>Add Task</button>
+          <button onClick={() => {
+            setShowProfileView(false); // Exit profile view
+            setViewMode("calendar"); // Switch to calendar view
+          }}>Calendar</button>
+          <button onClick={() => setShowProfileView(true)}>Profile</button>
         </div>
       )}
     </div>

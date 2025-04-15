@@ -9,6 +9,7 @@ const CalendarView = ({ tasks, onTaskClick, onCreateTask, onUpdateTask, onDelete
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTask, setSelectedTask] = useState(null); // State to track the selected task for the popup
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768); // State to track if the view is mobile
+  const [showNoDateTasks, setShowNoDateTasks] = useState(false); // State to toggle tasks without a date
 
   // Update `isMobile` state on window resize
   useEffect(() => {
@@ -26,6 +27,10 @@ const CalendarView = ({ tasks, onTaskClick, onCreateTask, onUpdateTask, onDelete
     );
   };
 
+  const getTasksWithoutDate = () => {
+    return tasks.filter((task) => !task.due_date); // Filter tasks without a due date
+  };
+
   const handleTaskClick = (task) => {
     if (isMobile) {
       setSelectedTask(task); // Show the popup in mobile mode
@@ -34,45 +39,64 @@ const CalendarView = ({ tasks, onTaskClick, onCreateTask, onUpdateTask, onDelete
     }
   };
 
+  const handleDateClick = (date) => {
+    setSelectedDate(date);
+    setShowNoDateTasks(false); // Reset to show tasks for the selected date
+  };
+
   return (
     <div className="calendar-view-container">
-      <h2 className="calendar-view-header"> </h2>
-      <Calendar
-        onChange={setSelectedDate}
-        value={selectedDate}
-        tileContent={({ date }) => {
-          const tasksForDate = getTasksForDate(date);
-          return tasksForDate.length > 0 ? (
-            <div className="calendar-tile-content">
-              {tasksForDate.map((task) => (
-                <span key={task.id} className="calendar-task-dot"></span>
-              ))}
-            </div>
-          ) : null;
-        }}
-      />
+      {/* <h2 className="calendar-view-header">Calendar View</h2> */}
+      <div className="calendar-and-button">
+        <Calendar
+          onChange={handleDateClick} // Handle date click
+          value={selectedDate}
+          tileContent={({ date }) => {
+            const tasksForDate = getTasksForDate(date);
+            return tasksForDate.length > 0 ? (
+              <div className="calendar-tile-content">
+                {tasksForDate.map((task) => (
+                  <span key={task.id} className="calendar-task-dot"></span>
+                ))}
+              </div>
+            ) : null;
+          }}
+        />
+        <button
+          className="no-date-tasks-button"
+          onClick={() => setShowNoDateTasks(true)} // Show tasks without a date
+        >
+          Tasks with No Date
+        </button>
+      </div>
       <div className="task-list-for-date">
-        <h3>Tasks for {selectedDate.toLocaleDateString()}</h3>
+        <h3>
+          {showNoDateTasks
+            ? "Tasks Without a Date"
+            : `Tasks for ${selectedDate.toLocaleDateString()}`}
+        </h3>
         <ul>
-          {getTasksForDate(selectedDate).map((task) => (
+          {(showNoDateTasks ? getTasksWithoutDate() : getTasksForDate(selectedDate)).map((task) => (
             <li
               key={task.id}
               className="calendar-task"
-              onClick={() => handleTaskClick(task)} // Handle task click based on the view mode
+              onClick={() => handleTaskClick(task)} // Handle task click
             >
               {task.title || "Untitled Task"}
             </li>
           ))}
         </ul>
-        <button
-          className="create-task-button"
-          onClick={() => {
-            const formattedDate = new Date(selectedDate.toDateString()); // Normalize the date to avoid timezone offsets
-            onCreateTask(formattedDate); // Pass the normalized date to the handler
-          }}
-        >
-          Create Task
-        </button>
+        {!showNoDateTasks && (
+          <button
+            className="create-task-button"
+            onClick={() => {
+              const formattedDate = new Date(selectedDate.toDateString()); // Normalize the date to avoid timezone offsets
+              onCreateTask(formattedDate); // Pass the normalized date to the handler
+            }}
+          >
+            Create Task
+          </button>
+        )}
       </div>
 
       {/* Render TaskDetails popup only in mobile mode */}
