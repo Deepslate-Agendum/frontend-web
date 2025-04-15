@@ -383,12 +383,13 @@ const App = () => {
 
   const createDependencyHandler = async ({ dependeeId, dependentId, workspace_id, manner = "Blocking" }) => {
     try {
-      await createDependency(workspace_id, dependeeId, dependentId, manner);
-      await fetchDependencies(workspace_id); // refresh edges
+      await createDependency(workspace_id, dependentId, dependeeId, manner);
+      await fetchDependencies(workspace_id);
     } catch (err) {
       console.error("createDependencyHandler failed:", err);
     }
   };
+  
 
 const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }) => {
   try {
@@ -676,7 +677,8 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
                     }
                   );
 
-                  if (created && newSubtask.dependent) {
+                  if (created) {
+                    console.log("Creating dependency edge. Parent:", highlightedTask.id, "Subtask:", created.id);
                     await createDependencyHandler({
                       workspace_id: getId(currentWorkspace),
                       dependeeId: highlightedTask.id,
@@ -684,6 +686,7 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
                       manner: "Blocking"
                     });
                   }
+                  
 
                   return created;
                 }}
@@ -886,7 +889,7 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
               workspace_id: getId(currentWorkspace),
               dependeeId: parentId,
               dependentId: newTask.id,
-              manner: taskObj.dependent = "Blocking",
+              manner: "Blocking",
             });
           }
         }}
