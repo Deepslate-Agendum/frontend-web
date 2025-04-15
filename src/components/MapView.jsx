@@ -126,7 +126,11 @@ const MapViewContent = ({
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   
   useEffect(() => {
-    if (!tasks || tasks.length === 0) return;
+    if (!tasks || tasks.length === 0) {
+      setNodes([]);
+      setEdges([]);
+      return;
+    }
   
     const updatedNodes = tasks.map((task) => {
       const id = String(task.id || task._id?.$oid);
@@ -156,7 +160,8 @@ const MapViewContent = ({
     const layouted = getLayoutedElements(updatedNodes, edgesFromDependencies);
     setNodes(layouted);
     setEdges(edgesFromDependencies);
-  }, [tasks, dependencies, completedTasks]);
+  }, [tasks, edgesFromDependencies, completedTasks]); 
+  
   
 
   const onNodeDragStart = useCallback((_, node) => {
