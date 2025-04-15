@@ -732,8 +732,7 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
                 <p><strong>Description:</strong> {highlightedTask.description || "No Description"}</p>
                 <p><strong>Tags:</strong> {Array.isArray(highlightedTask.tags) ? highlightedTask.tags.join(", ") : highlightedTask.tags || "No Tags"}</p>
                 <p><strong>Due Date:</strong> {highlightedTask.due_date || "No Due Date"}</p>
-                <p><strong>Owner:</strong> {highlightedTask.ownerUsername || "Unknown"}</p>
-                <p><strong>Workspace:</strong> {highlightedTask.workspaceName || "Unknown"}</p>
+                <p><strong>Workspace:</strong> {currentWorkspace.name || "Unknown"}</p>
                 <p><strong>Parent Task:</strong> {highlightedTask.parentTaskId || "None"}</p>
                 <p><strong>Dependent:</strong> {highlightedTask.dependent ? "Yes" : "No"}</p>
                 <p><strong>Completed:</strong> {highlightedTask.completed ? "Yes" : "No"}</p>
