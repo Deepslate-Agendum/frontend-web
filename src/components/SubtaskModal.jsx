@@ -1,7 +1,7 @@
 // This component renders a modal for creating a subtask. It allows users to input details such as title, description, tags, due date, and whether the subtask is dependent. 
 // The modal communicates with parent components via `onClose` and `onCreate` props.
 
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import PropTypes from "prop-types";
 import "../../css/App.css";
 
@@ -13,6 +13,19 @@ const SubtaskModal = ({ onClose, onCreate, parentTask, dependentDefault = false 
   const [dueDate, setDueDate] = useState("");
   const [dependent, setDependent] = useState(dependentDefault);
 
+  useEffect(() => {
+    const handleEsc = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, [onClose]);
+
+  
   const handleSubmit = () => {
     // Convert tags input into an array of trimmed, non-empty strings
     const formattedTags = tags

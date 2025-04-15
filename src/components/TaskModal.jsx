@@ -7,55 +7,75 @@ import PropTypes from "prop-types";
 import "../../css/App.css";
 
 // Helper function to extract the ID from a document object
-const getId = (document) => document._id["$oid"];
+const getId = (document) => document?._id?.["$oid"] || "";
 
-const TaskModal = ({ onClose, onCreate, onUpdate, task, preFilledTask, workspace }) => {
+const TaskModal = ({ onClose, onCreate, onUpdate, task, prefillPosition, workspace, preFilledTask }) => {
   // State variables for form inputs
-  const [title, setTitle] = useState(task ? task.title : preFilledTask?.title || "");
-  const [description, setDescription] = useState(task ? task.description : preFilledTask?.description || "");
-  const [tags, setTags] = useState(task ? String(task.tags) : preFilledTask?.tags?.join(", ") || "");
-  const [dueDate, setDueDate] = useState(task ? task.due_date : preFilledTask?.due_date || "");
-
+  const [title, setTitle] = useState(task?.title ?? prefillPosition?.title ?? preFilledTask?.title ?? "");
+  const [description, setDescription] = useState(task?.description ?? prefillPosition?.description ?? preFilledTask?.description ?? "");
+  const [tags, setTags] = useState(task?.tags ? String(task.tags) : prefillPosition?.tags?.join(", ") ?? preFilledTask?.tags?.join(", ") ?? "");
+  const [dueDate, setDueDate] = useState(task?.due_date ?? prefillPosition?.due_date ?? preFilledTask?.due_date ?? "");
+  
   // Effect to update state when the task prop changes
   useEffect(() => {
     if (task) {
-      console.log("✏️ Editing Task:", task);
+      console.log("Editing Task:", task);
       setTitle(task.title || "");
       setDescription(task.description || "");
       setTags(Array.isArray(task.tags) ? task.tags.join(", ") : task.tags || "");
       setDueDate(task.due_date || "");
     }
-  }, [task]);
+    
+    const handleEsc = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, [task, onClose]);
 
   // Handle form submission for creating or updating a task
   const handleSubmit = () => {
-    // Convert tags input (a comma-separated string) into an array
     const formattedTags = tags
       ? tags.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0)
       : [];
-
-    console.log("TaskModal is submitting an update:", task?.id);
-
+  
+    const safeDueDate = dueDate ? new Date(dueDate).toISOString().split("T")[0] : "";
+  
     if (task) {
-      // Prepare the updated task object
       const updatedTask = {
         id: task.id,
-        name: title.trim(), // Ensure no leading/trailing spaces
+        name: title.trim(),
         title: title.trim(),
         description: description.trim(),
         tags: formattedTags,
-        due_date: dueDate || "",
-        workspace_id: getId(workspace) || "" // Extract workspace ID
+        due_date: safeDueDate,
+        workspace_id: getId(workspace),
+        x_location: String(task.x_location ?? "0"),
+        y_location: String(task.y_location ?? "0"),
       };
-
-      onUpdate(updatedTask); // Call the update handler with the updated task
+      onUpdate(updatedTask);
     } else {
-      // Call the create handler with new task details
-      onCreate(title, description, formattedTags, dueDate, workspace);
+      // This ensures (0, 0) if undefined, or the clicked position if MapView
+      const position = prefillPosition ?? { x: 0, y: 0 };
+      onCreate(
+        title,
+        description,
+        formattedTags,
+        safeDueDate,
+        getId(workspace),
+        [],
+        position
+      );
     }
-
-    onClose(); // Close the modal after submission
+  
+    onClose();
   };
+  
 
   return (
     <div className="modal-overlay">
@@ -78,24 +98,31 @@ const TaskModal = ({ onClose, onCreate, onUpdate, task, preFilledTask, workspace
 
 // Define prop types for the component
 TaskModal.propTypes = {
-  onClose: PropTypes.func.isRequired, // Function to close the modal
-  onCreate: PropTypes.func, // Function to handle task creation
-  onUpdate: PropTypes.func, // Function to handle task updates
+  onClose: PropTypes.func.isRequired,
+  onCreate: PropTypes.func,
+  onUpdate: PropTypes.func,
   task: PropTypes.shape({
     id: PropTypes.string,
     title: PropTypes.string,
     description: PropTypes.string,
-    tags: PropTypes.arrayOf(PropTypes.string),
+    tags: PropTypes.oneOfType([
+      PropTypes.arrayOf(PropTypes.string),
+      PropTypes.string,
+    ]),
     due_date: PropTypes.string,
-    currentWorkspaceId: PropTypes.number,
+    x_location: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    y_location: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   }),
-  preFilledTask: PropTypes.shape({
+  prefillPosition: PropTypes.shape({
     title: PropTypes.string,
     description: PropTypes.string,
     tags: PropTypes.arrayOf(PropTypes.string),
     due_date: PropTypes.string,
+    x: PropTypes.number,
+    y: PropTypes.number,
   }),
-  workspace: PropTypes.object, // Workspace object containing task context
+  workspace: PropTypes.object,
 };
+
 
 export default TaskModal;

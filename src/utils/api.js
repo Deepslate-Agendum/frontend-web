@@ -8,6 +8,11 @@ import axios from "axios";
 // Base URL for all API requests
 const API_BASE_URL = "/api";
 
+const DependencyManner = {
+  blocking: "Blocking",
+  subtask: "Subtask",
+}
+
 // Function to log in a user
 export const loginUser = async (username, password) => {
   try {
@@ -141,45 +146,63 @@ export const deleteWorkspace = async (workspaceId) => {
   }
 };
 
-// Function to fetch dependent tasks for a parent task
-export const getDependentTasks = async (parentTaskId) => {
+export const createDependency = async (workspaceId, dependentId, dependeeId, manner) => {
   try {
-    // Sends a GET request to fetch dependent tasks, passing parentTaskId as a parameter
-    const response = await axios.get(`${API_BASE_URL}/task/dependent_tasks`, {
-      params: { parentTaskId }
+    const response = await axios.post(`${API_BASE_URL}/workspace/${workspaceId}/dependency`, {
+      dependee_id: dependeeId,
+      dependent_id: dependentId,
+      manner: manner,
     });
-    return response.data.dependent_tasks; // Returns the list of dependent tasks on success
+    return response.data.result;
   } catch (error) {
-    // Logs and rethrows the error if the request fails
-    console.error("Failed to fetch dependent tasks:", error.response?.data || error.message);
+    console.error(`createDependency(${workspaceId}, ...) failed with:`, error.response?.data || error.message);
     throw error;
   }
 };
 
-// Function to fetch subtasks for a parent task
-export const getSubtasks = async (parentTaskId) => {
+
+export const getDependency = async (workspaceId, dependencyId) => {
   try {
-    // Sends a GET request to fetch subtasks, passing parentTaskId as a parameter
-    const response = await axios.get(`${API_BASE_URL}/task/subtasks`, {
-      params: { parentTaskId }
-    });
-    return response.data.subtasks; // Returns the list of subtasks on success
+    const response = await axios.get(`${API_BASE_URL}/workspace/${workspaceId}/dependency/${dependencyId}`);
+    return response.data.result;
+  }
+  catch (error) {
+    console.error(`getDependency(${workspaceId, dependencyId}) failed with the following response:\n${error.response?.data}`)
+    throw error;
+  }
+}
+
+export const deleteDependency = async (workspaceId, dependencyId) => {
+  try {
+    const response = await axios.delete(`${API_BASE_URL}/workspace/${workspaceId}/dependency/${dependencyId}`);
+    return response.data.result;
+  }
+  catch (error) {
+    console.error(`deleteDependency(${workspaceId, dependencyId}) failed with the following response:\n${error.response?.data}`)
+    throw error;
+  }
+
+
+}
+
+export const getAllDependencies = async (workspaceId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/workspace/${workspaceId}/dependency/`);
+    return response.data.result;
   } catch (error) {
-    // Logs and rethrows the error if the request fails
-    console.error("Failed to fetch subtasks:", error.response?.data || error.message);
+    console.error(`getAllDependencies(${workspaceId}) failed:\n${error.response?.data}`);
     throw error;
   }
 };
 
-// Function to fetch the parent task for a subtask
-export const getParentTask = async (subtaskId) => {
+export const getDependencies = async (workspaceId, dependencyIds) => {
+  let idsString = dependencyIds.join(',');
   try {
-    // Sends a GET request to fetch the parent task, passing subtaskId as a parameter
-    const response = await axios.get(`${API_BASE_URL}/task/parent_task/${subtaskId}`);
-    return response.data.parent_task; // Returns the parent task on success
-  } catch (error) {
-    // Logs and rethrows the error if the request fails
-    console.error("Failed to fetch parent task:", error.response?.data || error.message);
+    const response = await axios.get(`${API_BASE_URL}/workspace/${workspaceId}/dependency?ids=${idsString}`);
+    return response.data.result;
+  }
+  catch (error) {
+    console.error(`getDependencies(${workspaceId, dependencyId}) failed with the following response:\n${error.response?.data}`)
     throw error;
   }
-};
+}

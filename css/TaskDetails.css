@@ -20,7 +20,7 @@
 
 .modal-content {
     /* Styled container for the modal's content */
-    background: #4e7993; /* Background color for the modal */
+    background: #d3dce2; /* Background color for the modal */
     padding: 20px; /* Inner spacing */
     border-radius: 10px; /* Rounded corners */
     width: 300px; /* Fixed width for the modal */
@@ -37,3 +37,31 @@
     font-size: 20px; /* Larger font size for visibility */
     cursor: pointer; /* Pointer cursor to indicate clickability */
 }
+
+.task-details-checkbox {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #4caf50;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+    vertical-align: middle;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .task-details-checkbox:checked {
+    background-color: #4caf50;
+    border-color: #4caf50;
+  }
+  
+  .task-details-checkbox:checked::after {
+    content: '✔';
+    color: white;
+    font-size: 14px;
+    position: absolute;
+    top: -1px;
+    left: 2px;
+  }
+  

@@ -7,9 +7,10 @@ import TaskDetails from "./TaskDetails";
 import PropTypes from "prop-types";
 import { deleteTask } from "../utils/api";
 
-const TaskList = ({ tasks, updateTask, deleteTask, workspace, onTaskClick, highlightedTask }) => {
+const TaskList = ({ tasks, updateTask, deleteTask, workspace, onTaskClick, highlightedTask, completedTasks, toggleTaskCompletion}) => {
   const [selectedTask, setSelectedTask] = useState(null); // State to track the currently selected task
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768); // State to track if the view is mobile
+  const safeCompletedTasks = completedTasks || new Set(); // ✅ fallback if undefined
 
   // Update `isMobile` state on window resize
   useEffect(() => {
@@ -31,15 +32,13 @@ const TaskList = ({ tasks, updateTask, deleteTask, workspace, onTaskClick, highl
       .filter((task) => (parentId ? task.parentTaskId === parentId : !task.parentTaskId)) // Show tasks without a parent if parentId is null
       .map((task) => (
         <div key={task.id}>
-          <TaskItem
-            task={task}
-            isHighlighted={highlightedTask?.id === task.id}
-            onClick={() => handleTaskClick(task)}
-            onCheckboxChange={(task, checked) => {
-              const updatedTask = { ...task, completed: checked };
-              updateTask(updatedTask);
-            }}
-          />
+            <TaskItem
+              task={task}
+              isHighlighted={highlightedTask?.id === task.id}
+              onClick={() => handleTaskClick(task)}
+              onCheckboxChange={() => toggleTaskCompletion(task.id)}
+              completed={safeCompletedTasks.has(task.id)}
+            />
           {/* Render subtasks recursively */}
           <div className="subtasks">
             {renderTasks(tasks, task.id)}
@@ -64,6 +63,8 @@ const TaskList = ({ tasks, updateTask, deleteTask, workspace, onTaskClick, highl
           onDelete={() => deleteTask(selectedTask.id)} // Delete the selected task
           onCreateSubtask={(parentId, newSubtask) => createTask(parentId, newSubtask)} // Create a subtask
           workspace={workspace} // Pass workspace context
+          completedTasks={completedTasks}
+          toggleTaskCompletion={toggleTaskCompletion}
         />
       )}
     </div>

@@ -12,20 +12,20 @@
  */
 
 import '../css/App.css';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback} from "react";
 import TaskModal from "./components/TaskModal";
 import SubtaskModal from "./components/SubtaskModal";
 import TaskList from './components/TaskList';
+import MapView from './components/MapView';
 import CalendarView from "./components/CalendarView"; // Ensure CalendarView is imported
-import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, getParentTask, getSubtasks, getDependentTasks, deleteTask } from "./utils/api";
+import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, deleteTask, getAllDependencies, createDependency, deleteDependency } from "./utils/api";
+import { getId, getTaskDependencies } from "./utils/wrapper.js";
 
-const API_BASE = "http://127.0.0.1:5000"; // Backend URL
-
-// HACK: until back end serialization is working
-const getId = (document) => document._id["$oid"];
+//const API_BASE = "http://127.0.0.1:5000"; // Backend URL
 
 const App = () => {
   // State variables for managing tasks, workspaces, and user session
+  const [mapClickPosition, setMapClickPosition] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [workspaces, setWorkspaces] = useState([]);
   const [usernameInput, setUsernameInput] = useState("");
@@ -42,6 +42,8 @@ const App = () => {
   const [highlightedTask, setHighlightedTask] = useState(null); // State for the highlighted task
   const [viewMode, setViewMode] = useState("list"); // State to track the current view mode
   const [preFilledTask, setPreFilledTask] = useState(null); // State for pre-filled task
+  const [dependencies, setDependencies] = useState([]);
+  const [completedTasks, setCompletedTasks] = useState(new Set());
 
   // Fetch workspaces on initial render
   useEffect(() => {
@@ -52,8 +54,10 @@ const App = () => {
   useEffect(() => {
     if (currentWorkspace) {
       fetchTasks(getId(currentWorkspace));
+      fetchDependencies(getId(currentWorkspace));
     } else {
       setTasks([]);
+      setDependencies([]);
     }
   }, [currentWorkspace]);
 
@@ -125,6 +129,7 @@ const App = () => {
     try {
       if (getId(currentWorkspace)) {
         const allTasks = await getTasks(getId(currentWorkspace)); //api call to utils
+        console.log("Fetched tasks:", allTasks);
         const filteredTasks = allTasks
         setTasks(filteredTasks);
       }
@@ -137,30 +142,40 @@ const App = () => {
   
   
   //Create Task
-  const createTaskHandler = async (title, description, tags, due_date, workspace_id, parentTaskId = null, dependent = false) => {
+  const createTaskHandler = async (title, description, tags, due_date, workspace_id, dependencies = [], position = null) => {
     if (!currentWorkspace) {
       alert("Error: No workspace selected.");
-      return;
+      return null;
     }
   
-    try {
-      const newTask = await createTask({
-        name: title,
-        title,
-        description,
-        tags,
-        due_date,
-        workspace_id: getId(currentWorkspace),
-        parentTaskId, //optional for subtasks creation
-        dependent, //optional for subtasks creation
-      });
+    const x = String(position?.x ?? 0);
+    const y = String(position?.y ?? 0);
+    const safeDueDate = due_date ? new Date(due_date).toISOString().split("T")[0] : "";
   
-      setTasks((prevTasks) => [...prevTasks, newTask]);
+    const payload = {
+      name: title,
+      description,
+      tags,
+      due_date: safeDueDate,
+      workspace_id: getId(currentWorkspace),
+      dependencies,
+      x_location: x,
+      y_location: y,
+    };
+  
+    console.log("Creating task at:", payload);
+  
+    try {
+      const newTask = await createTask(payload);
       setShowTaskModal(false);
+      await fetchTasks(); // backend refresh
+      setMapClickPosition(null); // clear for next task
+      return newTask;
     } catch (error) {
       console.error("Error creating task:", error);
     }
   };
+  
 
   // Function to handle task creation from CalendarView
   const handleCreateTaskFromCalendar = (selectedDate) => {
@@ -226,7 +241,6 @@ const App = () => {
       return null;
     }
   };
-  
 
 
   //Workspace endpoints
@@ -248,32 +262,31 @@ const App = () => {
 
   // Create Workspace
   const createWorkspaceHandler = async (name) => {
-    const trimmedWorkspaceName = name.trim(); // Trim the workspace name to remove extra spaces
-    if (!trimmedWorkspaceName) { // Ensure the trimmed name is not empty
+    if (!userId) {
+      alert("You must be logged in to create a workspace.");
+      return;
+    }
+    const trimmedName = name?.trim();
+    if (!trimmedName) {
       alert("Workspace name required!");
       return;
     }
   
     try {
-      const newWorkspace = await createWorkspace(trimmedWorkspaceName, userId); // Use the trimmed name for the API call
+      const newWorkspace = await createWorkspace(trimmedName, userId); // use trimmedName here
       setWorkspaceName(""); // Clear the input field only after the API call
-      setWorkspaces((prevWorkspaces) => [...prevWorkspaces, newWorkspace]); // Add the new workspace to the state
-      setCurrentWorkspace(newWorkspace); // Set the newly created workspace as the current workspace
-  
-      // Retry logic for fetching tasks
+      setWorkspaces((prev) => [...prev, newWorkspace]);
+      setCurrentWorkspace(newWorkspace);
+      
       let attempts = 0;
-      const maxAttempts = 3;
-      while (attempts < maxAttempts) {
+      while (attempts < 3) {
         try {
-          await fetchTasks(getId(newWorkspace)); // Attempt to fetch tasks
-          return; // Exit the function if successful
-        } catch (error) {
+          await fetchTasks(getId(newWorkspace)); // this requires newWorkspace to be valid
+          return;
+        } catch (err) {
           attempts++;
-          console.error(`Attempt ${attempts} to fetch tasks failed:`, error);
-          if (attempts === maxAttempts) {
-            // alert("Failed to fetch tasks for the new workspace after multiple attempts. The page will now refresh.");
-            window.location.reload(); // Refresh the page if all attempts fail
-          }
+          console.error(`Attempt ${attempts} to fetch tasks failed`, err);
+          if (attempts === 3) window.location.reload();
         }
       }
     } catch (error) {
@@ -281,6 +294,7 @@ const App = () => {
       alert("Failed to create workspace. Please try again.");
     }
   };
+  
   
 
   // Delete Workspace
@@ -308,6 +322,97 @@ const App = () => {
       handleLogin(); // Trigger login when Enter is pressed
     }
   };
+
+  // dependencies 
+  const fetchDependencies = async (workspaceId) => {
+    try {
+      console.log("Fetching dependencies for workspaceId:", workspaceId);
+      const data = await getAllDependencies(workspaceId); // from api.js
+      setDependencies(data);
+    } catch (err) {
+      console.error("Error fetching dependencies:", err);
+      setDependencies([]);
+    }
+  };
+
+  const createDependencyHandler = async ({ dependeeId, dependentId, workspace_id, manner = "Blocking" }) => {
+    try {
+      await createDependency(workspace_id, dependeeId, dependentId, manner);
+      await fetchDependencies(workspace_id); // refresh edges
+    } catch (err) {
+      console.error("createDependencyHandler failed:", err);
+    }
+  };
+
+const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }) => {
+  try {
+    const all = await getAllDependencies(workspace_id);
+
+    const match = all.find(d =>
+      d.dependee === dependeeId &&
+      d.dependent === dependentId
+    );
+
+    if (!match) {
+      console.warn("No matching dependency found to delete.");
+      return;
+    }
+
+    await deleteDependency(workspace_id, match.id);
+    await fetchDependencies(workspace_id);
+  } catch (err) {
+    console.error("deleteDependencyHandler failed:", err);
+  }
+};
+
+  
+  
+  const handleEdgeClick = useCallback(
+    (event, edge) => {
+      event.stopPropagation();
+      if (window.confirm("Delete this dependency?")) {
+        const [, dependeeId, dependentId] = edge.id.split("-");
+        deleteDependencyHandler({
+          workspace_id: getId(currentWorkspace),
+          dependeeId,
+          dependentId,
+        });
+      }
+    },
+    [currentWorkspace]
+  );
+
+  const toggleTaskCompletion = (taskId) => {
+    const task = tasks.find(t => (t.id || t._id?.$oid) === taskId);
+    if (!task) return;
+  
+    // Dependencies that this task relies on (dependees)
+    const blockingDependencies = dependencies.filter(d =>
+      (d.dependent?.id || d.dependent?._id?.$oid || d.dependent) === taskId
+    );
+  
+    const allDepsComplete = blockingDependencies.every(d =>
+      completedTasks.has(d.dependee?.id || d.dependee?._id?.$oid || d.dependee)
+    );
+  
+    if (!allDepsComplete) {
+      alert("You cannot complete this task until all its dependencies are complete.");
+      return;
+    }
+  
+    setCompletedTasks(prev => {
+      const updated = new Set(prev);
+      if (updated.has(taskId)) {
+        updated.delete(taskId);
+      } else {
+        updated.add(taskId);
+      }
+      return updated;
+    });
+  };
+  
+  
+  
 
 
 //-----------------------------------------------------------------------------------------
@@ -370,13 +475,13 @@ const App = () => {
                 <div
                   className="dropdown-item"
                   onClick={() => {
-                    const newWorkspaceName = prompt("Enter the name of the new workspace:");
-                    if (newWorkspaceName && newWorkspaceName.trim()) { // Ensure the input is not empty or whitespace
-                      createWorkspaceHandler(newWorkspaceName.trim()); // Pass the trimmed name directly to the handler
-                    } else {
-                      alert("Workspace name required!"); // Show an alert if the input is invalid
+                    const name = prompt("Enter the name of the new workspace:");
+                    if (name) {
+                      setWorkspaceName(name);
+                      createWorkspaceHandler(name.trim());
                     }
                   }}
+                  
                 >
                   <span>Create a New Workspace</span>
                 </div>
@@ -387,15 +492,7 @@ const App = () => {
             {viewMode === "list" && (
               <div className="task-list-container">
                 <h2 className="task-list-header">Task List</h2>
-                <button 
-                  onClick={() => {
-                    setHighlightedTask(null); // Ensure no task is highlighted
-                    setShowTaskModal(true); // Open the modal for creating a new task
-                  }} 
-                  className="task-button edit"
-                >
-                  Create Task
-                </button>
+                <button onClick={() => setShowTaskModal(true)} className="task-button edit">Create Task</button>
                 <TaskList 
                   tasks={tasks} 
                   updateTask={updateTaskHandler} 
@@ -403,25 +500,43 @@ const App = () => {
                   workspace={currentWorkspace}
                   highlightedTask={highlightedTask} // Pass the highlighted task to TaskList
                   onTaskClick={(task) => {
-                    if (highlightedTask && highlightedTask.id === task.id) {
-                      setHighlightedTask(null); // Unhighlight the task if it is already highlighted
+                    if (window.innerWidth > 768) {
+                      setHighlightedTask(task); // Update the highlighted task for desktop mode
                     } else {
-                      setHighlightedTask(task); // Highlight the clicked task
+                      console.log("Mobile mode: Task clicked", task); // Handle mobile-specific behavior
                     }
                   }}
+                  completedTasks={completedTasks}
+                  toggleTaskCompletion={toggleTaskCompletion}
                 />
               </div>
             )}
 
             {viewMode === "map" && (
               <div className="map-view-container">
-                <h2 className="map-view-header">Map View</h2>
-                <p>Map view is under construction.</p>
+                <MapView 
+                  tasks={tasks}
+                  dependencies={dependencies}
+                  onCreateDependency={createDependencyHandler}
+                  fetchDependencies={fetchDependencies}
+                  onCreateTask={createTaskHandler}
+                  onUpdateTask={updateTaskHandler}
+                  onTaskClick={(task) => setHighlightedTask(task)}
+                  setShowTaskModal={setShowTaskModal}
+                  setMapClickPosition={setMapClickPosition}
+                  deleteTask={deleteTaskHandler}
+                  workspace={currentWorkspace}
+                  prefillPosition={mapClickPosition}
+                  onDeleteDependency={deleteDependencyHandler}
+                  completedTasks={completedTasks}
+                  toggleTaskCompletion={toggleTaskCompletion}
+                />
               </div>
             )}
 
             {viewMode === "calendar" && (
-              <CalendarView
+              <div className="calendar-view-container">
+                                <CalendarView
                 tasks={tasks}
                 onTaskClick={(task) => {
                   if (window.innerWidth > 768) {
@@ -431,7 +546,10 @@ const App = () => {
                   }
                 }}
                 onCreateTask={handleCreateTaskFromCalendar} // Pass the handler for creating tasks from CalendarView
+                completedTasks={completedTasks}
+                toggleTaskCompletion={toggleTaskCompletion}
               />
+              </div>
             )}
 
             {/* Render the TaskModal for creating a task */}
@@ -439,14 +557,19 @@ const App = () => {
               <TaskModal 
                 onClose={() => {
                   setShowTaskModal(false);
-                  setPreFilledTask(null); // Clear pre-filled task after closing
+                  setMapClickPosition(null);
+                  setHighlightedTask(null); // Clear if we were editing
+                  setPreFilledTask (null);
                 }} 
-                onCreate={createTaskHandler} // Use the create task handler
-                workspaceId={currentWorkspace?.id}
-                task={null} // Pass null to ensure the modal is in create mode
-                preFilledTask={preFilledTask} // Pass pre-filled task for creation
+                onCreate={createTaskHandler}
+                onUpdate={updateTaskHandler}
+                task={highlightedTask} // <-- this is the key fix
+                prefillPosition={mapClickPosition}
+                workspace={currentWorkspace}
+                preFilledTask={preFilledTask}
               />
             )}
+
 
             {/* Bottom App Bar for mobile view */}
             {window.innerWidth <= 768 && (
@@ -513,6 +636,7 @@ const App = () => {
         </div>
       )}
 {/* =============END OF LOGIN PAGE======================================================================= */}
+
       {/* Always render the highlighted task container, but only when the user is logged in, there are workspaces, and not in mobile mode */}
       {token && isMemberOfWorkspace && window.innerWidth > 768 && (
         <div className="highlighted-task-container">
