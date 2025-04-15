@@ -4,6 +4,8 @@
 import { useState, useEffect} from "react";
 import PropTypes from "prop-types";
 import "../../css/App.css";
+import "../../css/modal.css";
+
 
 const SubtaskModal = ({ onClose, onCreate, parentTask, dependentDefault = false }) => {
   // State variables to manage form inputs
@@ -26,75 +28,62 @@ const SubtaskModal = ({ onClose, onCreate, parentTask, dependentDefault = false 
   }, [onClose]);
 
   
-  const handleSubmit = () => {
-    // Convert tags input into an array of trimmed, non-empty strings
+  const handleSubmit = async () => {
     const formattedTags = tags
       ? tags.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0)
       : [];
-    
-    // Create a new subtask object with the provided inputs
+  
     const newSubtask = {
       title: title.trim(),
       description: description.trim(),
       tags: formattedTags,
       due_date: dueDate || "",
-      parentTaskId: parentTask.id, // Link subtask to parent task
-      dependent: dependent,
-      ownerUsername: parentTask.ownerUsername, // Inherit owner from parent task
-      workspaceId: parentTask.workspaceId, // Inherit workspace from parent task
+      parentTaskId: parentTask.id,
+      dependent,
+      ownerUsername: parentTask.ownerUsername,
+      workspaceId: parentTask.workspaceId,
     };
-
+  
     console.log("Creating subtask for parent", parentTask.id, newSubtask);
-    onCreate(newSubtask); // Pass the new subtask to the parent component
-    onClose(); // Close the modal
+    
+    const created = await onCreate(newSubtask);
+  
+    if (created && newSubtask.dependent) {
+      await onCreateDependency({
+        workspace_id: newSubtask.workspaceId,
+        dependeeId: parentTask.id,
+        dependentId: created.id,
+        manner: "Blocking"
+      });
+    }
+  
+    onClose();
   };
+  
 
   return (
-    <div className="modal-overlay">
+    <div className="modal-overlay modal-nested">
       <div className="modal-content">
-        <button className="close-button" onClick={onClose}>X</button>
+        <button className="close-button" onClick={onClose}>×</button>
         <h2>Create Subtask</h2>
-        {/* Input for subtask title */}
-        <input
-          type="text"
-          placeholder="Subtask Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        {/* Textarea for optional description */}
-        <textarea
-          placeholder="Description (optional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        {/* Input for comma-separated tags */}
-        <input
-          type="text"
-          placeholder="Tags (comma-separated)"
-          value={tags}
-          onChange={(e) => setTags(e.target.value)}
-        />
-        {/* Input for due date */}
-        <input
-          type="date"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-        />
-        {/* Checkbox to mark the subtask as dependent */}
+  
+        <input type="text" placeholder="Subtask Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+        <textarea placeholder="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} />
+        <input type="text" placeholder="Tags (comma-separated)" value={tags} onChange={(e) => setTags(e.target.value)} />
+        <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
         <label>
-          <input
-            type="checkbox"
-            checked={dependent}
-            onChange={(e) => setDependent(e.target.checked)}
-          />
+          <input type="checkbox" checked={dependent} onChange={(e) => setDependent(e.target.checked)} />
           Dependent Subtask
         </label>
-        {/* Button to submit the form */}
-        <button onClick={handleSubmit}>Create Subtask</button>
+  
+        <div className="modal-actions">
+          <button className="modal-btn primary" onClick={handleSubmit}>Create</button>
+          <button className="modal-btn danger" onClick={onClose}>Cancel</button>
+        </div>
       </div>
     </div>
   );
+  
 };
 
 // Define prop types for the component
@@ -103,9 +92,10 @@ SubtaskModal.propTypes = {
   onCreate: PropTypes.func.isRequired, // Function to handle subtask creation
   parentTask: PropTypes.shape({
     id: PropTypes.string.isRequired, // Parent task ID
-    ownerUsername: PropTypes.string.isRequired, // Parent task owner
+    ownerUsername: PropTypes.string // Parent task owner
   }).isRequired,
   dependentDefault: PropTypes.bool, // Default value for the dependent checkbox
+  onCreateDependency: PropTypes.func,
 };
 
 export default SubtaskModal;

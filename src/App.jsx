@@ -78,7 +78,7 @@ const App = () => {
       setIsMemberOfWorkspace(true);
     }
   }, [workspaces]);
-  
+  /*
   useEffect(() => {
     const handleResize = () => {
       window.location.reload(); // Refresh the page on screen size change
@@ -89,7 +89,7 @@ const App = () => {
       window.removeEventListener("resize", handleResize); // Cleanup event listener on unmount
     };
   }, []);
-
+*/
   //Authentication Endpoints
 
   //Login
@@ -365,15 +365,21 @@ const App = () => {
   };
   // dependencies 
   const fetchDependencies = async (workspaceId) => {
+    if (!workspaceId) {
+      console.warn("fetchDependencies skipped: workspaceId is undefined");
+      return;
+    }
+  
     try {
       console.log("Fetching dependencies for workspaceId:", workspaceId);
-      const data = await getAllDependencies(workspaceId); // from api.js
+      const data = await getAllDependencies(workspaceId);
       setDependencies(data);
     } catch (err) {
       console.error("Error fetching dependencies:", err);
       setDependencies([]);
     }
   };
+  
 
   const createDependencyHandler = async ({ dependeeId, dependentId, workspace_id, manner = "Blocking" }) => {
     try {
@@ -631,12 +637,12 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
                 onClose={() => {
                   setShowTaskModal(false);
                   setMapClickPosition(null);
-                  setHighlightedTask(null); // Clear if we were editing
+                  setHighlightedTask(null);
                   setPreFilledTask (null);
                 }} 
                 onCreate={createTaskHandler}
                 onUpdate={updateTaskHandler}
-                task={highlightedTask} // <-- this is the key fix
+                task={highlightedTask}
                 prefillPosition={mapClickPosition}
                 workspace={currentWorkspace}
                 preFilledTask={preFilledTask}
@@ -645,14 +651,16 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
             {/* Render the SubtaskModal */}
               {showSubtaskModal && (
                 <SubtaskModal
+                  parentTask={highlightedTask}
                   onClose={() => {
                     setShowSubtaskModal(false);
                     setPreFilledTask(null);
                   }}
-                  task={highlightedTask}
-                  workspace={currentWorkspace}
                   onCreate={createTaskHandler}
+                  onCreateDependency={createDependencyHandler}
                 />
+
+              
               )}
 
 
@@ -699,6 +707,13 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
               >
                 Create Workspace
               </button>
+              <button 
+              onClick={handleLogout} 
+              className="logout-button" 
+              style={{ marginTop: "1rem" }} // Add spacing above the button
+              >
+              Log Out
+            </button>
             </div>
           </div>
         )
@@ -736,6 +751,7 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
 {/* =============END OF LOGIN PAGE======================================================================= */}
       {/* Always render the highlighted task container, but hide it when in profile view */}
       {token && isMemberOfWorkspace && !showProfileView && window.innerWidth > 768 && (
+      
     <div className={`highlighted-task-container ${showProfileView ? "hidden" : ""}`} style={{ pointerEvents: "auto" }}>
       {highlightedTask ? (
         <>
@@ -820,6 +836,39 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
       )}
     </div>
   )}
+    {token && isMemberOfWorkspace && !showProfileView && window.innerWidth <= 768 && highlightedTask && (
+      <TaskDetails
+        task={highlightedTask}
+        onClose={() => setHighlightedTask(null)}
+        onUpdate={updateTaskHandler}
+        onDelete={deleteTaskHandler}
+        onCreateSubtask={async (parentId, taskObj) => {
+          const newTask = await createTaskHandler(
+            taskObj.title,
+            taskObj.description,
+            taskObj.tags,
+            taskObj.due_date,
+            getId(currentWorkspace),
+            [],
+            { x: 0, y: 0 }
+          );
+
+          if (newTask) {
+            await createDependencyHandler({
+              workspace_id: getId(currentWorkspace),
+              dependeeId: parentId,
+              dependentId: newTask.id,
+              manner: taskObj.dependent = "Blocking",
+            });
+          }
+        }}
+        workspace={currentWorkspace}
+        completedTasks={completedTasks}
+        toggleTaskCompletion={toggleTaskCompletion}
+      />
+
+)}
+
 
       {/* Bottom App Bar for mobile view */}
       {window.innerWidth <= 768 && (

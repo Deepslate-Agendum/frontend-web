@@ -3,7 +3,6 @@
   It includes:
   - Root container styles for centering and layout.
   - Row layout for flexbox-based alignment.
-  - Modal overlay and content styling.
   - Close button styling.
   - Login screen layout and styling, including:
     - Login container for the right half of the screen.
@@ -34,47 +33,6 @@
   gap: 80px; /* Adds spacing between child elements */
   justify-content: center; /* Centers child elements horizontally */
   align-items: center; /* Centers child elements vertically */
-}
-
-.modal-overlay {
-  position: fixed; /* Keeps the overlay fixed in place */
-  top: 0; /* Positions the overlay at the top of the viewport */
-  left: 0; /* Positions the overlay at the left of the viewport */
-  width: 100%; /* Makes the overlay span the full width of the viewport */
-  height: 100%; /* Makes the overlay span the full height of the viewport */
-  background: rgba(0, 0, 0, 0.5); /* Adds a semi-transparent black background */
-  display: flex; /* Enables flexbox layout for centering modal content */
-  align-items: center; /* Centers modal content vertically */
-  justify-content: center; /* Centers modal content horizontally */
-  z-index: 9999; /* high value to ensure it's above everything */
-
-}
-
-.modal-content {
-  position: relative; /* Ensure the close button is positioned relative to this container */
-  background: white; /* Sets the modal background to white */
-  padding: 20px; /* Adds padding inside the modal */
-  border-radius: 10px; /* Rounds the corners of the modal */
-  text-align: center; /* Centers text inside the modal */
-  z-index: 2001; /* high value to ensure it's above everything */
-
-}
-
-.close-button {
-  position: absolute; /* Position relative to the modal box */
-  top: 10px; /* Position 10px from the top of the modal box */
-  right: 10px; /* Position 10px from the right of the modal box */
-  background: red; /* Red background for the button */
-  color: white; /* White text color */
-  border: none; /* Remove border */
-  border-radius: 5px; /* Add rounded corners */
-  padding: 5px 10px; /* Add padding */
-  cursor: pointer; /* Change cursor to pointer on hover */
-  z-index: 10; /* Ensure the button is above other elements */
-}
-
-.close-button:hover {
-  background: darkred; /* Darker red on hover */
 }
 
 
