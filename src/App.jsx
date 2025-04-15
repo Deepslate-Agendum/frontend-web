@@ -723,28 +723,81 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
 {/* =============END OF LOGIN PAGE======================================================================= */}
       {/* Always render the highlighted task container, but hide it when in profile view */}
       {token && isMemberOfWorkspace && !showProfileView && window.innerWidth > 768 && (
-        <div className={`highlighted-task-container ${showProfileView ? "hidden" : ""}`}>
+        <div className={`highlighted-task-container ${showProfileView ? "hidden" : ""}`} style={{ pointerEvents: "auto" }}>
           {highlightedTask ? (
             <>
               <h2 className="highlighted-task-header">Highlighted Task</h2>
-              <div className="highlighted-task-content">
-                <h3>{highlightedTask.title || "No Title"}</h3>
-                <p><strong>Description:</strong> {highlightedTask.description || "No Description"}</p>
-                <p><strong>Tags:</strong> {Array.isArray(highlightedTask.tags) ? highlightedTask.tags.join(", ") : highlightedTask.tags || "No Tags"}</p>
-                <p><strong>Due Date:</strong> {highlightedTask.due_date || "No Due Date"}</p>
-                <p><strong>Workspace:</strong> {currentWorkspace.name || "Unknown"}</p>
-                <p><strong>Parent Task:</strong> {highlightedTask.parentTaskId || "None"}</p>
-                <p><strong>Dependent:</strong> {highlightedTask.dependent ? "Yes" : "No"}</p>
-                <p><strong>Completed:</strong> {highlightedTask.completed ? "Yes" : "No"}</p>
+
+              {/* Content Area - disable pointer events to prevent rogue clicks */}
+              <div className="highlighted-task-content" style={{ pointerEvents: "none" }}>
+                <div style={{ pointerEvents: "auto" }}>
+                  <h3>{highlightedTask.title || "No Title"}</h3>
+                  <p><strong>Description:</strong> {highlightedTask.description || "No Description"}</p>
+                  <p><strong>Tags:</strong> {Array.isArray(highlightedTask.tags) ? highlightedTask.tags.join(", ") : highlightedTask.tags || "No Tags"}</p>
+                  <p><strong>Due Date:</strong> {highlightedTask.due_date || "No Due Date"}</p>
+                  <p><strong>Workspace:</strong> {currentWorkspace.name || "Unknown"}</p>
+                  <p><strong>Parent Tasks:</strong> {
+                    dependencies
+                      .filter(d => (d.dependent?.id || d.dependent?._id?.$oid || d.dependent) === highlightedTask.id)
+                      .map(d => {
+                        const parentId = d.dependee?.id || d.dependee?._id?.$oid || d.dependee;
+                        const parentTask = tasks.find(t => (t.id || t._id?.$oid) === parentId);
+                        return parentTask?.title || "Unknown";
+                      })
+                      .join(", ") || "None"
+                  }</p>
+
+                  <p><strong>Dependent:</strong> {
+                    dependencies.some(d =>
+                      (d.dependent?.id || d.dependent?._id?.$oid || d.dependent) === highlightedTask.id &&
+                      d.manner === "Blocking"
+                    ) ? "Yes" : "No"
+                  }</p>
+
+                  <p><strong>Completed:</strong> {
+                    completedTasks.has(highlightedTask.id) ? "Yes" : "No"
+                  }</p>
+                </div>
               </div>
-              {/* Buttons for task actions */}
-              <div className="highlighted-task-actions">
-                <button onClick={() => setShowTaskModal(true)}>Edit Task</button>
-                <button onClick={() => {
-                  deleteTaskHandler(highlightedTask.id);
-                  setHighlightedTask(null); // Clear the highlighted task after deletion
-                }}>Delete Task</button>
-                <button onClick={() => setShowSubtaskModal(true)}>Add Subtask</button>
+
+              {/* Action Buttons - re-enable pointer events */}
+              <div className="highlighted-task-actions" style={{ pointerEvents: "auto" }}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowTaskModal(true);
+                  }}
+                >
+                  Edit Task
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteTaskHandler(highlightedTask.id);
+                    setHighlightedTask(null);
+                  }}
+                >
+                  Delete Task
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowSubtaskModal(true);
+                  }}
+                >
+                  Add Subtask
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleTaskCompletion(highlightedTask.id);
+                  }}
+                >
+                  {completedTasks.has(highlightedTask.id) ? "Undo Complete" : "Mark Complete"}
+                </button>
               </div>
             </>
           ) : (
@@ -752,6 +805,7 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
           )}
         </div>
       )}
+
       {/* Bottom App Bar for mobile view */}
       {window.innerWidth <= 768 && (
         <div className="bottom-app-bar">

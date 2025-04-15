@@ -541,6 +541,7 @@
   box-sizing: border-box; /* Include padding and border in width/height */
   z-index: 800; /* Ensure it is below the task list container */
   pointer-events: none; /* Prevent interaction with the container */
+  cursor: pointer;
 }
 
 .highlighted-task-container.hidden {
@@ -767,4 +768,9 @@
 
 .create-task-bottom:hover {
   background-color: #148c08; /* Darker green on hover */
+}
+
+
+.highlighted-task-actions button {
+  margin: 5px 5px 0 0;
 }
