@@ -330,6 +330,7 @@ const App = () => {
 
   const handleSelectWorkspace = (ws) => {
     setCurrentWorkspace(ws);
+    setHighlightedTask(null); // Clear the highlighted task when switching workspaces
   };
 
   const handleKeyPress = (e) => {
@@ -457,7 +458,7 @@ const App = () => {
                   highlightedTask={highlightedTask} // Pass the highlighted task to TaskList
                   onTaskClick={(task) => {
                     if (window.innerWidth > 768) {
-                      setHighlightedTask(task); // Update the highlighted task for desktop mode
+                      setHighlightedTask((prevTask) => (prevTask?.id === task.id ? null : task)); // Toggle highlight
                     } else {
                       console.log("Mobile mode: Task clicked", task); // Handle mobile-specific behavior
                     }
@@ -483,7 +484,7 @@ const App = () => {
                   tasks={tasks}
                   onCreateTask={createTaskHandler}
                   onUpdateTask={updateTaskHandler}
-                  onTaskClick={(task) => setHighlightedTask(task)}
+                  onTaskClick={(task) => setHighlightedTask((prevTask) => (prevTask?.id === task.id ? null : task))} // Toggle highlight
                   setShowTaskModal={setShowTaskModal}
                   setMapClickPosition={setMapClickPosition}
                   deleteTask={deleteTaskHandler}
@@ -498,7 +499,7 @@ const App = () => {
                 tasks={tasks}
                 onTaskClick={(task) => {
                   if (window.innerWidth > 768) {
-                    setHighlightedTask(task);
+                    setHighlightedTask((prevTask) => (prevTask?.id === task.id ? null : task)); // Toggle highlight
                   } else {
                     console.log("Mobile mode: Task clicked", task);
                   }
