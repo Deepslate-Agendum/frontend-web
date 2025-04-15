@@ -66,6 +66,7 @@ const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask, works
       {showSubtaskModal && (
         <SubtaskModal
           parentTask={task}
+          ownerUsername={task.ownerUsername}
           onClose={() => setShowSubtaskModal(false)}
           onCreate={(newSubtask) => {
             onCreateSubtask(task.id, newSubtask);

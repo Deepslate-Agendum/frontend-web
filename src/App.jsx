@@ -637,31 +637,59 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
                 onClose={() => {
                   setShowTaskModal(false);
                   setMapClickPosition(null);
-                  setHighlightedTask(null);
+                  setHighlightedTask(null); // Clear if we were editing
                   setPreFilledTask (null);
                 }} 
                 onCreate={createTaskHandler}
                 onUpdate={updateTaskHandler}
-                task={highlightedTask}
+                task={highlightedTask} // <-- this is the key fix
                 prefillPosition={mapClickPosition}
                 workspace={currentWorkspace}
                 preFilledTask={preFilledTask}
               />
             )}
             {/* Render the SubtaskModal */}
-              {showSubtaskModal && (
-                <SubtaskModal
-                  parentTask={highlightedTask}
-                  onClose={() => {
-                    setShowSubtaskModal(false);
-                    setPreFilledTask(null);
-                  }}
-                  onCreate={createTaskHandler}
-                  onCreateDependency={createDependencyHandler}
-                />
+            {showSubtaskModal && (
+              <SubtaskModal
+                parentTask={highlightedTask}
+                onClose={() => {
+                  setShowSubtaskModal(false);
+                  setPreFilledTask(null);
+                }}
+                onCreate={async (newSubtask) => {
+                  const offset = { x: 50, y: -50 };
+                  const parentPos = {
+                    x: highlightedTask?.position?.x ?? 0,
+                    y: highlightedTask?.position?.y ?? 0,
+                  };
 
-              
-              )}
+                  const created = await createTaskHandler(
+                    newSubtask.title,
+                    newSubtask.description,
+                    newSubtask.tags,
+                    newSubtask.due_date,
+                    getId(currentWorkspace),
+                    [],
+                    {
+                      x: parentPos.x + offset.x,
+                      y: parentPos.y + offset.y,
+                    }
+                  );
+
+                  if (created && newSubtask.dependent) {
+                    await createDependencyHandler({
+                      workspace_id: getId(currentWorkspace),
+                      dependeeId: highlightedTask.id,
+                      dependentId: created.id,
+                      manner: "Blocking"
+                    });
+                  }
+
+                  return created;
+                }}
+              />
+            )}
+
 
 
 

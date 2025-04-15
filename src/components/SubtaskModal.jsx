@@ -7,7 +7,7 @@ import "../../css/App.css";
 import "../../css/modal.css";
 
 
-const SubtaskModal = ({ onClose, onCreate, parentTask, dependentDefault = false }) => {
+const SubtaskModal = ({ onClose, onCreate, parentTask, dependentDefault = false, onCreateDependency }) => {
   // State variables to manage form inputs
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -44,21 +44,11 @@ const SubtaskModal = ({ onClose, onCreate, parentTask, dependentDefault = false 
       workspaceId: parentTask.workspaceId,
     };
   
-    console.log("Creating subtask for parent", parentTask.id, newSubtask);
-    
-    const created = await onCreate(newSubtask);
-  
-    if (created && newSubtask.dependent) {
-      await onCreateDependency({
-        workspace_id: newSubtask.workspaceId,
-        dependeeId: parentTask.id,
-        dependentId: created.id,
-        manner: "Blocking"
-      });
-    }
-  
+    console.log("Sending to parent handler:", newSubtask);
+    await onCreate(newSubtask);
     onClose();
   };
+  
   
 
   return (
@@ -95,7 +85,7 @@ SubtaskModal.propTypes = {
     ownerUsername: PropTypes.string // Parent task owner
   }).isRequired,
   dependentDefault: PropTypes.bool, // Default value for the dependent checkbox
-  onCreateDependency: PropTypes.func,
+  
 };
 
 export default SubtaskModal;
