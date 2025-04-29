@@ -135,7 +135,7 @@ const App = () => {
         return;
       }
       const response = await createUser(usernameInput.trim(), password.trim()); // Ensure trimmed inputs are sent
-      if (response && response.success) {
+      if (response && response.status == 200) {
         alert("User created successfully! You can now log in.");
         setUsernameInput(""); // Clear the username input
         setPassword(""); // Clear the password input

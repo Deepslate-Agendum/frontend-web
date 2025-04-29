@@ -35,7 +35,7 @@ export const createUser = async (username, password) => {
       username,
       password,
     });
-    return response.data; // Returns the response data on success
+    return response; // Returns the response data on success
   } catch (error) {
     // Logs and rethrows the error if the request fails
     console.error("User creation failed:", error.response?.data || error.message);
