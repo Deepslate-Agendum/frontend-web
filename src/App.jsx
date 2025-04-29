@@ -56,9 +56,12 @@ const App = () => {
 
   // Fetch workspaces on initial render
   useEffect(() => {
+    if (token.length == 0) {
+      return;
+    }
     fetchWorkspaces();
-  }, []);
-  
+  }, [token]);
+
   // Fetch tasks whenever the current workspace changes
   useEffect(() => {
     if (currentWorkspace) {
