@@ -87,10 +87,14 @@ export const updateTask = async (updatedData) => {
 };
 
 // Function to fetch all workspaces
-export const getWorkspaces = async () => {
+export const getWorkspaces = async (token) => {
   try {
     // Sends a GET request to fetch all workspaces
-    const response = await axios.get(`${API_BASE_URL}/workspace/`);
+    const response = await axios.get(`${API_BASE_URL}/workspace/`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     return response.data; // Returns the list of workspaces on success
   } catch (error) {
     // Logs and rethrows the error if the request fails

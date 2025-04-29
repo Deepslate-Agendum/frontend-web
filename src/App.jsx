@@ -276,7 +276,7 @@ const App = () => {
   // Fetch Workspaces
   const fetchWorkspaces = async () => {
     try {
-      const data = await getWorkspaces(); //api call for utils
+      const data = await getWorkspaces(token); //api call for utils
       setWorkspaces(data.workspaces);
       if (data.workspaces.length > 0) {
         setCurrentWorkspace(data.workspaces[0]);
