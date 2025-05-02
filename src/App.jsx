@@ -56,9 +56,12 @@ const App = () => {
 
   // Fetch workspaces on initial render
   useEffect(() => {
+    if (token.length == 0) {
+      return;
+    }
     fetchWorkspaces();
-  }, []);
-  
+  }, [token]);
+
   // Fetch tasks whenever the current workspace changes
   useEffect(() => {
     if (currentWorkspace) {
@@ -135,7 +138,7 @@ const App = () => {
         return;
       }
       const response = await createUser(usernameInput.trim(), password.trim()); // Ensure trimmed inputs are sent
-      if (response && response.success) {
+      if (response && response.status == 200) {
         alert("User created successfully! You can now log in.");
         setUsernameInput(""); // Clear the username input
         setPassword(""); // Clear the password input
@@ -276,7 +279,7 @@ const App = () => {
   // Fetch Workspaces
   const fetchWorkspaces = async () => {
     try {
-      const data = await getWorkspaces(); //api call for utils
+      const data = await getWorkspaces(token); //api call for utils
       setWorkspaces(data.workspaces);
       if (data.workspaces.length > 0) {
         setCurrentWorkspace(data.workspaces[0]);
