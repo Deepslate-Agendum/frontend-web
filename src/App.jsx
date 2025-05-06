@@ -19,7 +19,7 @@ import TaskList from './components/TaskList';
 import MapView from './components/MapView';
 import CalendarView from "./components/CalendarView"; // Ensure CalendarView is imported
 import ProfileView from "./components/ProfileView"; // Import the ProfileView component
-import { loginUser, createUser, updateUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, leaveWorkspace, addUserWorkspace, deleteTask, getAllDependencies, createDependency, deleteDependency,  } from "./utils/api";
+import { loginUser, createUser, updateUser, deleteUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, leaveWorkspace, addUserWorkspace, deleteTask, getAllDependencies, createDependency, deleteDependency,  } from "./utils/api";
 import { getId, getTaskDependencies } from "./utils/wrapper.js";
 
 //const API_BASE = "http://127.0.0.1:5000"; // Backend URL
@@ -167,9 +167,21 @@ const App = () => {
     }
   };
 
-  //Task Endpoints
-  
+  const deleteUserHandler = async () => {
+    try {
+      const response = await deleteUser(userId);
+      if (response && response.status == 200) {
+        alert("User deleted successfully!");
+        handleLogout();
+      } else {
+          alert("Failed to delete user. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
+  }
 
+  //Task Endpoints
   //Fetches tasks for the current workspace
   const fetchTasks = async () => {
     try {
@@ -527,12 +539,7 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
                 updateUserHandler(userId, updatedProfile.username, updatedProfile.password)
               }}
               onLogout={handleLogout} // Log out from the profile view
-              onDeleteAccount={() => {
-                if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-                  alert("Account deleted successfully!");
-                  handleLogout();
-                }
-              }}
+              onDeleteAccount={deleteUserHandler}
               onBack={handleBackFromProfile} // Go back to the previous view
               workspaces={workspaces}
               onCreateWorkspace={createWorkspaceHandler}

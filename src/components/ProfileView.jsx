@@ -123,7 +123,11 @@ const ProfileView = ({ user, onUpdateProfile, onLogout, onDeleteAccount, onBack,
       <div className="profile-section danger-zone">
         <h3>Danger Zone</h3>
         <button className="logout-button" onClick={onLogout}>Log Out</button>
-        <button className="delete-account-button" onClick={() => alert(`Button to delete account`)} >Delete Account</button>
+        <button className="delete-account-button" onClick={() => {
+            if (window.confirm(`Are you sure you want to delete your account?`)) {
+              onDeleteAccount();
+            }
+        }}>Delete Account</button>
       </div>
     </div>
   );

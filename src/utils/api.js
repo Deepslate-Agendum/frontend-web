@@ -60,6 +60,22 @@ export const updateUser = async (user_id, username, password) => {
   }
 };
 
+export const deleteUser = async (user_id) => {
+  try {
+    // Sends a POST request to the user creation endpoint with username and password
+    const response = await axios.delete(`${API_BASE_URL}/user/delete`, {
+      data: {
+        id: user_id
+      }
+    });
+    return response; // Returns the response data on success
+  } catch (error) {
+    // Logs and rethrows the error if the request fails
+    console.error("User delete failed:", error.response?.data || error.message);
+    throw error;
+  }
+}
+
 // Function to fetch tasks for a specific workspace
 export const getTasks = async (workspaceId) => {
   try {
