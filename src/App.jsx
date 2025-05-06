@@ -19,7 +19,7 @@ import TaskList from './components/TaskList';
 import MapView from './components/MapView';
 import CalendarView from "./components/CalendarView"; // Ensure CalendarView is imported
 import ProfileView from "./components/ProfileView"; // Import the ProfileView component
-import { loginUser, createUser, updateUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, deleteTask, getAllDependencies, createDependency, deleteDependency,  } from "./utils/api";
+import { loginUser, createUser, updateUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, leaveWorkspace, addUserWorkspace, deleteTask, getAllDependencies, createDependency, deleteDependency,  } from "./utils/api";
 import { getId, getTaskDependencies } from "./utils/wrapper.js";
 
 //const API_BASE = "http://127.0.0.1:5000"; // Backend URL
@@ -357,7 +357,35 @@ const App = () => {
     }
   };
   
-  
+  const addUserWorkspaceHandler = async (workspaceId, username) => {
+    try {
+      const response = await addUserWorkspace(workspaceId, username); // Ensure trimmed inputs are sent
+      if (response && response.status == 200) {
+        alert("User added successfully!");
+      } else {
+        alert("Failed to add user. Please try again.");
+      }
+      fetchWorkspaces();
+    } catch (error) {
+      console.error("Error adding user:", error);
+      alert(error.response?.data?.message || "Failed to add user. Please try again.");
+    }
+  }
+
+  const leaveWorkspaceHandler = async (workspaceId) => {
+    try {
+      const response = await leaveWorkspace(workspaceId, userId); // Ensure trimmed inputs are sent
+      if (response && response.status == 200) {
+        alert("User left successfully!");
+      } else {
+        alert("Failed to leave workspace. Please try again.");
+      }
+      fetchWorkspaces();
+    } catch (error) {
+      console.error("Error leaving user:", error);
+      alert(error.response?.data?.message || "Failed to leave user. Please try again.");
+    }
+  }
 
   const handleSelectWorkspace = (ws) => {
     setCurrentWorkspace(ws);
@@ -509,6 +537,8 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
               workspaces={workspaces}
               onCreateWorkspace={createWorkspaceHandler}
               onDeleteWorkspace={deleteWorkspaceHandler}
+              onAddUserWorkspace={addUserWorkspaceHandler}
+              onLeaveWorkspace={leaveWorkspaceHandler}
             />
           </div>
         ) : isMemberOfWorkspace ? (
