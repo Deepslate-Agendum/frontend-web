@@ -43,6 +43,23 @@ export const createUser = async (username, password) => {
   }
 };
 
+// Function to update a user
+export const updateUser = async (user_id, username, password) => {
+  try {
+    // Sends a POST request to the user creation endpoint with username and password
+    const response = await axios.patch(`${API_BASE_URL}/user/update`, {
+      user_id,
+      username,
+      password,
+    });
+    return response; // Returns the response data on success
+  } catch (error) {
+    // Logs and rethrows the error if the request fails
+    console.error("User update failed:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
 // Function to fetch tasks for a specific workspace
 export const getTasks = async (workspaceId) => {
   try {

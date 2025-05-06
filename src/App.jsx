@@ -19,7 +19,7 @@ import TaskList from './components/TaskList';
 import MapView from './components/MapView';
 import CalendarView from "./components/CalendarView"; // Ensure CalendarView is imported
 import ProfileView from "./components/ProfileView"; // Import the ProfileView component
-import { loginUser, createUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, deleteTask, getAllDependencies, createDependency, deleteDependency,  } from "./utils/api";
+import { loginUser, createUser, updateUser, getTasks, createTask, updateTask, getWorkspaces, createWorkspace, deleteWorkspace, deleteTask, getAllDependencies, createDependency, deleteDependency,  } from "./utils/api";
 import { getId, getTaskDependencies } from "./utils/wrapper.js";
 
 //const API_BASE = "http://127.0.0.1:5000"; // Backend URL
@@ -150,7 +150,22 @@ const App = () => {
       alert(error.response?.data?.message || "Failed to create user. Please try again.");
     }
   };
-  
+
+  // Update User Handler
+  const updateUserHandler = async (userId, inputName, inputPassword) => {
+    try {
+      const response = await updateUser(userId, inputName, inputPassword); // Ensure trimmed inputs are sent
+      if (response && response.status == 200) {
+        alert("User updated successfully! You can now log in.");
+        setUsername(inputName)
+      } else {
+        alert("Failed to update user. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+      alert(error.response?.data?.message || "Failed to update user. Please try again.");
+    }
+  };
 
   //Task Endpoints
   
@@ -481,8 +496,7 @@ const deleteDependencyHandler = async ({ workspace_id, dependeeId, dependentId }
             <ProfileView
               user={{ username }}
               onUpdateProfile={(updatedProfile) => {
-                setUsername(updatedProfile.username); // Update the username
-                alert("Profile updated successfully!");
+                updateUserHandler(userId, updatedProfile.username, updatedProfile.password)
               }}
               onLogout={handleLogout} // Log out from the profile view
               onDeleteAccount={() => {

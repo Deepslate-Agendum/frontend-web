@@ -11,6 +11,8 @@ const ProfileView = ({ user, onUpdateProfile, onLogout, onDeleteAccount, onBack,
   const handleSave = () => {
     const updatedProfile = { username: username.trim(), password: password.trim() };
     onUpdateProfile(updatedProfile);
+    setUsername("")
+    setPassword("")
     setIsEditing(false);
   };
 
@@ -71,7 +73,7 @@ const ProfileView = ({ user, onUpdateProfile, onLogout, onDeleteAccount, onBack,
         ) : (
           <button
             className="edit-button"
-            onClick={() => alert("Edit Profile button clicked!")} // Show a popup message
+            onClick={() => setIsEditing(true)} // Show a popup message
           >
             Edit Profile
           </button>
