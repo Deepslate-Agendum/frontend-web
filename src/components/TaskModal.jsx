@@ -5,6 +5,9 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import "../../css/App.css";
+import "../../css/modal.css";
+
+
 
 // Helper function to extract the ID from a document object
 const getId = (document) => document?._id?.["$oid"] || "";
@@ -78,7 +81,7 @@ const TaskModal = ({ onClose, onCreate, onUpdate, task, prefillPosition, workspa
   
 
   return (
-    <div className="modal-overlay">
+    <div className={`modal-overlay ${task ? 'modal-nested' : ''}`}>
       <div className="modal-content">
         <button className="close-button" onClick={onClose}>X</button>
         <h2>{task ? "Edit Task" : "Create Task"}</h2>
@@ -90,7 +93,10 @@ const TaskModal = ({ onClose, onCreate, onUpdate, task, prefillPosition, workspa
         <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
 
         {/* Submit button */}
-        <button onClick={handleSubmit}>{task ? "Update Task" : "Create Task"}</button>
+        <div className="modal-actions">
+          <button className="modal-btn primary" onClick={handleSubmit}>{task ? "Update Task" : "Create Task"}</button>
+          <button className="modal-btn cancel" onClick={onClose}>Cancel</button>
+        </div>
       </div>
     </div>
   );

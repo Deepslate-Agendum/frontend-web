@@ -1,0 +1,253 @@
+/* ---------- Back‑drop ---------- */
+.modal-overlay {
+    position: fixed;
+    inset: 0; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(4px);
+    animation: modal-fade 0.25s ease-out;
+  
+    z-index: 1000; /*modal baselayer*/
+  }
+  
+  .modal-overlay.modal-nested { z-index: 1100; }
+  
+  .modal-content {
+    --radius: 18px;
+  
+    width: clamp(400px, 60vw, 620px);
+    max-height: 90vh;
+    overflow-y: auto;
+  
+    background: linear-gradient(to bottom, #f8f1dc, #e7d7b3);
+    box-shadow:
+      inset 0 0 30px rgba(0,0,0,0.2),
+      0 10px 30px rgba(0,0,0,0.15);
+    border: 2px solid #d2b48c;
+    border-radius: 10px;
+    font-family: 'Georgia', serif;
+
+
+
+    color: #1c1c1e;
+    border-radius: var(--radius);
+    box-shadow:
+        0 6px 18px rgba(0,0,0,.12),
+        0 2px 4px  rgba(0,0,0,.06);
+  
+    padding: 2rem 2.25rem 2.25rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 17px;
+  
+    animation: modal-pop 0.28s cubic-bezier(.34,1.56,.64,1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  
+  /* ---------- Close button (top‑right) ---------- */
+  .close-button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+  
+    width: 32px; height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #8e8e93;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .close-button:hover { background: rgba(0,0,0,.06); }
+  
+  /* ---------- Headings ---------- */
+  .modal-content h2 {
+    margin: 0 0 1.25rem;
+    font-size: 22px;
+    font-weight: 600;
+    color: #000;
+  }
+  
+  /* ---------- Form controls ---------- */
+  .modal-content input[type="text"],
+  .modal-content input[type="date"],
+  .modal-content textarea {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    margin-bottom: 1rem;
+  
+    background: #f2f2f7;
+    border: 1px solid #d1d1d6;
+    border-radius: 10px;
+  
+    font-size: 16px;
+    line-height: 1.4;
+    transition: border .15s, background .15s;
+  }
+  
+  .modal-content textarea { resize: vertical; min-height: 110px; }
+  
+  .modal-content input:focus,
+  .modal-content textarea:focus {
+    outline: none;
+    border-color: #007aff;
+    background: #fff;
+  }
+  
+  /* ---------- Checkbox row ---------- */
+  .modal-content label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 16px;
+    margin-bottom: 1rem;
+  }
+  .modal-content input[type="checkbox"] {
+    width: 18px; height: 18px;
+  }
+  
+  /* ---------- Action buttons ---------- */
+  .modal-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    
+  }
+  
+  .modal-btn {
+    flex: 0 1 auto;
+    padding: 0.55rem 1.25rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  
+  .modal-btn.primary   { background: #007aff; color:#fff; }
+  .modal-btn.primary:hover   { background: #0064d6; }
+  
+  .modal-btn.danger    { background: #ff3b30; color:#fff; }
+  .modal-btn.danger:hover    { background: #d8281e; }
+  
+  .modal-btn.neutral   { background: #e5e5ea; color:#1c1c1e; }
+  .modal-btn.neutral:hover   { background: #d1d1d6; }
+  
+  .modal-btn.cancel {
+    background: #ff3b30;
+    color: white;
+  }
+  .modal-btn.cancel:hover {
+    background: #d8281e;
+  }
+  
+  .modal-btn.subtask {
+    background: #ffcc00;
+    color: #1c1c1e;
+  }
+  .modal-btn.subtask:hover {
+    background: #e6b800;
+  }
+  
+  /* Small circular icon button (e.g., ✓) */
+  .modal-btn.icon {
+    width: 38px; height: 38px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    border-radius: 50%;
+  }
+  
+  /* ---------- Animations ---------- */
+  @keyframes modal-fade   { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes modal-pop    {
+    0%   { transform: translateY(40px) scale(.95); opacity: 0; }
+    100% { transform: translateY(0)    scale(1);   opacity: 1; }
+  }
+  
+  /* Force consistent z-index stacking */
+.modal-overlay {
+    z-index: 1000 !important;
+  }
+  
+  .modal-overlay.modal-nested {
+    z-index: 1100 !important;
+  }
+  
+  .modal-overlay.modal-nested .modal-content {
+    z-index: 1101 !important;
+  }
+  
+
+  /* Style the label to be in row-reverse for checkbox on the right */
+.modal-content label.completed-checkbox {
+  display: flex;
+  flex-direction: row-reverse; /* places checkbox on right */
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 16px;
+  font-weight: 500;
+  justify-content: center; /* center in the modal */
+  margin: 1rem 0;
+}
+
+/* Make checkbox green when checked */
+.modal-content input[type="checkbox"].green-check {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.modal-content input[type="checkbox"].green-check:checked {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.modal-content input[type="checkbox"].green-check:checked::after {
+  content: "✔";
+  position: absolute;
+  top: 0;
+  left: 4px;
+  font-size: 14px;
+  color: white;
+  font-weight:bold;
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="date"],
+.modal-content textarea {
+  background: #fefefe; /* off-white */
+  color: #2b2b2b;
+  border: 1px solid #c6b08d;
+  font-size: 16px;
+  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+  width: 100%;
+  margin-bottom: 1rem;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.modal-content input:focus,
+.modal-content textarea:focus {
+  outline: none;
+  border-color: #997f5f;
+  background-color: #fffdf7;
+}
