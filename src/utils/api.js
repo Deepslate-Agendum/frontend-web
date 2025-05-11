@@ -43,6 +43,39 @@ export const createUser = async (username, password) => {
   }
 };
 
+// Function to update a user
+export const updateUser = async (user_id, username, password) => {
+  try {
+    // Sends a POST request to the user creation endpoint with username and password
+    const response = await axios.patch(`${API_BASE_URL}/user/update`, {
+      user_id,
+      username,
+      password,
+    });
+    return response; // Returns the response data on success
+  } catch (error) {
+    // Logs and rethrows the error if the request fails
+    console.error("User update failed:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const deleteUser = async (user_id) => {
+  try {
+    // Sends a POST request to the user creation endpoint with username and password
+    const response = await axios.delete(`${API_BASE_URL}/user/delete`, {
+      data: {
+        id: user_id
+      }
+    });
+    return response; // Returns the response data on success
+  } catch (error) {
+    // Logs and rethrows the error if the request fails
+    console.error("User delete failed:", error.response?.data || error.message);
+    throw error;
+  }
+}
+
 // Function to fetch tasks for a specific workspace
 export const getTasks = async (workspaceId) => {
   try {
@@ -150,6 +183,36 @@ export const deleteWorkspace = async (workspaceId) => {
     throw error;
   }
 };
+
+export const addUserWorkspace = async (workspaceId, username) => {
+  try {
+    // Sends a POST request to the user creation endpoint with username and password
+    const response = await axios.patch(`${API_BASE_URL}/workspace/update`, {
+      workspaceId,
+      username
+    });
+    return response; // Returns the response data on success
+  } catch (error) {
+    // Logs and rethrows the error if the request fails
+    console.error("User update failed:", error.response?.data || error.message);
+    throw error;
+  }
+}
+
+export const leaveWorkspace = async (workspaceId, userId) => {
+  try {
+    // Sends a POST request to the user creation endpoint with username and password
+    const response = await axios.patch(`${API_BASE_URL}/workspace/update`, {
+      workspaceId,
+      userId
+    });
+    return response; // Returns the response data on success
+  } catch (error) {
+    // Logs and rethrows the error if the request fails
+    console.error("leave failed:", error.response?.data || error.message);
+    throw error;
+  }
+}
 
 export const createDependency = async (workspaceId, dependentId, dependeeId, manner) => {
   try {

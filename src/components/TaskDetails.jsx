@@ -7,7 +7,9 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import TaskModal from "./TaskModal";
 import SubtaskModal from "./SubtaskModal";
-import '../../css/TaskDetails.css'
+//import '../../css/TaskDetails.css'
+import "../../css/modal.css";
+
 
 const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask, workspace, completedTasks, toggleTaskCompletion }) => {
   // State to control the visibility of the edit task modal
@@ -31,62 +33,51 @@ const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask, works
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        {/* Close button positioned within the modal box */}
-        <button className="close-button" onClick={onClose}>X</button>
+        <button className="close-button" onClick={onClose}>×</button>
         <h2>{task.title || "No Title"}</h2>
         <p><strong>Description:</strong> {task.description ?? "No Description"}</p>
-        <p>
-          <strong>Tags:</strong>{" "}
-          {Array.isArray(task.tags)
-            ? task.tags.join(", ")
-            : task.tags || "No Tags"}
-        </p>
+        <p><strong>Tags:</strong> {Array.isArray(task.tags) ? task.tags.join(", ") : task.tags || "No Tags"}</p>
         <p><strong>Due Date:</strong> {task.due_date ?? "No Due Date"}</p>
-        <p>
-          <strong>Completed:</strong>
-          <input
-            type="checkbox"
-            className="task-details-checkbox"
-            checked={completedTasks?.has(task.id)}
-            onChange={() => toggleTaskCompletion(task.id)}
-          />
-        </p>
-        <button onClick={() => setShowEditModal(true)}>Edit Task</button>
-        <button onClick={() => {
-          onDelete(task.id);
-          onClose();
-        }}>Delete Task</button>
-        <button onClick={() => setShowSubtaskModal(true)}>Add Subtask</button>
+        <label className="completed-checkbox">
+          <input type="checkbox" checked={completedTasks?.has(task.id)} onChange={() => toggleTaskCompletion(task.id)} />
+          <p><strong>Completed</strong></p>
+        </label>
+  
+        <div className="modal-actions">
+          <button className="modal-btn primary" onClick={() => setShowEditModal(true)}>Edit</button>
+          <button className="modal-btn danger" onClick={() => { onDelete(task.id); onClose(); }}>Delete</button>
+          <button className="modal-btn subtask" onClick={() => setShowSubtaskModal(true)}>Add Subtask</button>
+        </div>
       </div>
-
-      {/* Render the edit task modal if `showEditModal` is true */}
+  
       {showEditModal && (
         <TaskModal
           task={task}
           onClose={() => setShowEditModal(false)}
           onUpdate={(updatedData) => {
-            console.log("[TaskDetails] onUpdate called with:", updatedData);
             onUpdate(updatedData);
             setShowEditModal(false);
           }}
           workspace={workspace}
+          className="modal-nested"
         />
       )}
-
-      {/* Render the add subtask modal if `showSubtaskModal` is true */}
+  
       {showSubtaskModal && (
         <SubtaskModal
           parentTask={task}
+          ownerUsername={task.ownerUsername}
           onClose={() => setShowSubtaskModal(false)}
           onCreate={(newSubtask) => {
-            console.log("Creating subtask for task", task.id, newSubtask);
             onCreateSubtask(task.id, newSubtask);
             setShowSubtaskModal(false);
           }}
+          className="modal-nested"
         />
       )}
     </div>
   );
+  
 };
 
 // Define the expected prop types for the component

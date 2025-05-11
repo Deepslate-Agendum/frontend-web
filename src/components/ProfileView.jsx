@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import "../../css/ProfileView.css";
 
-const ProfileView = ({ user, onUpdateProfile, onLogout, onDeleteAccount, onBack, workspaces, onCreateWorkspace, onDeleteWorkspace }) => {
+const ProfileView = ({ user, onUpdateProfile, onLogout, onDeleteAccount, onBack, workspaces, onCreateWorkspace, onDeleteWorkspace, onAddUserWorkspace, onLeaveWorkspace }) => {
   const [username, setUsername] = useState(user.username || "");
   const [password, setPassword] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -11,6 +11,8 @@ const ProfileView = ({ user, onUpdateProfile, onLogout, onDeleteAccount, onBack,
   const handleSave = () => {
     const updatedProfile = { username: username.trim(), password: password.trim() };
     onUpdateProfile(updatedProfile);
+    setUsername("")
+    setPassword("")
     setIsEditing(false);
   };
 
@@ -71,7 +73,7 @@ const ProfileView = ({ user, onUpdateProfile, onLogout, onDeleteAccount, onBack,
         ) : (
           <button
             className="edit-button"
-            onClick={() => alert("Edit Profile button clicked!")} // Show a popup message
+            onClick={() => setIsEditing(true)} // Show a popup message
           >
             Edit Profile
           </button>
@@ -84,13 +86,21 @@ const ProfileView = ({ user, onUpdateProfile, onLogout, onDeleteAccount, onBack,
             <li key={workspace.id} className="workspace-item">
               <span>{workspace.name}</span>
               <div>
-                <button onClick={() => alert(`Add a user to ${workspace.name}`)} className="action-workspace-button">Add User</button> {/* New button */}
-                <button onClick={() => alert(`Leave ${workspace.name}`)} className="leave-workspace-button">Leave</button> {/* New button */}
+                <button onClick={() => {
+                    const name = prompt("Enter the name of the user you want to add:");
+                    if (name) {
+                      onAddUserWorkspace(workspace.id || workspace._id["$oid"], name.trim());
+                    }
+                  }} className="action-workspace-button">Add User</button> {/* New button */}
+                <button onClick={() => {
+                    if (window.confirm(`Are you sure you want to leave the workspace "${workspace.name}"?`)) {
+                      onLeaveWorkspace(workspace.id || workspace._id["$oid"])
+                    }
+                }}
+                className="leave-workspace-button">Leave</button> {/* New button */}
                 <button
                   onClick={() => {
-                    if (window.confirm(`Are you sure you want to delete the workspace "${workspace.name}"?`)) {
-                      onDeleteWorkspace(workspace.id || workspace._id["$oid"]); // Ensure the correct ID format is passed
-                    }
+                    onDeleteWorkspace(workspace.id || workspace._id["$oid"]); // Ensure the correct ID format is passed
                   }}
                   className="delete-workspace-button"
                 >
@@ -113,7 +123,11 @@ const ProfileView = ({ user, onUpdateProfile, onLogout, onDeleteAccount, onBack,
       <div className="profile-section danger-zone">
         <h3>Danger Zone</h3>
         <button className="logout-button" onClick={onLogout}>Log Out</button>
-        <button className="delete-account-button" onClick={() => alert(`Button to delete account`)} >Delete Account</button>
+        <button className="delete-account-button" onClick={() => {
+            if (window.confirm(`Are you sure you want to delete your account?`)) {
+              onDeleteAccount();
+            }
+        }}>Delete Account</button>
       </div>
     </div>
   );
