@@ -7,10 +7,9 @@ import TaskDetails from "./TaskDetails";
 import PropTypes from "prop-types";
 import { deleteTask } from "../utils/api";
 
-const TaskList = ({ tasks, updateTask, deleteTask, workspace, onTaskClick, highlightedTask, completedTasks, toggleTaskCompletion}) => {
+const TaskList = ({ tasks, updateTask, deleteTask, workspace, onTaskClick, highlightedTask, toggleTaskCompletion}) => {
   const [selectedTask, setSelectedTask] = useState(null); // State to track the currently selected task
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768); // State to track if the view is mobile
-  const safeCompletedTasks = completedTasks || new Set(); // ✅ fallback if undefined
 
   // Update `isMobile` state on window resize
   useEffect(() => {
@@ -37,7 +36,7 @@ const TaskList = ({ tasks, updateTask, deleteTask, workspace, onTaskClick, highl
               isHighlighted={highlightedTask?.id === task.id}
               onClick={() => handleTaskClick(task)}
               onCheckboxChange={() => toggleTaskCompletion(task.id)}
-              completed={safeCompletedTasks.has(task.id)}
+              completed={task.status === "Complete"}
             />
           {/* Render subtasks recursively */}
           <div className="subtasks">
@@ -63,7 +62,6 @@ const TaskList = ({ tasks, updateTask, deleteTask, workspace, onTaskClick, highl
           onDelete={() => deleteTask(selectedTask.id)} // Delete the selected task
           onCreateSubtask={(parentId, newSubtask) => createTask(parentId, newSubtask)} // Create a subtask
           workspace={workspace} // Pass workspace context
-          completedTasks={completedTasks}
           toggleTaskCompletion={toggleTaskCompletion}
         />
       )}
