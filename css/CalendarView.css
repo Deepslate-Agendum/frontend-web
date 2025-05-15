@@ -1,0 +1,235 @@
+.calendar-view-container {
+  padding: 3rem; /* Add more padding for a spacious layout */
+  padding-top: 8rem; /* Add padding to push content below the dropdown */
+  background-color: #154734; /* Light orange background */
+  color: #000000; /* Deep orange text color */
+  /* border-radius: 10px; */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  height: 100%; /* Increase height to fill more space */
+}
+
+@media (max-width: 768px) {
+  .calendar-view-container {
+    width: 100%; /* Full width for mobile mode */
+    bottom: 60px; /* Move up by 60px in mobile mode */
+    height: calc(100% - 60px);
+  }
+}
+
+.calendar-view-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.calendar-day {
+  background-color: #ffe0b2; /* Lighter orange background for days */
+  padding: 1rem;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-date {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.calendar-task {
+  padding: 0.5rem;
+  background-color: #ffcc80; /* Even lighter orange for tasks */
+  margin-bottom: 0.5rem;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.calendar-task:hover {
+  background-color: #ffa726; /* Darker orange on hover */
+  color: white;
+}
+
+.react-calendar {
+  width: 100%;
+  max-width: 800px; /* Increase the maximum width of the calendar */
+  height: auto; /* Allow height to adjust dynamically */
+  margin: 0 auto;
+  background-color: #dbdbdb; /* Light orange background */
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.react-calendar__tile {
+  height: 70px; /* Increase tile height for better visibility */
+  text-align: center;
+  padding: 10px; /* Add more padding inside tiles */
+}
+
+.react-calendar__tile--active {
+  background-color: #154734 !important; /* Ensure selected date color takes precedence */
+  color: rgb(255, 255, 255) !important; /* Ensure text color is white for contrast */
+  font-weight: bold; /* Emphasize the selected date */
+  border: 2px solid #d17aff; /* Add a purple border for better visibility */
+}
+
+.react-calendar__tile--now {
+  background-color: #da95ff; /* White background for the current date */
+  color: black; /* Black text color for contrast */
+  font-weight: bold; /* Emphasize the current date */
+  border: 2px solid #1fa40a; /* Add a green border for better visibility */
+}
+
+.react-calendar__tile--now:hover {
+  background-color: #e6b3ff !important; /* Lighter purple on hover */
+}
+
+.react-calendar__month-view__days__day--weekend {
+  color: #1fa40a; /* Green color for weekend dates */
+}
+
+.calendar-tile-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.calendar-task-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #1fa40a; /* Deep orange for task dots */
+  border-radius: 50%;
+  margin: 0 2px;
+}
+
+.task-list-for-date {
+  margin-top: 2rem; /* Add more spacing above the task list */
+  background-color: #83c281; /* Lighter orange background */
+  padding: 1rem; /* Increase padding for a spacious layout */
+  border-radius: 10px; /* Slightly larger border radius */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.task-list-for-date h3 {
+  font-size: 1.5rem; /* Increase font size for the header */
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.task-list-for-date ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.task-list-for-date li {
+  padding: 1rem; /* Increase padding inside task items */
+  font-size: 1.2rem; /* Increase font size for task text */
+  border: #000000 1px solid; /* Light grey border */
+  background-color: #d58cff; /* Even lighter orange for tasks */
+  margin-bottom: 1rem; /* Add more spacing between tasks */
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.task-list-for-date li:hover {
+  background-color: #a009e6; /* Darker orange on hover */
+  color: white;
+}
+
+.create-task-button {
+  display: block;
+  width: 60%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background-color: #1fa40a; /* Green background */
+  border: 2px solid #005534; /* Add a dark green border */
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  margin: 1rem auto; /* Center the button horizontally and add spacing above */
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.create-task-button:hover {
+  background-color: #157a0f; /* Darker green on hover */
+  border-color: #0f5a0b; /* Darker border on hover */
+}
+
+.calendar-and-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem; /* Add spacing below the calendar and button */
+}
+
+.no-date-tasks-button {
+  margin-top: 1rem; /* Add spacing above the button */
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background-color: #b01dff; /* Blue background */
+  border: 2px solid #b950ff; /* Darker blue border */
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.no-date-tasks-button:hover {
+  background-color: #b950ff; /* Darker blue on hover */
+  border-color: #b01dff; /* Even darker border on hover */
+}
+
+.no-date-tasks-list {
+  margin-top: 2rem;
+  background-color: #f0f0f0; /* Light gray background */
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.no-date-tasks-list h3 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.no-date-tasks-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.no-date-tasks-list li {
+  padding: 1rem;
+  font-size: 1.2rem;
+  border: 1px solid #ddd;
+  background-color: #e6e6e6;
+  margin-bottom: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.no-date-tasks-list li:hover {
+  background-color: #cccccc; /* Darker gray on hover */
+}

@@ -1,63 +1,86 @@
-import { useState } from "react";
+// This component displays the details of a task in a modal. It allows users to view task information,
+// edit the task, delete the task, or add subtasks. It uses `TaskModal` for editing tasks and 
+// `SubtaskModal` for adding subtasks. The component also handles closing the modal and propagating 
+// updates to parent components.
+
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import TaskModal from "./TaskModal";
 import SubtaskModal from "./SubtaskModal";
-import '../../css/TaskDetails.css'
+//import '../../css/TaskDetails.css'
+import "../../css/modal.css";
 
-const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask, workspace }) => {
+
+const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask, workspace, toggleTaskCompletion }) => {
+  // State to control the visibility of the edit task modal
   const [showEditModal, setShowEditModal] = useState(false);
+  // State to control the visibility of the add subtask modal
   const [showSubtaskModal, setShowSubtaskModal] = useState(false);
 
+  useEffect(() => {
+    const handleEsc = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, [onClose]);
+
+  
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <button className="close-button" onClick={onClose}>X</button>
+        <button className="close-button" onClick={onClose}>×</button>
         <h2>{task.title || "No Title"}</h2>
         <p><strong>Description:</strong> {task.description ?? "No Description"}</p>
-        <p>
-          <strong>Tags:</strong>{" "}
-          {Array.isArray(task.tags)
-            ? task.tags.join(", ")
-            : task.tags || "No Tags"}
-        </p>
+        <p><strong>Tags:</strong> {Array.isArray(task.tags) ? task.tags.join(", ") : task.tags || "No Tags"}</p>
         <p><strong>Due Date:</strong> {task.due_date ?? "No Due Date"}</p>
-
-        <button onClick={() => setShowEditModal(true)}>Edit Task</button>
-        <button onClick={() => {
-          onDelete(task.id);
-          onClose();
-        }}>Delete Task</button>
-        <button onClick={() => setShowSubtaskModal(true)}>Add Subtask</button>
+        <label className="completed-checkbox">
+          <input type="checkbox" checked={task.status === "Complete"} onChange={() => toggleTaskCompletion(task.id)} />
+          <p><strong>Completed</strong></p>
+        </label>
+  
+        <div className="modal-actions">
+          <button className="modal-btn primary" onClick={() => setShowEditModal(true)}>Edit</button>
+          <button className="modal-btn danger" onClick={() => { onDelete(task.id); onClose(); }}>Delete</button>
+          <button className="modal-btn subtask" onClick={() => setShowSubtaskModal(true)}>Add Subtask</button>
+        </div>
       </div>
-
+  
       {showEditModal && (
         <TaskModal
           task={task}
           onClose={() => setShowEditModal(false)}
           onUpdate={(updatedData) => {
-            console.log("[TaskDetails] onUpdate called with:", updatedData);
             onUpdate(updatedData);
             setShowEditModal(false);
           }}
-          workspace = {workspace}
+          workspace={workspace}
+          className="modal-nested"
         />
       )}
-
+  
       {showSubtaskModal && (
         <SubtaskModal
           parentTask={task}
+          ownerUsername={task.ownerUsername}
           onClose={() => setShowSubtaskModal(false)}
           onCreate={(newSubtask) => {
-            console.log("Creating subtask for task", task.id, newSubtask);
             onCreateSubtask(task.id, newSubtask);
             setShowSubtaskModal(false);
           }}
+          className="modal-nested"
         />
       )}
     </div>
   );
+  
 };
 
+// Define the expected prop types for the component
 TaskDetails.propTypes = {
   task: PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -73,6 +96,8 @@ TaskDetails.propTypes = {
   onUpdate: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   onCreateSubtask: PropTypes.func.isRequired,
+  toggleTaskCompletion: PropTypes.func,
+
 };
 
 export default TaskDetails;

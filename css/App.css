@@ -1,40 +1,770 @@
+/* 
+  This CSS file defines the layout and styling for a web application. 
+  It includes:
+  - Root container styles for centering and layout.
+  - Row layout for flexbox-based alignment.
+  - Modal overlay and content styling.
+  - Close button styling.
+  - Login screen layout and styling, including:
+    - Login container for the right half of the screen.
+    - Login card for user input and buttons.
+    - Input fields for username and password.
+    - Buttons for login and signup.
+    - Error message styling.
+  - Login screen background and fixed positioning.
+  - Styling for the left-side image container:
+    - Title and subtitle for the app.
+    - Image scaling and alignment.
+  - Responsive styles for smaller screens.
+  - Top-right container for welcome message and logout button.
+  - New page styling with a purple background.
+  - Main page styling with a grey background.
+  - Task list section styling.
+*/
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  max-width: 1280px; /* Sets a maximum width for the root container */
+  margin: 0 auto; /* Centers the container horizontally */
+  padding: 2rem; /* Adds padding around the container */
+  text-align: center; /* Centers text inside the container */
 }
 
 .row {
-  display: flex;
-  gap: 80px; 
-  justify-content: center; 
-  align-items: center;
+  display: flex; /* Enables flexbox layout for child elements */
+  gap: 80px; /* Adds spacing between child elements */
+  justify-content: center; /* Centers child elements horizontally */
+  align-items: center; /* Centers child elements vertically */
 }
 
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: fixed; /* Keeps the overlay fixed in place */
+  top: 0; /* Positions the overlay at the top of the viewport */
+  left: 0; /* Positions the overlay at the left of the viewport */
+  width: 100%; /* Makes the overlay span the full width of the viewport */
+  height: 100%; /* Makes the overlay span the full height of the viewport */
+  background: rgba(0, 0, 0, 0.5); /* Adds a semi-transparent black background */
+  display: flex; /* Enables flexbox layout for centering modal content */
+  align-items: center; /* Centers modal content vertically */
+  justify-content: center; /* Centers modal content horizontally */
+  z-index: 9999; /* high value to ensure it's above everything */
+
 }
 
 .modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
+  position: relative; /* Ensure the close button is positioned relative to this container */
+  background: white; /* Sets the modal background to white */
+  padding: 20px; /* Adds padding inside the modal */
+  border-radius: 10px; /* Rounds the corners of the modal */
+  text-align: center; /* Centers text inside the modal */
+  z-index: 2001; /* high value to ensure it's above everything */
+
 }
 
 .close-button {
-  background: red;
+  position: absolute; /* Position relative to the modal box */
+  top: 10px; /* Position 10px from the top of the modal box */
+  right: 10px; /* Position 10px from the right of the modal box */
+  background: red; /* Red background for the button */
+  color: white; /* White text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Add rounded corners */
+  padding: 5px 10px; /* Add padding */
+  cursor: pointer; /* Change cursor to pointer on hover */
+  z-index: 10; /* Ensure the button is above other elements */
+}
+
+.close-button:hover {
+  background: darkred; /* Darker red on hover */
+}
+
+
+/* ==LOGIN CSS================================================================== */
+
+.login-container {
+  display: flex; /* Enables flexbox layout */
+  justify-content: center; /* Centers the login card horizontally */
+  align-items: center; /* Centers the login card vertically */
+  height: 100vh; /* Makes the container span the full viewport height */
+  background-color: #7faf9d; /* Sets a light green background color */
+  padding: 1rem; /* Adds padding for smaller screens */
+  width: 40%; /* Takes up the right half of the screen */
+  margin-left: auto; /* Aligns the container to the right */
+}
+
+.login-card {
+  background: white; /* Sets the card background to white */
+  padding: 2rem; /* Adds padding inside the card */
+  border-radius: 10px; /* Rounds the corners of the card */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for depth */
+  text-align: center; /* Centers text inside the card */
+  width: 80%; /* Sets the card width relative to its container */
+  height: 80%; /* Sets the card height relative to its container */
+  display: flex; /* Enables flexbox layout */
+  flex-direction: column; /* Stacks child elements vertically */
+  align-items: center; /* Centers child elements horizontally */
+  justify-content: center; /* Centers child elements vertically */
+}
+
+.login-input {
+  width: 100%; /* Makes the input fields span the full width of the card */
+  height: 5%; /* Sets a consistent height for the input fields */
+  padding: 10px; /* Adds padding inside the input fields */
+  margin: 10px 0; /* Adds vertical spacing between input fields */
+  border: 1px solid #ccc; /* Adds a light gray border */
+  border-radius: 20px; /* Rounds the corners of the input fields */
+  font-size: 1rem; /* Sets a readable font size */
+}
+
+.login-buttons {
+  display: flex; /* Enables flexbox layout */
+  justify-content: space-between; /* Distributes buttons evenly */
+  margin-top: 2rem; /* Adds spacing above the buttons */
+  gap: 30px; /* Adds spacing between the buttons */
+}
+
+.login-button, .signup-button {
+  padding: 15px 22.5px; /* Adds padding for larger buttons */
+  font-size: 1.2rem; /* Increases font size for better readability */
+  border: none; /* Removes the border */
+  border-radius: 5px; /* Rounds the corners of the buttons */
+  cursor: pointer; /* Changes the cursor to a pointer on hover */
+}
+
+.login-button {
+  background-color: #d17aff; /* Sets a purple background color */
+  color: white; /* Sets the text color to white */
+}
+
+.signup-button {
+  background-color: #1fa40a; /* Sets a green background color */
+  color: white; /* Sets the text color to white */
+}
+
+.error-message {
+  color: red; /* Sets the text color to red */
+  font-size: 0.9rem; /* Sets a smaller font size */
+  margin-bottom: 1rem; /* Adds spacing below the error message */
+}
+
+.login-screen {
+  background-color: #154734; /* Sets a dark green background color */
+  position: fixed; /* Fixes the screen in place */
+  top: 0; /* Positions the screen at the top of the viewport */
+  left: 0; /* Positions the screen at the left of the viewport */
+  width: 100%; /* Makes the screen span the full width of the viewport */
+  height: 100%; /* Makes the screen span the full height of the viewport */
+  margin: 0; /* Removes default margins */
+  padding: 0; /* Removes default padding */
+  display: flex; /* Enables flexbox layout */
+  justify-content: center; /* Centers the content horizontally */
+  align-items: center; /* Centers the content vertically */
+}
+
+.welcome-text {
+  font-size: 2.5rem; /* Sets a large font size */
+  font-weight: bold; /* Makes the text bold */
+  color: green; /* Sets the text color to green */
+  margin-bottom: -1rem; /* Adds spacing below the text */
+}
+
+.login-subtitle {
+  font-size: 1.2rem; /* Sets a medium font size */
+  color: black; /* Sets the text color to black */
+  margin-bottom: 3rem; /* Adds spacing below the subtitle */
+}
+
+.login-image-container {
+  width: 60%; /* Takes up the left half of the screen */
+  display: flex; /* Enables flexbox layout */
+  flex-direction: column; /* Stacks elements vertically */
+  justify-content: center; /* Centers elements vertically */
+  align-items: center; /* Centers elements horizontally */
+  text-align: center; /* Centers text */
+}
+
+.agendum-title {
+  font-size: 5rem; /* Sets a very large font size */
+  font-weight: bold; /* Makes the text bold */
+  color: white; /* Sets the text color to white */
+  margin-bottom: 0.5rem; /* Adds spacing below the title */
+}
+
+.agendum-subtitle {
+  font-size: 1.2rem; /* Sets a smaller font size */
+  color: white; /* Sets the text color to white */
+  margin-bottom: 1rem; /* Adds spacing below the subtitle */
+}
+
+.login-image {
+  max-width: 50%; /* Scales the image to fit within the container */
+  height: auto; /* Maintains the aspect ratio of the image */
+}
+
+/* ==END OF LOGIN CSS================================================================== */
+
+.top-right-container {
+  width: 40%; /* Fixed width of 40% */
+  height: 10%; /* Fixed height of 10% */
+  position: fixed; /* Fix the container to the screen */
+  top: 0; /* Align to the top of the viewport */
+  right: 0; /* Align to the right of the viewport */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: row; /* Arrange items in a row */
+  align-items: center; /* Center items vertically */
+  justify-content: space-between; /* Space items evenly */
+  gap: 1rem; /* Add spacing between items */
+  padding: 0.5rem; /* Add padding inside the container */
+  color: white;
+  background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+  box-sizing: border-box; /* Include padding in width/height */
+  border-radius: 5px; /* Add rounded corners */
+  overflow: hidden; /* Prevent content overflow */
+  z-index: 1000; /* Ensure it is above other elements */
+}
+
+.top-right-container p {
+  margin: 0; /* Remove default margin */
+  font-size: calc(.8rem + 0.5vw); /* Adjust font size dynamically based on screen width */
+  white-space: wrap; /* Prevent text wrapping */
+  overflow:hidden; /* Hide overflowing text */
+  text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+  flex-shrink: 1; /* Allow the text to shrink if needed */
+}
+
+.top-right-container button {
+  padding: 0.5rem 1rem; /* Add padding to the button */
+  font-size: calc(0.5rem + 0.5vw); /* Adjust font size dynamically based on screen width */
+  background-color: #154734; /* Match the login button color */
+  color: white; /* Set text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Add rounded corners */
+  cursor: pointer; /* Change cursor to pointer on hover */
+  transition: background-color 0.2s ease; /* Smooth hover effect */
+  flex-shrink: 0; /* Prevent buttons from shrinking */
+}
+
+.top-right-container button:hover {
+  background-color: #268863; /* Darken the button color on hover */
+}
+
+.view-buttons {
+  display: flex; /* Arrange buttons in a row */
+  gap: 0.5rem; /* Add spacing between buttons */
+  flex-shrink: 0; /* Prevent buttons from shrinking */
+}
+
+.view-buttons button {
+  padding: 0.5rem .5rem; /* Add padding inside the buttons */
+  font-size: calc(0.5rem + 0.5vw); /* Adjust font size dynamically based on screen width */
+  background-color: #b01dff; /* Blue background for buttons */
+  color: white; /* White text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Add rounded corners */
+  cursor: pointer; /* Change cursor to pointer on hover */
+  flex-shrink: 0; /* Prevent buttons from shrinking */
+}
+
+.view-buttons button:hover {
+  background-color: #b950ff; /* Darker blue on hover */
+}
+
+/* ==WORKSPACE NOT FOUND CSS================================================================== */
+
+.no-workspace-page {
+  position: fixed; /* Fix the page to the screen */
+  top: 0; /* Align to the top of the viewport */
+  left: 0; /* Align to the left of the viewport */
+  width: 100%; /* Full width of the viewport */
+  height: 100%; /* Full height of the viewport */
+  background-color: purple; /* Set the background color to purple */
+  color: white; /* Set text color to white */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack elements vertically */
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  text-align: center; /* Center text */
+  margin: 0; /* Remove any default margins */
+  padding: 0; /* Remove any default padding */
+}
+
+.create-workspace-form {
+  margin-top: 1rem; /* Add spacing above the form */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack elements vertically */
+  align-items: center; /* Center elements horizontally */
+  gap: 1rem; /* Add spacing between input and button */
+}
+
+.workspace-input {
+  padding: 0.5rem; /* Add padding inside the input */
+  font-size: 1rem; /* Set font size */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Add rounded corners */
+  width: 80%; /* Set input width */
+  max-width: 400px; /* Limit the maximum width */
+}
+
+.workspace-button {
+  padding: 0.5rem 1rem; /* Add padding inside the button */
+  font-size: 1rem; /* Set font size */
+  background-color: #d17aff; /* Set button background color */
+  color: white; /* Set text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Add rounded corners */
+  cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+.workspace-button:hover {
+  background-color: #b950ff; /* Darken the button color on hover */
+}
+
+/* Main page styling */
+.app-container {
+  position: fixed; /* Fix the container to the screen */
+  top: 0; /* Align to the top of the viewport */
+  left: 0; /* Align to the left of the viewport */
+  width: 100%; /* Full width of the viewport */
+  height: calc(100vh - 60px); /* Full viewport height minus 60px */
+  background-color: grey; /* Set the background color to grey */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack elements vertically */
+  margin: 0; /* Remove any default margins */
+  padding: 0; /* Remove any default padding */
+}
+
+/* Dropdown box styling */
+.app-dropdown {
+  position: fixed; /* Fix the dropdown to the screen */
+  top: 0; /* Align to the top of the viewport */
+  left: 0; /* Align to the left of the viewport */
+  height: 10%; /* Set the height to 10% of the viewport */
+  width: 60%; /* Default width matches the task list container */
+  padding: 0.5rem; /* Add padding inside the dropdown */
+  font-size: 1rem; /* Set font size */
+  border: 1px solid #ae23ff; /* Add a light grey border */
+  border-radius: 0px; /* Add rounded corners */
+  background-color: #d17aff; /* Purple background for the dropdown */
+  color: rgb(0, 0, 0); /* Set text color to white for better contrast */
+  cursor: pointer; /* Change cursor to pointer on hover */
+  box-sizing: border-box; /* Include padding and border in width/height */
+}
+
+.app-dropdown:focus {
+  outline: none; /* Remove default focus outline */
+  border-color: #b01dff; /* Highlight border on focus */
+  background-color: #b950ff; /* Slightly darker purple when focused */
+}
+
+.app-dropdown option:hover {
+  background-color: #1fa40a; /* Green background for hovered options */
+  color: white; /* Ensure text color is white for contrast */
+}
+
+/* Custom Dropdown Menu */
+.custom-dropdown {
+  position: fixed; /* Fix the dropdown to the screen */
+  top: 0; /* Align to the top of the viewport */
+  left: 0; /* Align to the left of the viewport */
+  width: 60%; /* Set the width to 60% */
+  height: 10%; /* Set the height to 10% */
+  z-index: 1000; /* Ensure it is above other elements */
+}
+
+.dropdown-button {
+  width: 100%; /* Make the button span the full width of the dropdown */
+  height: 100%; /* Make the button span the full height of the dropdown */
+  background-color: #d17aff; /* Purple background */
+  color: white;
+  font-size: 1.2rem; /* Increase font size for dropdown button text */
+  font-weight: bold; /* Bold text for emphasis */
+  border: none;
+  border-radius: 0; /* Remove rounded corners */
+  cursor: pointer;
+  text-align: left; /* Align text to the left */
+  padding: 0.5rem 1rem; /* Add padding inside the button */
+  display: flex; /* Use flexbox to align caret */
+  justify-content: space-between; /* Space text and caret evenly */
+  align-items: center; /* Center caret vertically */
+}
+
+.caret {
+  margin-left: 0.5rem; /* Add spacing between text and caret */
+  font-size: 0.8rem; /* Smaller font size for the caret */
+}
+
+.dropdown-button:hover {
+  background-color: #b950ff; /* Darker purple on hover */
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%; /* Position the dropdown content below the button */
+  left: 0;
+  width: 100%; /* Match the width of the dropdown button */
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 0; /* Remove rounded corners */
+  overflow: hidden;
+}
+
+.custom-dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 1.2rem; /* Increase font size for dropdown items */
+  color: black; /* Explicitly set text color to black */
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1; /* Highlight the entire option on hover */
+  color: black; /* Ensure text remains black on hover */
+}
+
+.delete-workspace-button {
+  background-color: #dc3545; /* Red background */
   color: white;
   border: none;
-  padding: 5px 10px;
+  border-radius: 3px;
+  padding: 0.3rem 0.5rem;
   cursor: pointer;
+  pointer-events: auto; /* Ensure the delete button is clickable */
+}
+
+.delete-workspace-button:hover {
+  background-color: #a71d2a; /* Darker red on hover */
+}
+
+/* Task List Section */
+.task-list-container { 
+  box-sizing: border-box; /* Include padding and border in width/height */
+  border: 10px; /* Add a border around the task list */
+  background-color: #154734; /* Dark green background for the task list */
+  color: white; /* Set text color to white */
+  padding: 2rem; /* Add padding around the task list */
+  border-radius: 0px; /* Rounded corners for the container */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  position: fixed; /* Fix the container to the left side of the screen */
+  bottom: 0; /* Default for desktop mode */
+  left: 0; /* Align to the left of the viewport */
+  width: 60%; /* Default width */
+  height: 90%; /* Full height of the viewport */
+  /* height: calc(100vh - 60px); Full viewport height minus 60px */
+  overflow-y: auto; /* Enable scrolling for overflow content */
+  z-index: 900; /* Ensure it is below the top-right container */
+}
+
+.task-list-header {
+  font-size: 1.5rem; /* Larger font size for the header */
+  font-weight: bold; /* Bold text for emphasis */
+  color: white; /* Ensure the header text is white */
+  margin-bottom: 1rem; /* Add spacing below the header */
+  text-align: center; /* Center the header text */
+}
+
+.task-item {
+  background-color: white; /* White background for each task */
+  padding: 1rem; /* Add padding inside each task */
+  border: 1px solid #ddd; /* Light grey border */
+  border-radius: 5px; /* Rounded corners for tasks */
+  margin-bottom: 1rem; /* Add spacing between tasks */
+  display: flex; /* Use flexbox for layout */
+  justify-content: space-between; /* Space out task content */
+  align-items: center; /* Align items vertically */
+  color: white; /* Set task item text color to white */
+}
+
+.task-item:hover {
+  background-color: #f1f1f1; /* Slightly darker background on hover */
+  color: white; /* Ensure text remains white on hover */
+}
+
+.task-item.highlighted-task {
+  background-color: #d0e7ff; /* Light blue background for highlighted tasks */
+  border: 1px solid #000000; /* Blue border for highlighted tasks */
+}
+
+.task-title {
+  font-size: 1.2rem; /* Medium font size for task titles */
+  font-weight: bold; /* Bold text for task titles */
+  color: #555; /* Medium grey text color */
+}
+
+.task-actions {
+  display: flex; /* Use flexbox for layout */
+  gap: 0.5rem; /* Add spacing between action buttons */
+}
+
+.task-button {
+  padding: 0.5rem 1rem; /* Add padding inside buttons */
+  font-size: 0.9rem; /* Set font size */
+  color: white; /* White text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Rounded corners for buttons */
+  cursor: pointer; /* Pointer cursor on hover */
+}
+
+.task-button.edit {
+  background-color: #b01dff; /* Blue background for edit button */
+}
+
+.task-button.delete {
+  background-color: #dc3545; /* Red background for delete button */
+}
+
+.task-button.edit:hover {
+  background-color: #b950ff; /* Darker blue on hover */
+}
+
+.task-button.delete:hover {
+  background-color: #a71d2a; /* Darker red on hover */
+}
+
+/* Highlighted Task Section */
+.highlighted-task-container {
+  position: fixed; /* Fix the container to the screen */
+  top: 10%; /* Leave space for the dropdown */
+  right: 0; /* Align to the right of the viewport */
+  width: 40%; /* Take up 40% of the screen width */
+  height: 90%; /* Full height below the dropdown */
+  background-color: #c9e0c5; /* Light red background for the highlighted task */
+  padding: 1rem; /* Add padding inside the container */
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  overflow-y: auto; /* Enable scrolling for overflow content */
+  box-sizing: border-box; /* Include padding and border in width/height */
+  z-index: 800; /* Ensure it is below the task list container */
+  pointer-events: none; /* Prevent interaction with the container */
+}
+
+.highlighted-task-container.hidden {
+  display: none; /* Completely hide the container */
+}
+
+.map-view-container,
+.calendar-view-container {
+  margin-right: 40%; /* Leave space for the highlighted task container */
+  box-sizing: border-box; /* Ensure padding and border are included in width/height */
+  z-index: 700; /* Ensure it is below other elements */
+}
+
+.map-view-container {
+  background-color: #e0f7fa; /* Light blue background for map view */
+  color: #00796b; /* Dark teal text color */
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 60%; /* Adjusted width to account for highlighted task container */
+  height: 90%;
+  overflow-y: auto;
+}
+
+
+@media (max-width: 768px) {
+  .map-view-container {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .react-flow__renderer {
+    width: 100vw;
+    height: 100vh;
+  }
+  
+}
+
+.react-flow__controls {
+  bottom: 80px !important; /* default */
+}
+
+@media (max-width: 600px) {
+  .react-flow__controls {
+    bottom: 130px !important; /* raise it above nav bar */
+  }
+}
+
+.calendar-view-container {
+  background-color: #fff3e0; /* Light orange background for calendar view */
+  color: #e65100; /* Deep orange text color */
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 60%; /* Adjusted width to account for highlighted task container */
+  height: 90%;
+  overflow-y: auto;
+}
+
+.highlighted-task-header {
+  font-size: 1.5rem; /* Larger font size for the header */
+  font-weight: bold; /* Bold text for emphasis */
+  margin-bottom: 1rem; /* Add spacing below the header */
+  color: #333; /* Dark grey text color */
+}
+
+.highlighted-task-content {
+  font-size: 1rem; /* Regular font size for content */
+  color: #555; /* Medium grey text color */
+  line-height: 1.5; /* Improve readability */
+}
+
+.no-task-selected {
+  font-size: 1rem; /* Regular font size */
+  color: #000000; /* Light grey text color */
+  text-align: center; /* Center the text horizontally */
+  margin: 0; /* Remove default margins */
+  position: absolute; /* Position relative to the container */
+  top: 50%; /* Move to the middle of the container */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%); /* Adjust for exact centering */
+}
+
+.highlighted-task-actions {
+  margin-top: 1rem; /* Add spacing above the buttons */
+  display: flex; /* Arrange buttons in a row */
+  gap: 0.5rem; /* Add spacing between buttons */
+  justify-content: center; /* Center buttons horizontally */
+}
+
+.highlighted-task-actions button {
+  padding: 0.5rem 1rem; /* Add padding inside the buttons */
+  font-size: 1rem; /* Set font size */
+  background-color: #b01dff; /* Purple background for buttons */
+  color: white; /* White text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Add rounded corners */
+  cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+.highlighted-task-actions button:hover {
+  background-color: #b950ff; /* Darker purple on hover */
+}
+
+/* Bottom App Bar */
+.bottom-app-bar {
+  display: flex; /* Ensure the app bar is visible */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background-color: #154734; /* Dark green background */
+  justify-content: space-around; /* Space buttons evenly */
+  align-items: center;
+  box-shadow: 0 -2px 4px rgba(255, 255, 255, 0.473); /* Subtle shadow for depth */
+  z-index: 1000; /* Ensure it is above other elements */
+}
+
+.bottom-app-bar button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.bottom-app-bar button:hover {
+  color: #b01dff; /* Purple color on hover */
+}
+
+@media (min-width: 769px) {
+  .bottom-app-bar {
+    display: none; /* Hide the app bar on larger screens */
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .login-image-container {
+    display: none; /* Hides the image and text on smaller screens */
+  }
+
+  .login-container {
+    width: 100%; /* Makes the container span the full width */
+    margin-left: 0; /* Resets the margin */
+  }
+
+  .login-card {
+    width: 90%; /* Adjusts the card width for smaller screens */
+    padding: 1.5rem; /* Reduces padding inside the card */
+  }
+
+  .login-buttons {
+    flex-direction: column; /* Stacks buttons vertically */
+    gap: 20px; /* Adds spacing between buttons */
+  }
+
+  .login-button, .signup-button {
+    width: 100%; /* Makes buttons span the full width */
+  }
+
+  .app-dropdown {
+    width: 100%; /* Make the dropdown span the full width */
+  }
+
+  .task-list-container {
+    width: 100%; /* Make the task list container span the full width */
+    bottom: 60px; /* Move up by 60px in mobile mode */
+    height: calc(90% - 60px);
+  }
+
+  .highlighted-task-container {
+    display: none; /* Hide the highlighted task container in mobile mode */
+  }
+
+  .custom-dropdown {
+    width: 100%; /* Make the dropdown span the full width in mobile mode */
+  }
+
+  .calendar-view-container {
+    width: 100%; /* Make the calendar view span the full width in mobile mode */
+  }
+}
+
+.profile-view-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full viewport height */
+  width: 100%; /* Full width of the screen */
+  background-color: #f0f0f0; /* Light gray background for the profile view */
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.create-task-bottom {
+  margin-top: 1rem; /* Add spacing above the button */
+  width: 60px; /* Set width for the circle */
+  height: 60px; /* Set height for the circle */
+  text-align: center; /* Center the button text */
+  padding: 0; /* Remove extra padding */
+  font-size: 1.5rem; /* Increase font size for better visibility */
+  font-weight: bold;
+  background-color: #1fa40a; /* Green background */
+  color: white;
+  border: none;
+  border-radius: 50%; /* Make the button circular */
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex; /* Use flexbox to center content */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  margin-left: auto; /* Center horizontally */
+  margin-right: auto; /* Center horizontally */
+}
+
+.create-task-bottom:hover {
+  background-color: #148c08; /* Darker green on hover */
 }
