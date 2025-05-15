@@ -60,7 +60,6 @@ const MapViewContent = ({
   workspace,
   setIsDragging,
   setDraggedNode,
-  completedTasks = new Set(),
   toggleTaskCompletion = () => {},
 }) => {
   const { screenToFlowPosition } = useReactFlow();
@@ -72,11 +71,11 @@ const MapViewContent = ({
       return {
         id,
         type: "default",
-        className: completedTasks.has(id) ? "completed-node" : "",
-        data: { 
+        className: task.status === "Complete" ? "completed-node" : "",
+        data: {
           label: task.title || "Untitled Task",
-          completed: completedTasks.has(id),
-        },        
+          completed: task.status === "Complete",
+        },
         position: {
           x: task.x_location !== undefined ? parseFloat(task.x_location) : Math.random() * 200,
           y: task.y_location !== undefined ? parseFloat(task.y_location) : Math.random() * 200,
@@ -85,7 +84,7 @@ const MapViewContent = ({
         targetPosition: "left",
       };
     });
-  }, [tasks, completedTasks]);
+  }, [tasks]);
   
 
   const nodeIds = useMemo(
@@ -130,7 +129,7 @@ const MapViewContent = ({
   
     const updatedNodes = tasks.map((task) => {
       const id = String(task.id || task._id?.$oid);
-      const completed = completedTasks.has(id);
+      const completed = task.status === "Complete";
       return {
         id,
         type: "default",
@@ -156,7 +155,7 @@ const MapViewContent = ({
     const layouted = getLayoutedElements(updatedNodes, edgesFromDependencies);
     setNodes(layouted);
     setEdges(edgesFromDependencies);
-  }, [tasks, dependencies, completedTasks]);
+  }, [tasks, dependencies]);
   
 
   const onNodeDragStart = useCallback((_, node) => {
@@ -303,7 +302,6 @@ const MapViewContent = ({
             );
           }}
           workspace={workspace}
-          completedTasks={completedTasks}
           toggleTaskCompletion={toggleTaskCompletion}        
         />
       )}
@@ -332,7 +330,6 @@ const MapView = (props) => {
           {...props}
           setIsDragging={setIsDragging}
           setDraggedNode={setDraggedNode}
-          completedTasks={props.completedTasks}
           toggleTaskCompletion={props.toggleTaskCompletion}
         />
 

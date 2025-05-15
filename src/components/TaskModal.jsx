@@ -52,7 +52,6 @@ const TaskModal = ({ onClose, onCreate, onUpdate, task, prefillPosition, workspa
     if (task) {
       const updatedTask = {
         id: task.id,
-        name: title.trim(),
         title: title.trim(),
         description: description.trim(),
         tags: formattedTags,

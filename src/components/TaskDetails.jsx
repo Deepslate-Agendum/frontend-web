@@ -11,7 +11,7 @@ import SubtaskModal from "./SubtaskModal";
 import "../../css/modal.css";
 
 
-const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask, workspace, completedTasks, toggleTaskCompletion }) => {
+const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask, workspace, toggleTaskCompletion }) => {
   // State to control the visibility of the edit task modal
   const [showEditModal, setShowEditModal] = useState(false);
   // State to control the visibility of the add subtask modal
@@ -39,7 +39,7 @@ const TaskDetails = ({ task, onClose, onUpdate, onDelete, onCreateSubtask, works
         <p><strong>Tags:</strong> {Array.isArray(task.tags) ? task.tags.join(", ") : task.tags || "No Tags"}</p>
         <p><strong>Due Date:</strong> {task.due_date ?? "No Due Date"}</p>
         <label className="completed-checkbox">
-          <input type="checkbox" checked={completedTasks?.has(task.id)} onChange={() => toggleTaskCompletion(task.id)} />
+          <input type="checkbox" checked={task.status === "Complete"} onChange={() => toggleTaskCompletion(task.id)} />
           <p><strong>Completed</strong></p>
         </label>
   
@@ -96,7 +96,6 @@ TaskDetails.propTypes = {
   onUpdate: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   onCreateSubtask: PropTypes.func.isRequired,
-  completedTasks: PropTypes.instanceOf(Set),
   toggleTaskCompletion: PropTypes.func,
 
 };
